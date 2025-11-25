@@ -18,16 +18,22 @@ class SubjectResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-user-group';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'KKPRL Management';
+    protected static string | \UnitEnum | null $navigationGroup = 'Manajemen KKPRL';
+
+    protected static ?string $modelLabel = 'Subjek';
+
+    protected static ?string $pluralModelLabel = 'Subjek';
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Forms\Components\TextInput::make('name')
+                    ->label('Nama')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Textarea::make('description')
+                    ->label('Deskripsi')
                     ->maxLength(65535)
                     ->columnSpanFull(),
             ]);
@@ -41,8 +47,10 @@ class SubjectResource extends Resource
                     ->label('#')
                     ->rowIndex(),
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nama')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('description')
+                    ->label('Deskripsi')
                     ->limit(50)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -58,12 +66,12 @@ class SubjectResource extends Resource
                 //
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
+                \Filament\Actions\ViewAction::make()->label('Lihat'),
+                \Filament\Actions\EditAction::make()->label('Ubah'),
             ])
             ->bulkActions([
                 \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                    \Filament\Actions\DeleteBulkAction::make()->label('Hapus'),
                 ]),
             ]);
     }
@@ -79,10 +87,12 @@ class SubjectResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Subject Details')
+                \Filament\Schemas\Components\Section::make('Detail Subjek')
                     ->schema([
-                        \Filament\Infolists\Components\TextEntry::make('name'),
+                        \Filament\Infolists\Components\TextEntry::make('name')
+                            ->label('Nama'),
                         \Filament\Infolists\Components\TextEntry::make('description')
+                            ->label('Deskripsi')
                             ->columnSpanFull(),
                     ]),
             ]);

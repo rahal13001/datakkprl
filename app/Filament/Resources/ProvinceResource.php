@@ -18,13 +18,18 @@ class ProvinceResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-map';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Master Data';
+    protected static string | \UnitEnum | null $navigationGroup = 'Data Master';
+
+    protected static ?string $modelLabel = 'Provinsi';
+
+    protected static ?string $pluralModelLabel = 'Provinsi';
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Forms\Components\TextInput::make('name')
+                    ->label('Nama')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -38,6 +43,7 @@ class ProvinceResource extends Resource
                     ->label('#')
                     ->rowIndex(),
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nama')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -52,11 +58,11 @@ class ProvinceResource extends Resource
                 //
             ])
             ->actions([
-                \Filament\Actions\EditAction::make(),
+                \Filament\Actions\EditAction::make()->label('Ubah'),
             ])
             ->bulkActions([
                 \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                    \Filament\Actions\DeleteBulkAction::make()->label('Hapus'),
                 ]),
             ]);
     }

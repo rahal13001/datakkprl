@@ -18,7 +18,11 @@ class CityResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-building-office-2';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Master Data';
+    protected static string | \UnitEnum | null $navigationGroup = 'Data Master';
+
+    protected static ?string $modelLabel = 'Kota/Kabupaten';
+
+    protected static ?string $pluralModelLabel = 'Kota/Kabupaten';
 
     public static function form(Schema $schema): Schema
     {
@@ -26,8 +30,10 @@ class CityResource extends Resource
             ->components([
                 Forms\Components\Select::make('province_id')
                     ->relationship('province', 'name')
+                    ->label('Provinsi')
                     ->required(),
                 Forms\Components\TextInput::make('name')
+                    ->label('Nama')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -41,8 +47,10 @@ class CityResource extends Resource
                     ->label('#')
                     ->rowIndex(),
                 Tables\Columns\TextColumn::make('province.name')
+                    ->label('Provinsi')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nama')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -57,11 +65,11 @@ class CityResource extends Resource
                 //
             ])
             ->actions([
-                \Filament\Actions\EditAction::make(),
+                \Filament\Actions\EditAction::make()->label('Ubah'),
             ])
             ->bulkActions([
                 \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                    \Filament\Actions\DeleteBulkAction::make()->label('Hapus'),
                 ]),
             ]);
     }

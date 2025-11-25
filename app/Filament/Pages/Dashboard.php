@@ -13,19 +13,21 @@ class Dashboard extends BaseDashboard
 {
     use HasFiltersForm;
 
+    protected static ?string $navigationLabel = 'Beranda';
+
     public function filtersForm(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Section::make('Filter Data')
-                    ->description('Filter the charts by date range.')
+                    ->description('Filter grafik berdasarkan rentang tanggal.')
                     ->schema([
                         DatePicker::make('startDate')
-                            ->label('Start Date')
+                            ->label('Dari Tanggal')
                             ->native(false)
                             ->maxDate(fn (Get $get) => $get('endDate') ?: now()),
                         DatePicker::make('endDate')
-                            ->label('End Date')
+                            ->label('Sampai Tanggal')
                             ->native(false)
                             ->minDate(fn (Get $get) => $get('startDate') ?: now())
                             ->maxDate(now()),

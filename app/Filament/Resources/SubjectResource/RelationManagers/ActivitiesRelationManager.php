@@ -28,18 +28,20 @@ class ActivitiesRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Activity Information')
-                    ->description('General details about the activity and its location.')
+                \Filament\Schemas\Components\Section::make('Informasi Kegiatan')
+                    ->description('Detail umum tentang kegiatan dan lokasinya.')
                     ->icon('heroicon-o-information-circle')
                     ->schema([
                         Forms\Components\DatePicker::make('date')
+                            ->label('Tanggal')
                             ->required(),
                         Forms\Components\TextInput::make('activity_code')
+                            ->label('Kode Kegiatan')
                             ->disabled()
                             ->dehydrated(false)
                             ->visibleOn('edit'),
                         Forms\Components\Select::make('province_id')
-                            ->label('Province')
+                            ->label('Provinsi')
                             ->options(Province::query()->pluck('name', 'id'))
                             ->live()
                             ->afterStateUpdated(fn (Set $set) => $set('city_id', null))
@@ -52,13 +54,14 @@ class ActivitiesRelationManager extends RelationManager
                                 return null;
                             }),
                         Forms\Components\Select::make('city_id')
-                            ->label('City')
+                            ->label('Kota/Kabupaten')
                             ->options(fn (Get $get): Collection => City::query()
                                 ->where('province_id', $get('province_id'))
                                 ->pluck('name', 'id'))
                             ->required()
                             ->live(),
                         Forms\Components\Select::make('organizer')
+                            ->label('Penyelenggara')
                             ->options([
                                 'Pusat' => 'Pusat',
                                 'UPT' => 'UPT',
@@ -68,8 +71,8 @@ class ActivitiesRelationManager extends RelationManager
                     ->columns(2)
                     ->columnSpanFull(),
 
-                \Filament\Schemas\Components\Section::make('Technical & Financial Metrics')
-                    ->description('Measurements and financial details.')
+                \Filament\Schemas\Components\Section::make('Metrik Teknis & Finansial')
+                    ->description('Pengukuran dan detail finansial.')
                     ->icon('heroicon-o-calculator')
                     ->schema([
                         Forms\Components\TextInput::make('application_size')
@@ -79,6 +82,7 @@ class ActivitiesRelationManager extends RelationManager
                             ->numeric()
                             ->label('Ukuran (Teknis)'),
                         Forms\Components\Select::make('unit')
+                            ->label('Satuan')
                             ->options([
                                 'Hektar' => 'Hektar',
                                 'Kilometer' => 'Kilometer',
@@ -95,11 +99,12 @@ class ActivitiesRelationManager extends RelationManager
                     ->columns(3)
                     ->columnSpanFull(),
 
-                \Filament\Schemas\Components\Section::make('Additional Details')
+                \Filament\Schemas\Components\Section::make('Detail Tambahan')
                     ->collapsed()
                     ->columnSpanFull()
                     ->schema([
                         Forms\Components\Textarea::make('detail')
+                            ->label('Detail')
                             ->columnSpanFull(),
                         Forms\Components\Textarea::make('remarks')
                             ->label('Keterangan')
@@ -117,10 +122,11 @@ class ActivitiesRelationManager extends RelationManager
                     ->label('#')
                     ->rowIndex(),
                 Tables\Columns\TextColumn::make('date')
+                    ->label('Tanggal')
                     ->date('d-m-Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('city.name')
-                    ->label('City')
+                    ->label('Kota/Kabupaten')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('application_size')
@@ -132,14 +138,18 @@ class ActivitiesRelationManager extends RelationManager
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('unit')
+                    ->label('Satuan')
                     ->sortable(),
             ])
             ->filters([
                 Filter::make('date')
+                    ->label('Tanggal')
                     ->form([
                         Forms\Components\DatePicker::make('from')
+                            ->label('Dari Tanggal')
                             ->native(false),
                         Forms\Components\DatePicker::make('until')
+                            ->label('Sampai Tanggal')
                             ->native(false),
                     ])
                     ->columns(2)
@@ -157,16 +167,17 @@ class ActivitiesRelationManager extends RelationManager
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
                         if ($data['from'] ?? null) {
-                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Date from ' . \Carbon\Carbon::parse($data['from'])->toFormattedDateString())
+                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Dari Tanggal ' . \Carbon\Carbon::parse($data['from'])->toFormattedDateString())
                                 ->removeField('from');
                         }
                         if ($data['until'] ?? null) {
-                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Date until ' . \Carbon\Carbon::parse($data['until'])->toFormattedDateString())
+                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Sampai Tanggal ' . \Carbon\Carbon::parse($data['until'])->toFormattedDateString())
                                 ->removeField('until');
                         }
                         return $indicators;
                     }),
                 SelectFilter::make('organizer')
+                    ->label('Penyelenggara')
                     ->options([
                         'Pusat' => 'Pusat',
                         'UPT' => 'UPT',
@@ -175,7 +186,7 @@ class ActivitiesRelationManager extends RelationManager
                     ->preload()
                     ->native(false),
                 SelectFilter::make('province')
-                    ->label('Province')
+                    ->label('Provinsi')
                     ->options(Province::query()->pluck('name', 'id'))
                     ->query(fn (Builder $query, array $data) => $query->when(
                         $data['value'],
@@ -185,7 +196,7 @@ class ActivitiesRelationManager extends RelationManager
                     ->preload()
                     ->native(false),
                 SelectFilter::make('city_id')
-                    ->label('City')
+                    ->label('Kota/Kabupaten')
                     ->relationship('city', 'name')
                     ->searchable()
                     ->preload()
@@ -194,21 +205,22 @@ class ActivitiesRelationManager extends RelationManager
             ->groups([
                 Tables\Grouping\Group::make('activity_code')
                     ->label('Pentek'),
-                Tables\Grouping\Group::make('organizer'),
+                Tables\Grouping\Group::make('organizer')
+                    ->label('Penyelenggara'),
             ])
             ->headerActions([
-                \Filament\Actions\CreateAction::make(),
+                \Filament\Actions\CreateAction::make()->label('Buat Baru'),
             ])
             ->actions([
                 \Filament\Actions\ActionGroup::make([
-                    \Filament\Actions\ViewAction::make(),
-                    \Filament\Actions\EditAction::make(),
-                    \Filament\Actions\DeleteAction::make(),
+                    \Filament\Actions\ViewAction::make()->label('Lihat'),
+                    \Filament\Actions\EditAction::make()->label('Ubah'),
+                    \Filament\Actions\DeleteAction::make()->label('Hapus'),
                 ]),
             ])
             ->bulkActions([
                 \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                    \Filament\Actions\DeleteBulkAction::make()->label('Hapus'),
                 ]),
             ]);
     }

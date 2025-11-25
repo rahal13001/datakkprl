@@ -29,37 +29,46 @@ class ActivityResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'KKPRL Management';
+    protected static string | \UnitEnum | null $navigationGroup = 'Manajemen KKPRL';
+
+    protected static ?string $modelLabel = 'Pentek';
+
+    protected static ?string $pluralModelLabel = 'Pentek';
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Activity Information')
-                    ->description('General details about the activity and its location.')
+                \Filament\Schemas\Components\Section::make('Informasi Pentek')
+                    ->description('Detail umum tentang kegiatan dan lokasinya.')
                     ->icon('heroicon-o-information-circle')
                     ->schema([
                         Forms\Components\Select::make('subject_id')
                             ->relationship('subject', 'name')
+                            ->label('Subjek')
                             ->searchable()
                             ->preload()
                             ->createOptionForm([
                                 Forms\Components\TextInput::make('name')
+                                    ->label('Nama')
                                     ->required()
                                     ->maxLength(255),
                                 Forms\Components\Textarea::make('description')
+                                    ->label('Deskripsi')
                                     ->maxLength(65535),
                             ])
                             ->required()
                             ->columnSpanFull(),
                         Forms\Components\DatePicker::make('date')
+                            ->label('Tanggal')
                             ->required(),
                         Forms\Components\TextInput::make('activity_code')
+                            ->label('Kode Kegiatan')
                             ->disabled()
                             ->dehydrated(false)
                             ->visibleOn('edit'),
                         Forms\Components\Select::make('province_id')
-                            ->label('Province')
+                            ->label('Provinsi')
                             ->options(Province::query()->pluck('name', 'id'))
                             ->live()
                             ->afterStateUpdated(fn (Set $set) => $set('city_id', null))
@@ -72,13 +81,14 @@ class ActivityResource extends Resource
                                 return null;
                             }),
                         Forms\Components\Select::make('city_id')
-                            ->label('City')
+                            ->label('Kota/Kabupaten')
                             ->options(fn (Get $get): Collection => City::query()
                                 ->where('province_id', $get('province_id'))
                                 ->pluck('name', 'id'))
                             ->required()
                             ->live(),
                         Forms\Components\Select::make('organizer')
+                            ->label('Penyelenggara')
                             ->options([
                                 'Pusat' => 'Pusat',
                                 'UPT' => 'UPT',
@@ -88,8 +98,8 @@ class ActivityResource extends Resource
                     ->columns(2)
                     ->columnSpanFull(),
 
-                \Filament\Schemas\Components\Section::make('Technical & Financial Metrics')
-                    ->description('Measurements and financial details.')
+                \Filament\Schemas\Components\Section::make('Metrik Teknis & Finansial')
+                    ->description('Pengukuran dan detail finansial.')
                     ->icon('heroicon-o-calculator')
                     ->schema([
                         Forms\Components\TextInput::make('application_size')
@@ -99,6 +109,7 @@ class ActivityResource extends Resource
                             ->numeric()
                             ->label('Ukuran (Teknis)'),
                         Forms\Components\Select::make('unit')
+                            ->label('Satuan')
                             ->options([
                                 'Hektar' => 'Hektar',
                                 'Kilometer' => 'Kilometer',
@@ -115,11 +126,12 @@ class ActivityResource extends Resource
                     ->columns(3)
                     ->columnSpanFull(),
 
-                \Filament\Schemas\Components\Section::make('Additional Details')
+                \Filament\Schemas\Components\Section::make('Detail Tambahan')
                     ->collapsed()
                     ->columnSpanFull()
                     ->schema([
                         Forms\Components\Textarea::make('detail')
+                            ->label('Detail')
                             ->columnSpanFull(),
                         Forms\Components\Textarea::make('remarks')
                             ->label('Keterangan')
@@ -136,16 +148,19 @@ class ActivityResource extends Resource
                     ->label('#')
                     ->rowIndex(),
                 Tables\Columns\TextColumn::make('subject.name')
+                    ->label('Subjek')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('date')
+                    ->label('Tanggal')
                     ->date('d-m-Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('city.name')
                     ->searchable()
                     ->sortable()
-                    ->label('City'),
+                    ->label('Kota/Kabupaten'),
                 Tables\Columns\TextColumn::make('organizer')
+                    ->label('Penyelenggara')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('application_size')
                     ->numeric()
@@ -156,6 +171,7 @@ class ActivityResource extends Resource
                     ->label('Ukuran (Teknis)')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('unit')
+                    ->label('Satuan')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -164,10 +180,13 @@ class ActivityResource extends Resource
             ])
             ->filters([
                 Filter::make('date')
+                    ->label('Tanggal')
                     ->form([
                         Forms\Components\DatePicker::make('from')
+                            ->label('Dari Tanggal')
                             ->native(false),
                         Forms\Components\DatePicker::make('until')
+                            ->label('Sampai Tanggal')
                             ->native(false),
                     ])
                     ->columns(2)
@@ -185,16 +204,17 @@ class ActivityResource extends Resource
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
                         if ($data['from'] ?? null) {
-                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Date from ' . \Carbon\Carbon::parse($data['from'])->toFormattedDateString())
+                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Dari Tanggal ' . \Carbon\Carbon::parse($data['from'])->toFormattedDateString())
                                 ->removeField('from');
                         }
                         if ($data['until'] ?? null) {
-                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Date until ' . \Carbon\Carbon::parse($data['until'])->toFormattedDateString())
+                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Sampai Tanggal ' . \Carbon\Carbon::parse($data['until'])->toFormattedDateString())
                                 ->removeField('until');
                         }
                         return $indicators;
                     }),
                 SelectFilter::make('organizer')
+                    ->label('Penyelenggara')
                     ->options([
                         'Pusat' => 'Pusat',
                         'UPT' => 'UPT',
@@ -203,7 +223,7 @@ class ActivityResource extends Resource
                     ->preload()
                     ->native(false),
                 SelectFilter::make('province')
-                    ->label('Province')
+                    ->label('Provinsi')
                     ->options(Province::query()->pluck('name', 'id'))
                     ->query(fn (Builder $query, array $data) => $query->when(
                         $data['value'],
@@ -213,7 +233,7 @@ class ActivityResource extends Resource
                     ->preload()
                     ->native(false),
                 SelectFilter::make('city_id')
-                    ->label('City')
+                    ->label('Kota/Kabupaten')
                     ->relationship('city', 'name')
                     ->searchable()
                     ->preload()
@@ -222,59 +242,62 @@ class ActivityResource extends Resource
             ->groups([
                 Tables\Grouping\Group::make('activity_code')
                     ->label('Pentek'),
-                Tables\Grouping\Group::make('organizer'),
+                Tables\Grouping\Group::make('organizer')
+                    ->label('Penyelenggara'),
             ])
             ->headerActions([
                 ExportAction::make()
+                    ->label('Ekspor Excel')
                     ->exports([
                         ExcelExport::make()
                             ->fromTable()
                             ->except(['index'])
                             ->withFilename(fn ($resource) => $resource::getModelLabel() . '-' . date('Y-m-d'))
                             ->withColumns([
-                                Column::make('subject.name')->heading('Subject'),
-                                Column::make('date')->heading('Date'),
-                                Column::make('activity_code')->heading('Activity Code'),
-                                Column::make('city.province.name')->heading('Province'),
-                                Column::make('city.name')->heading('City'),
-                                Column::make('organizer')->heading('Organizer'),
+                                Column::make('subject.name')->heading('Subjek'),
+                                Column::make('date')->heading('Tanggal'),
+                                Column::make('activity_code')->heading('Kode Kegiatan'),
+                                Column::make('city.province.name')->heading('Provinsi'),
+                                Column::make('city.name')->heading('Kota/Kabupaten'),
+                                Column::make('organizer')->heading('Penyelenggara'),
                                 Column::make('application_size')->heading('Ukuran (Permohonan)'),
                                 Column::make('technical_assessment_size')->heading('Ukuran (Teknis)'),
-                                Column::make('unit')->heading('Unit'),
+                                Column::make('unit')->heading('Satuan'),
                                 Column::make('pnbp_potential')->heading('Potensi PNBP'),
                                 Column::make('zero_rupiah_incentive')->heading('Insentif Nol Rupiah'),
                                 Column::make('detail')->heading('Detail'),
-                                Column::make('remarks')->heading('Remarks'),
+                                Column::make('remarks')->heading('Keterangan'),
                             ]),
                     ]),
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
+                \Filament\Actions\ViewAction::make()->label('Lihat'),
+                \Filament\Actions\EditAction::make()->label('Ubah'),
             ])
             ->bulkActions([
                 \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                    \Filament\Actions\DeleteBulkAction::make()->label('Hapus'),
                     \pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction::make()
+                        ->label('Ekspor Terpilih')
                         ->exports([
                             ExcelExport::make()
                                 ->fromTable()
                                 ->except(['index'])
                                 ->withFilename(fn ($resource) => $resource::getModelLabel() . '-' . date('Y-m-d'))
                                 ->withColumns([
-                                    Column::make('subject.name')->heading('Subject'),
-                                    Column::make('date')->heading('Date'),
-                                    Column::make('activity_code')->heading('Activity Code'),
-                                    Column::make('city.province.name')->heading('Province'),
-                                    Column::make('city.name')->heading('City'),
-                                    Column::make('organizer')->heading('Organizer'),
+                                    Column::make('subject.name')->heading('Subjek'),
+                                    Column::make('date')->heading('Tanggal'),
+                                    Column::make('activity_code')->heading('Kode Kegiatan'),
+                                    Column::make('city.province.name')->heading('Provinsi'),
+                                    Column::make('city.name')->heading('Kota/Kabupaten'),
+                                    Column::make('organizer')->heading('Penyelenggara'),
                                     Column::make('application_size')->heading('Ukuran (Permohonan)'),
                                     Column::make('technical_assessment_size')->heading('Ukuran (Teknis)'),
-                                    Column::make('unit')->heading('Unit'),
+                                    Column::make('unit')->heading('Satuan'),
                                     Column::make('pnbp_potential')->heading('Potensi PNBP'),
                                     Column::make('zero_rupiah_incentive')->heading('Insentif Nol Rupiah'),
                                     Column::make('detail')->heading('Detail'),
-                                    Column::make('remarks')->heading('Remarks'),
+                                    Column::make('remarks')->heading('Keterangan'),
                                 ]),
                         ]),
                 ]),
@@ -292,31 +315,35 @@ class ActivityResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Activity Information')
+                \Filament\Schemas\Components\Section::make('Informasi Kegiatan')
                     ->icon('heroicon-o-information-circle')
                     ->schema([
                         \Filament\Infolists\Components\TextEntry::make('subject.name')
-                            ->label('Subject'),
+                            ->label('Subjek'),
                         \Filament\Infolists\Components\TextEntry::make('date')
+                            ->label('Tanggal')
                             ->date('d-m-Y'),
-                        \Filament\Infolists\Components\TextEntry::make('activity_code'),
+                        \Filament\Infolists\Components\TextEntry::make('activity_code')
+                            ->label('Kode Kegiatan'),
                         \Filament\Infolists\Components\TextEntry::make('city.province.name')
-                            ->label('Province'),
+                            ->label('Provinsi'),
                         \Filament\Infolists\Components\TextEntry::make('city.name')
-                            ->label('City'),
-                        \Filament\Infolists\Components\TextEntry::make('organizer'),
+                            ->label('Kota/Kabupaten'),
+                        \Filament\Infolists\Components\TextEntry::make('organizer')
+                            ->label('Penyelenggara'),
                     ])
                     ->columns(2)
                     ->columnSpanFull(),
 
-                \Filament\Schemas\Components\Section::make('Technical & Financial Metrics')
+                \Filament\Schemas\Components\Section::make('Metrik Teknis & Finansial')
                     ->icon('heroicon-o-calculator')
                     ->schema([
                         \Filament\Infolists\Components\TextEntry::make('application_size')
                             ->label('Ukuran (Permohonan)'),
                         \Filament\Infolists\Components\TextEntry::make('technical_assessment_size')
                             ->label('Ukuran (Teknis)'),
-                        \Filament\Infolists\Components\TextEntry::make('unit'),
+                        \Filament\Infolists\Components\TextEntry::make('unit')
+                            ->label('Satuan'),
                         \Filament\Infolists\Components\TextEntry::make('pnbp_potential')
                             ->label('Potensi PNBP')
                             ->money('IDR'),
@@ -327,10 +354,11 @@ class ActivityResource extends Resource
                     ->columns(3)
                     ->columnSpanFull(),
 
-                \Filament\Schemas\Components\Section::make('Additional Details')
+                \Filament\Schemas\Components\Section::make('Detail Tambahan')
                     ->columnSpanFull()
                     ->schema([
                         \Filament\Infolists\Components\TextEntry::make('detail')
+                            ->label('Detail')
                             ->columnSpanFull(),
                         \Filament\Infolists\Components\TextEntry::make('remarks')
                             ->label('Keterangan')
