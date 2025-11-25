@@ -19,6 +19,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 use Filament\Schemas\Schema;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use pxlrbt\FilamentExcel\Columns\Column;
 
 class ActivityResource extends Resource
 {
@@ -221,6 +224,30 @@ class ActivityResource extends Resource
                     ->label('Pentek'),
                 Tables\Grouping\Group::make('organizer'),
             ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exports([
+                        ExcelExport::make()
+                            ->fromTable()
+                            ->except(['index'])
+                            ->withFilename(fn ($resource) => $resource::getModelLabel() . '-' . date('Y-m-d'))
+                            ->withColumns([
+                                Column::make('subject.name')->heading('Subject'),
+                                Column::make('date')->heading('Date'),
+                                Column::make('activity_code')->heading('Activity Code'),
+                                Column::make('city.province.name')->heading('Province'),
+                                Column::make('city.name')->heading('City'),
+                                Column::make('organizer')->heading('Organizer'),
+                                Column::make('application_size')->heading('Ukuran (Permohonan)'),
+                                Column::make('technical_assessment_size')->heading('Ukuran (Teknis)'),
+                                Column::make('unit')->heading('Unit'),
+                                Column::make('pnbp_potential')->heading('Potensi PNBP'),
+                                Column::make('zero_rupiah_incentive')->heading('Insentif Nol Rupiah'),
+                                Column::make('detail')->heading('Detail'),
+                                Column::make('remarks')->heading('Remarks'),
+                            ]),
+                    ]),
+            ])
             ->actions([
                 \Filament\Actions\ViewAction::make(),
                 \Filament\Actions\EditAction::make(),
@@ -228,6 +255,28 @@ class ActivityResource extends Resource
             ->bulkActions([
                 \Filament\Actions\BulkActionGroup::make([
                     \Filament\Actions\DeleteBulkAction::make(),
+                    \pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction::make()
+                        ->exports([
+                            ExcelExport::make()
+                                ->fromTable()
+                                ->except(['index'])
+                                ->withFilename(fn ($resource) => $resource::getModelLabel() . '-' . date('Y-m-d'))
+                                ->withColumns([
+                                    Column::make('subject.name')->heading('Subject'),
+                                    Column::make('date')->heading('Date'),
+                                    Column::make('activity_code')->heading('Activity Code'),
+                                    Column::make('city.province.name')->heading('Province'),
+                                    Column::make('city.name')->heading('City'),
+                                    Column::make('organizer')->heading('Organizer'),
+                                    Column::make('application_size')->heading('Ukuran (Permohonan)'),
+                                    Column::make('technical_assessment_size')->heading('Ukuran (Teknis)'),
+                                    Column::make('unit')->heading('Unit'),
+                                    Column::make('pnbp_potential')->heading('Potensi PNBP'),
+                                    Column::make('zero_rupiah_incentive')->heading('Insentif Nol Rupiah'),
+                                    Column::make('detail')->heading('Detail'),
+                                    Column::make('remarks')->heading('Remarks'),
+                                ]),
+                        ]),
                 ]),
             ]);
     }
