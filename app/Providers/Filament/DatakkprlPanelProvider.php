@@ -26,7 +26,7 @@ class DatakkprlPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('datakkprl')
-            ->path('datakkprl')
+            ->path('/')
             ->login(\App\Filament\Pages\Auth\Login::class)
             ->colors([
                 'primary' => Color::Amber,
