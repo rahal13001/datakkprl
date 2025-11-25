@@ -13,6 +13,9 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 use Filament\Schemas\Schema;
@@ -157,7 +160,51 @@ class ActivityResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Filter::make('date')
+                    ->form([
+                        Forms\Components\DatePicker::make('from'),
+                        Forms\Components\DatePicker::make('until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('date', '>=', $date),
+                            )
+                            ->when(
+                                $data['until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('date', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['from'] ?? null) {
+                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Date from ' . \Carbon\Carbon::parse($data['from'])->toFormattedDateString())
+                                ->removeField('from');
+                        }
+                        if ($data['until'] ?? null) {
+                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Date until ' . \Carbon\Carbon::parse($data['until'])->toFormattedDateString())
+                                ->removeField('until');
+                        }
+                        return $indicators;
+                    }),
+                SelectFilter::make('organizer')
+                    ->options([
+                        'Pusat' => 'Pusat',
+                        'UPT' => 'UPT',
+                    ]),
+                SelectFilter::make('province')
+                    ->label('Province')
+                    ->options(Province::query()->pluck('name', 'id'))
+                    ->query(fn (Builder $query, array $data) => $query->when(
+                        $data['value'],
+                        fn (Builder $query, $value) => $query->whereHas('city', fn (Builder $query) => $query->where('province_id', $value))
+                    )),
+                SelectFilter::make('city_id')
+                    ->label('City')
+                    ->relationship('city', 'name')
+                    ->searchable()
+                    ->preload(),
             ])
             ->actions([
                 \Filament\Actions\ViewAction::make(),
