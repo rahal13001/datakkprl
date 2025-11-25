@@ -162,9 +162,12 @@ class ActivityResource extends Resource
             ->filters([
                 Filter::make('date')
                     ->form([
-                        Forms\Components\DatePicker::make('from'),
-                        Forms\Components\DatePicker::make('until'),
+                        Forms\Components\DatePicker::make('from')
+                            ->native(false),
+                        Forms\Components\DatePicker::make('until')
+                            ->native(false),
                     ])
+                    ->columns(2)
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
@@ -192,19 +195,26 @@ class ActivityResource extends Resource
                     ->options([
                         'Pusat' => 'Pusat',
                         'UPT' => 'UPT',
-                    ]),
+                    ])
+                    ->searchable()
+                    ->preload()
+                    ->native(false),
                 SelectFilter::make('province')
                     ->label('Province')
                     ->options(Province::query()->pluck('name', 'id'))
                     ->query(fn (Builder $query, array $data) => $query->when(
                         $data['value'],
                         fn (Builder $query, $value) => $query->whereHas('city', fn (Builder $query) => $query->where('province_id', $value))
-                    )),
+                    ))
+                    ->searchable()
+                    ->preload()
+                    ->native(false),
                 SelectFilter::make('city_id')
                     ->label('City')
                     ->relationship('city', 'name')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->native(false),
             ])
             ->actions([
                 \Filament\Actions\ViewAction::make(),

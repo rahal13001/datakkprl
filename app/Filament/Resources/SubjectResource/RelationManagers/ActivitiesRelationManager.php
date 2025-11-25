@@ -14,6 +14,8 @@ use Filament\Actions;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
@@ -133,7 +135,61 @@ class ActivitiesRelationManager extends RelationManager
                     ->sortable(),
             ])
             ->filters([
-                //
+                Filter::make('date')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')
+                            ->native(false),
+                        Forms\Components\DatePicker::make('until')
+                            ->native(false),
+                    ])
+                    ->columns(2)
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('date', '>=', $date),
+                            )
+                            ->when(
+                                $data['until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('date', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['from'] ?? null) {
+                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Date from ' . \Carbon\Carbon::parse($data['from'])->toFormattedDateString())
+                                ->removeField('from');
+                        }
+                        if ($data['until'] ?? null) {
+                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Date until ' . \Carbon\Carbon::parse($data['until'])->toFormattedDateString())
+                                ->removeField('until');
+                        }
+                        return $indicators;
+                    }),
+                SelectFilter::make('organizer')
+                    ->options([
+                        'Pusat' => 'Pusat',
+                        'UPT' => 'UPT',
+                    ])
+                    ->searchable()
+                    ->preload()
+                    ->native(false),
+                SelectFilter::make('province')
+                    ->label('Province')
+                    ->options(Province::query()->pluck('name', 'id'))
+                    ->query(fn (Builder $query, array $data) => $query->when(
+                        $data['value'],
+                        fn (Builder $query, $value) => $query->whereHas('city', fn (Builder $query) => $query->where('province_id', $value))
+                    ))
+                    ->searchable()
+                    ->preload()
+                    ->native(false),
+                SelectFilter::make('city_id')
+                    ->label('City')
+                    ->relationship('city', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->native(false),
             ])
             ->headerActions([
                 \Filament\Actions\CreateAction::make(),
