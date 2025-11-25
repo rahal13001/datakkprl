@@ -70,8 +70,11 @@ class ActivityResource extends Resource
                                 ->pluck('name', 'id'))
                             ->required()
                             ->live(),
-                        Forms\Components\TextInput::make('organizer')
-                            ->maxLength(255)
+                        Forms\Components\Select::make('organizer')
+                            ->options([
+                                'Pusat' => 'Pusat',
+                                'UPT' => 'UPT',
+                            ])
                             ->columnSpanFull(),
                     ])
                     ->columns(2)
