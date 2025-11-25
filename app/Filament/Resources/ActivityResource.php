@@ -216,6 +216,11 @@ class ActivityResource extends Resource
                     ->preload()
                     ->native(false),
             ])
+            ->groups([
+                Tables\Grouping\Group::make('activity_code')
+                    ->label('Pentek'),
+                Tables\Grouping\Group::make('organizer'),
+            ])
             ->actions([
                 \Filament\Actions\ViewAction::make(),
                 \Filament\Actions\EditAction::make(),

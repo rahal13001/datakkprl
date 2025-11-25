@@ -191,6 +191,11 @@ class ActivitiesRelationManager extends RelationManager
                     ->preload()
                     ->native(false),
             ])
+            ->groups([
+                Tables\Grouping\Group::make('activity_code')
+                    ->label('Pentek'),
+                Tables\Grouping\Group::make('organizer'),
+            ])
             ->headerActions([
                 \Filament\Actions\CreateAction::make(),
             ])
