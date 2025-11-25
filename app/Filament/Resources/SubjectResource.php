@@ -18,6 +18,8 @@ class SubjectResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-user-group';
 
+    protected static string | \UnitEnum | null $navigationGroup = 'KKPRL Management';
+
     public static function form(Schema $schema): Schema
     {
         return $schema

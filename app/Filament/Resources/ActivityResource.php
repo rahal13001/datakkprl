@@ -23,6 +23,8 @@ class ActivityResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-document-text';
 
+    protected static string | \UnitEnum | null $navigationGroup = 'KKPRL Management';
+
     public static function form(Schema $schema): Schema
     {
         return $schema
