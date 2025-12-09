@@ -1,0 +1,46 @@
+<?php
+
+namespace App\Filament\Layanankkprl\Resources\Regulations\Pages;
+
+use App\Filament\Layanankkprl\Resources\Regulations\RegulationResource;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Resources\Pages\EditRecord;
+
+class EditRegulation extends EditRecord
+{
+    protected static string $resource = RegulationResource::class;
+
+    public function getMaxContentWidth(): \Filament\Support\Enums\Width
+    {
+        return \Filament\Support\Enums\Width::Full;
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            DeleteAction::make(),
+            ForceDeleteAction::make(),
+            RestoreAction::make(),
+        ];
+    }
+    protected function afterSave(): void
+    {
+        $record = $this->getRecord();
+
+        // Only parse if file changed
+        if ($record->wasChanged('file_path') && $record->file_path) {
+            try {
+                $path = \Illuminate\Support\Facades\Storage::disk('public')->path($record->file_path);
+                $text = app(\App\Services\AiService::class)->parsePdf($path);
+                
+                if ($text) {
+                    $record->update(['extracted_text' => \Illuminate\Support\Str::limit($text, 10000)]);
+                }
+            } catch (\Exception $e) {
+                // Log or ignore
+            }
+        }
+    }
+}
