@@ -61,8 +61,23 @@ class ClientInfolist
 
                 \Filament\Schemas\Components\Section::make('Informasi Tambahan')
                     ->schema([
+                        \Filament\Infolists\Components\TextEntry::make('activity_type')
+                            ->label('Bentuk Kegiatan')
+                            ->badge()
+                            ->formatStateUsing(fn (?string $state): string => match ($state) {
+                                'business' => 'Berusaha',
+                                'non_business' => 'Non Berusaha',
+                                default => $state ?? '-',
+                            })
+                            ->color(fn (?string $state): string => match ($state) {
+                                'business' => 'success',
+                                'non_business' => 'gray',
+                                default => 'gray',
+                            }),
                         \Filament\Infolists\Components\KeyValueEntry::make('metadata')
-                            ->label('Data Tambahan'),
+                            ->label('Data Teknis')
+                            ->keyLabel('Jenis Kegiatan')
+                            ->valueLabel('Luasan / Panjang'),
                     ]),
 
                 \Filament\Schemas\Components\Section::make('Jadwal Konsultasi')

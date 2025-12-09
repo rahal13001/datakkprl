@@ -33,7 +33,7 @@ class ClientsTable
                     ->badge(),
 
                 TextColumn::make('activity_type')
-                    ->label('Sifat Kegiatan')
+                    ->label('Bentuk Kegiatan')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'business' => 'Berusaha',
