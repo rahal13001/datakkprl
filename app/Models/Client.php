@@ -23,6 +23,7 @@ class Client extends Model
         'status',          // pending, scheduled, waiting_approval, finished, canceled
         'metadata',
         'service_id',
+        'activity_type',
     ];
 
     public function getRouteKeyName(): string
@@ -73,6 +74,11 @@ class Client extends Model
     public function schedules(): HasMany
     {
         return $this->hasMany(Schedule::class);
+    }
+
+    public function consultationReports(): HasMany
+    {
+        return $this->hasMany(ConsultationReport::class);
     }
 
     public function assignments(): HasManyThrough

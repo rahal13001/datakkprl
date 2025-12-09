@@ -47,6 +47,7 @@ class ClientResource extends Resource
     {
         return [
             \App\Filament\Layanankkprl\Resources\Clients\ClientResource\RelationManagers\AssignmentsRelationManager::class,
+            \App\Filament\Layanankkprl\Resources\Clients\ClientResource\RelationManagers\ConsultationReportsRelationManager::class,
         ];
     }
 

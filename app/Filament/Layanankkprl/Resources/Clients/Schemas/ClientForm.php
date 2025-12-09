@@ -87,8 +87,19 @@ class ClientForm
 
                 \Filament\Schemas\Components\Section::make('Informasi Tambahan')
                     ->schema([
+                        \Filament\Forms\Components\Select::make('activity_type')
+                            ->label('Sifat Kegiatan')
+                            ->options([
+                                'business' => 'Berusaha',
+                                'non_business' => 'Non Berusaha',
+                            ]),
                         \Filament\Forms\Components\KeyValue::make('metadata')
-                            ->label('Data Tambahan'),
+                            ->label('Data Teknis')
+                            ->helperText('Contoh: Jenis Kegiatan (Reklamasi) -> Luasan (2 Ha)')
+                            ->keyLabel('Jenis Kegiatan')
+                            ->valueLabel('Luasan / Panjang')
+                            ->addActionLabel('Tambah Data')
+                            ->columnSpanFull(),
                     ])
                     ->collapsed(),
             ]);

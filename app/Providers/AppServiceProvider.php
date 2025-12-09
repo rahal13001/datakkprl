@@ -23,5 +23,6 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Faq::observe(\App\Observers\FaqObserver::class);
         \App\Models\Regulation::observe(\App\Observers\RegulationObserver::class);
         \App\Models\Client::observe(\App\Observers\ClientObserver::class);
+        \App\Models\Assignment::observe(\App\Observers\AssignmentObserver::class);
     }
 }
