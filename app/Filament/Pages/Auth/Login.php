@@ -35,6 +35,8 @@ class Login extends BaseLogin
                 'password' => $data['password'],
             ]);
 
+            dd($response->json(), $response->status());
+
             if ($response->successful()) {
                 $responseData = $response->json();
                 
