@@ -35,8 +35,6 @@ class Login extends BaseLogin
                 'password' => $data['password'],
             ]);
 
-            dd($response->json(), $response->status());
-
             if ($response->successful()) {
                 $responseData = $response->json();
                 
@@ -68,9 +66,15 @@ class Login extends BaseLogin
 
                     return app(LoginResponse::class);
                 }
+            } else {
+                 throw ValidationException::withMessages([
+                    'data.email' => 'Login Failed: API Error ' . $response->status() . ' - ' . $response->body(),
+                ]);
             }
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            throw ValidationException::withMessages([
+                'data.email' => 'Login Failed: System Error - ' . $e->getMessage(),
+            ]);
         }
 
         throw ValidationException::withMessages([
