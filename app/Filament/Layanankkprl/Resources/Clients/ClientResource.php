@@ -22,7 +22,22 @@ class ClientResource extends Resource
 {
     protected static ?string $model = Client::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Klien';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Klien';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Klien';
+    }
 
     protected static ?string $recordTitleAttribute = 'ticket_number';
 

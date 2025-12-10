@@ -26,6 +26,11 @@ class Service extends Model
         'is_active' => 'boolean',
     ];
 
+    public function clients(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Client::class);
+    }
+
     protected static function boot()
     {
         parent::boot();

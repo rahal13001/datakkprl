@@ -8,9 +8,12 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Filament\Actions\Action;
+use Filament\Forms\Get;
 
 class ClientsTable
 {
@@ -67,6 +70,67 @@ class ClientsTable
                     ->badge()
                     ->color('info')
                     ->separator(','),
+
+                IconColumn::make('report_status_display')
+                    ->label('Laporan')
+                    ->state(fn ($record) => $record->consultationReports()->latest()->first()?->status ?? 'none')
+                    ->color(fn (string $state): string => match ($state) {
+                        'draft' => 'gray',
+                        'review' => 'warning',
+                        'approved' => 'info',
+                        'rejected' => 'danger',
+                        default => 'danger',
+                    })
+                    ->icon(fn (string $state): string => match ($state) {
+                        'draft' => 'heroicon-m-document',
+                        'review' => 'heroicon-m-clock',
+                        'approved' => 'heroicon-m-check-circle',
+                        'rejected' => 'heroicon-m-x-circle',
+                        default => 'heroicon-m-x-mark',
+                    })
+                    ->alignCenter()
+                    ->tooltip(fn (string $state): string => match ($state) {
+                        'draft' => 'Draft',
+                        'review' => 'Menunggu Review',
+                        'approved' => 'Disetujui',
+                        'rejected' => 'Ditolak',
+                        'none' => 'Belum Ada',
+                        default => 'Status Tidak Diketahui',
+                    })
+                    ->action(
+                        Action::make('manageReport')
+                            ->modalHeading('Kelola Laporan Konsultasi')
+                            ->modalWidth('2xl')
+                            ->form([
+                                \Filament\Forms\Components\RichEditor::make('content')
+                                    ->label('Isi Laporan')
+                                    ->required(),
+                                \Filament\Forms\Components\Select::make('status')
+                                    ->options([
+                                        'draft' => 'Draft',
+                                        'review' => 'Menunggu Review',
+                                        'approved' => 'Disetujui',
+                                        'rejected' => 'Ditolak',
+                                    ])
+                                    ->required()
+                                    ->default('draft')
+                                    ->live(),
+                                \Filament\Forms\Components\Textarea::make('feedback')
+                                    ->label('Feedback')
+                                    ->visible(fn ($get) => in_array($get('status'), ['approved', 'rejected'])),
+                            ])
+                            ->fillForm(fn ($record) => $record->consultationReports()->latest()->first()?->toArray() ?? [])
+                            ->action(function (array $data, \App\Models\Client $record) {
+                                $report = $record->consultationReports()->latest()->first();
+                                if ($report) {
+                                    $report->update($data);
+                                } else {
+                                    $record->consultationReports()->create($data);
+                                }
+                                \Filament\Notifications\Notification::make()->title('Laporan disimpan')->success()->send();
+                            })
+                    ),
+
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -116,6 +180,21 @@ class ClientsTable
                         'canceled' => 'Dibatalkan',
                     ])
                     ->label('Status'),
+
+                \Filament\Tables\Filters\SelectFilter::make('report_status')
+                    ->label('Status Laporan')
+                    ->options([
+                        'draft' => 'Draft',
+                        'review' => 'Menunggu Review',
+                        'approved' => 'Disetujui',
+                        'rejected' => 'Ditolak',
+                    ])
+                    ->query(function (\Illuminate\Database\Eloquent\Builder $query, array $data): \Illuminate\Database\Eloquent\Builder {
+                        return $query->when(
+                            $data['value'],
+                            fn (\Illuminate\Database\Eloquent\Builder $q) => $q->whereHas('latestConsultationReport', fn ($sq) => $sq->where('status', $data['value']))
+                        );
+                    }),
 
                 TrashedFilter::make(),
                 \Filament\Tables\Filters\Filter::make('consultation_date')

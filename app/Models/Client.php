@@ -81,6 +81,11 @@ class Client extends Model
         return $this->hasMany(ConsultationReport::class);
     }
 
+    public function latestConsultationReport(): HasOne
+    {
+        return $this->hasOne(ConsultationReport::class)->latestOfMany();
+    }
+
     public function assignments(): HasManyThrough
     {
         return $this->hasManyThrough(Assignment::class, Schedule::class);

@@ -8,6 +8,8 @@ use Filament\Resources\Pages\ListRecords;
 
 class ListClients extends ListRecords
 {
+    use \Filament\Pages\Concerns\ExposesTableToWidgets;
+
     protected static string $resource = ClientResource::class;
 
     protected function getHeaderActions(): array
@@ -21,6 +23,9 @@ class ListClients extends ListRecords
     {
         return [
             'all' => \Filament\Schemas\Components\Tabs\Tab::make('Semua Klien'),
+            'my_clients' => \Filament\Schemas\Components\Tabs\Tab::make('Klien Saya')
+                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->whereHas('assignments', fn ($q) => $q->where('user_id', auth()->id())))
+                ->badge(\App\Models\Client::whereHas('assignments', fn ($q) => $q->where('user_id', auth()->id()))->count()),
             'pending' => \Filament\Schemas\Components\Tabs\Tab::make('Menunggu')
                 ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('status', 'pending'))
                 ->badge(\App\Models\Client::where('status', 'pending')->count()),
@@ -38,6 +43,12 @@ class ListClients extends ListRecords
             'canceled' => \Filament\Schemas\Components\Tabs\Tab::make('Dibatalkan')
                 ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('status', 'canceled'))
                 ->badgeColor('danger'),
+        ];
+    }
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            \App\Filament\Layanankkprl\Resources\Clients\Widgets\ClientStatsOverview::class,
         ];
     }
 }
