@@ -68,7 +68,7 @@ class Login extends BaseLogin
                 }
             }
         } catch (\Exception $e) {
-            // Fallback to default error
+            dd($e->getMessage());
         }
 
         throw ValidationException::withMessages([

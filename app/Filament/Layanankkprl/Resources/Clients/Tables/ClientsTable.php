@@ -219,12 +219,189 @@ class ClientsTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                Action::make('downloadReport')
+                    ->label('Unduh PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('success')
+                    ->iconButton()
+                    ->tooltip('Unduh Laporan PDF')
+                    ->action(function (\App\Models\Client $record) {
+                        $report = $record->latestConsultationReport;
+                        
+                        if (!$report) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Laporan belum tersedia')
+                                ->warning()
+                                ->send();
+                            return;
+                        }
+
+                        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.consultation-report', [
+                            'client' => $record,
+                            'report' => $report,
+                        ]);
+
+                        return response()->streamDownload(
+                            fn () => print($pdf->output()),
+                            "Laporan-Konsultasi-{$record->ticket_number}.pdf"
+                        );
+                    }),
+            ])
+            ->headerActions([
+                \pxlrbt\FilamentExcel\Actions\Tables\ExportAction::make()
+                    ->exports([
+                        \pxlrbt\FilamentExcel\Exports\ExcelExport::make()
+                            ->modifyQueryUsing(fn ($query) => $query->with([
+                                'schedules.assignments.user',
+                                'service', 
+                                'latestConsultationReport'
+                            ]))
+                            ->withFilename(fn ($resource) => $resource::getModelLabel() . '-' . date('Y-m-d'))
+                            ->withColumns([
+                                \pxlrbt\FilamentExcel\Columns\Column::make('ticket_number')->heading('No. Tiket'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('contact_details.name')->heading('Nama Pemohon'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('contact_details.agency')->heading('Instansi'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('contact_details.email')->heading('Email'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('contact_details.wa')->heading('WhatsApp'),
+                                
+                                \pxlrbt\FilamentExcel\Columns\Column::make('service.name')->heading('Layanan'),
+                                
+                                \pxlrbt\FilamentExcel\Columns\Column::make('activity_type')
+                                    ->heading('Bentuk Kegiatan')
+                                    ->getStateUsing(fn ($record) => match ($record->activity_type) {
+                                        'business' => 'Berusaha',
+                                        'non_business' => 'Non Berusaha',
+                                        default => $record->activity_type,
+                                    }),
+
+                                \pxlrbt\FilamentExcel\Columns\Column::make('metadata_string')
+                                    ->heading('Data Teknis')
+                                    ->getStateUsing(function ($record) {
+                                        if (empty($record->metadata)) return '-';
+                                        return collect($record->metadata)
+                                            ->map(fn ($value, $key) => "$key: $value")
+                                            ->join('; ');
+                                    }),
+
+                                \pxlrbt\FilamentExcel\Columns\Column::make('schedule_details')
+                                    ->heading('Jadwal Konsultasi')
+                                    ->getStateUsing(function ($record) {
+                                        if (!$record->schedules) return '-';
+                                        return $record->schedules->map(function ($schedule) {
+                                            $date = \Carbon\Carbon::parse($schedule->date)->format('d M Y');
+                                            $time = \Carbon\Carbon::parse($schedule->start_time)->format('H:i') . ' - ' . \Carbon\Carbon::parse($schedule->end_time)->format('H:i');
+                                            $type = $schedule->is_online ? 'Online' : 'Offline';
+                                            return "{$date} ({$time}, {$type})";
+                                        })->join("\n");
+                                    }),
+
+                                \pxlrbt\FilamentExcel\Columns\Column::make('status')
+                                    ->heading('Status')
+                                    ->formatStateUsing(fn ($state) => match ($state) {
+                                        'pending' => 'Menunggu',
+                                        'scheduled' => 'Dijadwalkan',
+                                        'waiting_approval' => 'Menunggu Persetujuan',
+                                        'finished' => 'Selesai',
+                                        'canceled' => 'Dibatalkan',
+                                        default => $state,
+                                    }),
+
+                                \pxlrbt\FilamentExcel\Columns\Column::make('report_status')
+                                    ->heading('Status Laporan')
+                                    ->getStateUsing(fn ($record) => match ($record->latestConsultationReport?->status ?? 'none') {
+                                        'draft' => 'Draft',
+                                        'review' => 'Menunggu Review',
+                                        'approved' => 'Disetujui',
+                                        'rejected' => 'Ditolak',
+                                        'none' => 'Belum Ada',
+                                        default => '-',
+                                    }),
+
+                                \pxlrbt\FilamentExcel\Columns\Column::make('assignments_names')
+                                    ->heading('Petugas')
+                                    ->getStateUsing(fn ($record) => $record->assignments()->with('user')->get()->pluck('user.name')->join(', ')),
+                            ]),
+                    ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
+                    \pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction::make()
+                        ->exports([
+                            \pxlrbt\FilamentExcel\Exports\ExcelExport::make()
+                                ->modifyQueryUsing(fn ($query) => $query->with([
+                                    'schedules.assignments.user',
+                                    'service', 
+                                    'latestConsultationReport'
+                                ]))
+                                ->withFilename(fn ($resource) => $resource::getModelLabel() . '-Selected-' . date('Y-m-d'))
+                                ->withColumns([
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('ticket_number')->heading('No. Tiket'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('contact_details.name')->heading('Nama Pemohon'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('contact_details.agency')->heading('Instansi'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('contact_details.email')->heading('Email'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('contact_details.wa')->heading('WhatsApp'),
+                                    
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('service.name')->heading('Layanan'),
+                                    
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('activity_type')
+                                        ->heading('Bentuk Kegiatan')
+                                        ->getStateUsing(fn ($record) => match ($record->activity_type) {
+                                            'business' => 'Berusaha',
+                                            'non_business' => 'Non Berusaha',
+                                            default => $record->activity_type,
+                                        }),
+    
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('metadata_string')
+                                        ->heading('Data Teknis')
+                                        ->getStateUsing(function ($record) {
+                                            if (empty($record->metadata)) return '-';
+                                            return collect($record->metadata)
+                                                ->map(fn ($value, $key) => "$key: $value")
+                                                ->join('; ');
+                                        }),
+    
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('schedule_details')
+                                        ->heading('Jadwal Konsultasi')
+                                        ->getStateUsing(function ($record) {
+                                            if (!$record->schedules) return '-';
+                                            return $record->schedules->map(function ($schedule) {
+                                                $date = \Carbon\Carbon::parse($schedule->date)->format('d M Y');
+                                                $time = \Carbon\Carbon::parse($schedule->start_time)->format('H:i') . ' - ' . \Carbon\Carbon::parse($schedule->end_time)->format('H:i');
+                                                $type = $schedule->is_online ? 'Online' : 'Offline';
+                                                return "{$date} ({$time}, {$type})";
+                                            })->join("\n");
+                                        }),
+    
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('status')
+                                        ->heading('Status')
+                                        ->formatStateUsing(fn ($state) => match ($state) {
+                                            'pending' => 'Menunggu',
+                                            'scheduled' => 'Dijadwalkan',
+                                            'waiting_approval' => 'Menunggu Persetujuan',
+                                            'finished' => 'Selesai',
+                                            'canceled' => 'Dibatalkan',
+                                            default => $state,
+                                        }),
+    
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('report_status')
+                                        ->heading('Status Laporan')
+                                        ->getStateUsing(fn ($record) => match ($record->latestConsultationReport?->status ?? 'none') {
+                                            'draft' => 'Draft',
+                                            'review' => 'Menunggu Review',
+                                            'approved' => 'Disetujui',
+                                            'rejected' => 'Ditolak',
+                                            'none' => 'Belum Ada',
+                                            default => '-',
+                                        }),
+    
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('assignments_names')
+                                        ->heading('Petugas')
+                                        ->getStateUsing(fn ($record) => $record->assignments()->with('user')->get()->pluck('user.name')->join(', ')),
+                                ]),
+                        ]),
                 ]),
             ]);
     }
