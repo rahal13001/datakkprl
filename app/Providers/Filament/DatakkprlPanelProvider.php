@@ -26,6 +26,7 @@ class DatakkprlPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('datakkprl')
+            ->domain('datakkprl.timurbersinar.com')
             ->path('/')
             ->login(\App\Filament\Pages\Auth\Login::class)
             ->colors([
