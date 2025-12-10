@@ -29,7 +29,7 @@ class LayanankkprlPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->login()
+            ->login(\App\Filament\Pages\Auth\Login::class)
             ->discoverResources(in: app_path('Filament/Layanankkprl/Resources'), for: 'App\Filament\Layanankkprl\Resources')
             ->discoverPages(in: app_path('Filament/Layanankkprl/Pages'), for: 'App\Filament\Layanankkprl\Pages')
             ->pages([
