@@ -18,10 +18,12 @@ class ConsultationReport extends Model
         'reviewed_by',
         'reviewed_at',
         'feedback',
+        'documentation',
     ];
 
     protected $casts = [
         'reviewed_at' => 'datetime',
+        'documentation' => 'array',
     ];
 
     public function client(): BelongsTo

@@ -60,6 +60,17 @@ class ConsultationReportResource extends Resource
                             ->label('Hasil Konsultasi / Notulensi')
                             ->required()
                             ->columnSpanFull(),
+
+                        Forms\Components\FileUpload::make('documentation')
+                            ->label('Dokumentasi')
+                            ->image()
+                            ->multiple()
+                            ->minFiles(1)
+                            ->maxFiles(3)
+                            ->directory('consultation-documentation')
+                            ->placeholder('Upload minimal 1 foto dokumentasi, maksimal 3 foto.')
+                            ->required()
+                            ->columnSpanFull(),
                     ])
                     ->columnSpan(['lg' => 2]),
 

@@ -63,6 +63,25 @@
         .signature-space {
             height: 80px;
         }
+        .page-break {
+            page-break-before: always;
+        }
+        .gallery {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .gallery-item {
+            display: inline-block;
+            width: 45%;
+            margin: 5px;
+            vertical-align: top;
+        }
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            padding: 3px;
+        }
     </style>
 </head>
 <body>
@@ -103,6 +122,18 @@
     <div class="content">
         {!! $report->content ?? '<p>Belum ada isi laporan.</p>' !!}
     </div>
+
+    @if(!empty($report->documentation))
+        <div class="page-break"></div>
+        <div class="section-title">Dokumentasi</div>
+        <div class="gallery">
+            @foreach($report->documentation as $image)
+                <div class="gallery-item">
+                    <img src="{{ storage_path('app/public/' . $image) }}" alt="Dokumentasi">
+                </div>
+            @endforeach
+        </div>
+    @endif
 
     <div class="footer">
         <div class="signature-box">
