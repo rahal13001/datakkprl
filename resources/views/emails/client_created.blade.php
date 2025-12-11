@@ -5,7 +5,7 @@
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
     <h2 style="color: #2563eb;">Pendaftaran Konsultasi Berhasil</h2>
-    <p>Halo, <strong>{{ $client->contact_details['name'] ?? 'Sobat Bahari' }}</strong>.</p>
+    <p>Halo, <strong>{{ $client->name }}</strong>.</p>
     
     <p>Terima kasih telah mendaftar layanan konsultasi di <strong>Loka Pengelolaan Sumberdaya Pesisir dan Laut Sorong</strong>.</p>
     
@@ -13,6 +13,13 @@
         <p style="margin: 0 0 10px;"><strong>Nomor Tiket:</strong> {{ $client->ticket_number }}</p>
         <p style="margin: 0 0 10px;"><strong>Layanan:</strong> {{ $client->service->name }}</p>
         <p style="margin: 0;"><strong>Status:</strong> {{ ucfirst($client->status) }}</p>
+    </div>
+
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="{{ $pdf_download_url }}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            Download Bukti Pendaftaran (PDF)
+        </a>
+        <p style="font-size: 12px; color: #6b7280; margin-top: 10px;">Atau klik link ini: <a href="{{ $pdf_download_url }}">{{ $pdf_download_url }}</a></p>
     </div>
 
     <div style="background: #fff1f2; border: 1px solid #e11d48; padding: 20px; border-radius: 8px; margin: 20px 0;">

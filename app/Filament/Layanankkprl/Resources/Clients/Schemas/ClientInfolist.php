@@ -45,18 +45,32 @@ class ClientInfolist
 
                 \Filament\Schemas\Components\Section::make('Detail Kontak')
                     ->schema([
-                        TextEntry::make('contact_details.name')
+                        TextEntry::make('booking_type')
+                            ->label('Jenis Pemohon')
+                            ->badge()
+                            ->formatStateUsing(fn (?string $state): string => match ($state) {
+                                'personal' => 'Perorangan',
+                                'company' => 'Instansi / Perusahaan',
+                                default => $state ?? '-',
+                            })
+                            ->color('info'),
+                        TextEntry::make('name')
                             ->label('Nama Lengkap'),
-                        TextEntry::make('contact_details.email')
+                        TextEntry::make('email')
                             ->label('Email')
                             ->icon('heroicon-m-envelope')
                             ->copyable(),
-                        TextEntry::make('contact_details.wa')
+                        TextEntry::make('whatsapp')
                             ->label('WhatsApp')
                             ->icon('heroicon-m-phone')
                             ->copyable(),
-                        TextEntry::make('contact_details.agency')
-                            ->label('Instansi / Lembaga'),
+                        TextEntry::make('instance')
+                            ->label('Instansi / Lembaga')
+                            ->placeholder('-'),
+                        TextEntry::make('address')
+                            ->label('Alamat')
+                            ->columnSpanFull()
+                            ->placeholder('-'),
                     ])->columns(2),
 
                 \Filament\Schemas\Components\Section::make('Informasi Tambahan')
@@ -74,10 +88,28 @@ class ClientInfolist
                                 'non_business' => 'gray',
                                 default => 'gray',
                             }),
-                        \Filament\Infolists\Components\KeyValueEntry::make('metadata')
+                        \Filament\Infolists\Components\RepeatableEntry::make('metadata.data_teknis')
                             ->label('Data Teknis')
-                            ->keyLabel('Jenis Kegiatan')
-                            ->valueLabel('Luasan / Panjang'),
+                            ->schema([
+                                \Filament\Infolists\Components\TextEntry::make('nature')
+                                    ->label('Sifat')
+                                    ->badge()
+                                    ->formatStateUsing(fn ($state) => match($state) {
+                                        'business' => 'Berusaha',
+                                        'non_business' => 'Non Berusaha',
+                                        default => $state,
+                                    })
+                                    ->color(fn ($state) => match($state) {
+                                        'business' => 'success',
+                                        'non_business' => 'gray',
+                                        default => 'gray',
+                                    }),
+                                \Filament\Infolists\Components\TextEntry::make('activity')
+                                    ->label('Jenis Kegiatan'),
+                                \Filament\Infolists\Components\TextEntry::make('dimension')
+                                    ->label('Luasan / Panjang'),
+                            ])
+                            ->columns(3),
                     ]),
 
                 \Filament\Schemas\Components\Section::make('Jadwal Konsultasi')

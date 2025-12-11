@@ -26,10 +26,11 @@ class ClientsTable
                     ->label('No. Tiket')
                     ->searchable()
                     ->copyable(),
-                TextColumn::make('contact_details.name')
+                TextColumn::make('name')
                     ->label('Nama Pemohon')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->description(fn ($record) => $record->instance),
                 TextColumn::make('service.name')
                     ->label('Layanan')
                     ->searchable()
@@ -104,6 +105,16 @@ class ClientsTable
                             ->form([
                                 \Filament\Forms\Components\RichEditor::make('content')
                                     ->label('Isi Laporan')
+                                    ->required(),
+                                \Filament\Forms\Components\FileUpload::make('documentation')
+                                    ->label('Dokumentasi')
+                                    ->disk('public')
+                                    ->image()
+                                    ->multiple()
+                                    ->minFiles(1)
+                                    ->maxFiles(3)
+                                    ->directory('consultation-documentation')
+                                    ->placeholder('Upload minimal 1 foto dokumentasi, maksimal 3 foto.')
                                     ->required(),
                                 \Filament\Forms\Components\Select::make('status')
                                     ->options([
@@ -259,10 +270,18 @@ class ClientsTable
                             ->withFilename(fn ($resource) => $resource::getModelLabel() . '-' . date('Y-m-d'))
                             ->withColumns([
                                 \pxlrbt\FilamentExcel\Columns\Column::make('ticket_number')->heading('No. Tiket'),
-                                \pxlrbt\FilamentExcel\Columns\Column::make('contact_details.name')->heading('Nama Pemohon'),
-                                \pxlrbt\FilamentExcel\Columns\Column::make('contact_details.agency')->heading('Instansi'),
-                                \pxlrbt\FilamentExcel\Columns\Column::make('contact_details.email')->heading('Email'),
-                                \pxlrbt\FilamentExcel\Columns\Column::make('contact_details.wa')->heading('WhatsApp'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('booking_type')
+                                    ->heading('Tipe')
+                                    ->formatStateUsing(fn ($state) => match ($state) {
+                                        'personal' => 'Perorangan',
+                                        'company' => 'Instansi',
+                                        default => $state,
+                                    }),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('name')->heading('Nama Pemohon'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('instance')->heading('Instansi'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('email')->heading('Email'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('whatsapp')->heading('WhatsApp'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('address')->heading('Alamat'),
                                 
                                 \pxlrbt\FilamentExcel\Columns\Column::make('service.name')->heading('Layanan'),
                                 
@@ -339,10 +358,11 @@ class ClientsTable
                                 ->withFilename(fn ($resource) => $resource::getModelLabel() . '-Selected-' . date('Y-m-d'))
                                 ->withColumns([
                                     \pxlrbt\FilamentExcel\Columns\Column::make('ticket_number')->heading('No. Tiket'),
-                                    \pxlrbt\FilamentExcel\Columns\Column::make('contact_details.name')->heading('Nama Pemohon'),
-                                    \pxlrbt\FilamentExcel\Columns\Column::make('contact_details.agency')->heading('Instansi'),
-                                    \pxlrbt\FilamentExcel\Columns\Column::make('contact_details.email')->heading('Email'),
-                                    \pxlrbt\FilamentExcel\Columns\Column::make('contact_details.wa')->heading('WhatsApp'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('name')->heading('Nama Pemohon'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('instance')->heading('Instansi'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('email')->heading('Email'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('whatsapp')->heading('WhatsApp'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('address')->heading('Alamat'),
                                     
                                     \pxlrbt\FilamentExcel\Columns\Column::make('service.name')->heading('Layanan'),
                                     

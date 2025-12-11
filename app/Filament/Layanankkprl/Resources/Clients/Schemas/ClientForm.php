@@ -39,20 +39,35 @@ class ClientForm
                 \Filament\Schemas\Components\Section::make('Detail Kontak')
                     ->description('Informasi kontak pemohon layanan.')
                     ->schema([
-                        TextInput::make('contact_details.name')
+                        Select::make('booking_type')
+                            ->label('Jenis Pemohon')
+                            ->options([
+                                'personal' => 'Perorangan',
+                                'company' => 'Perusahaan / Instansi',
+                            ])
+                            ->default('personal')
+                            ->live()
+                            ->required(),
+                        TextInput::make('name')
                             ->label('Nama Lengkap')
                             ->required(),
-                        TextInput::make('contact_details.email')
+                        TextInput::make('email')
                             ->label('Email')
                             ->email()
                             ->required(),
-                        TextInput::make('contact_details.wa')
+                        TextInput::make('whatsapp')
                             ->label('WhatsApp')
                             ->tel()
                             ->required(),
-                        TextInput::make('contact_details.agency')
-                            ->label('Instansi / Lembaga')
-                            ->required(),
+                        TextInput::make('instance')
+                            ->label('Nama Instansi / Perusahaan')
+                            ->visible(fn (\Filament\Schemas\Components\Utilities\Get $get) => $get('booking_type') === 'company')
+                            ->required(fn (\Filament\Schemas\Components\Utilities\Get $get) => $get('booking_type') === 'company')
+                            ->columnSpanFull(),
+                        \Filament\Forms\Components\Textarea::make('address')
+                            ->label('Alamat Lengkap')
+                            ->rows(2)
+                            ->columnSpanFull(),
                     ])->columns(2),
 
                 \Filament\Schemas\Components\Section::make('Jadwal Konsultasi')

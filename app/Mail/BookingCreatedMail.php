@@ -1,5 +1,6 @@
 <?php
 
+// Fixed view path
 namespace App\Mail;
 
 use App\Models\Client;
@@ -28,9 +29,10 @@ class BookingCreatedMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.booking.created',
+            view: 'emails.client_created',
             with: [
                 'url' => url('/booking/tracking/' . $this->client->ticket_number . '?token=' . $this->client->access_token),
+                'pdf_download_url' => route('client.ticket.download', $this->client),
             ],
         );
     }

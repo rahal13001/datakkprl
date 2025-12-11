@@ -97,11 +97,19 @@
         </tr>
         <tr>
             <td class="label">Nama Pemohon</td>
-            <td>: {{ $client->contact_details['name'] ?? '-' }}</td>
+            <td>: {{ $client->name ?? '-' }}</td>
         </tr>
         <tr>
-            <td class="label">Instansi</td>
-            <td>: {{ $client->contact_details['agency'] ?? '-' }}</td>
+            <td class="label">Kategori</td>
+            <td>: {{ match($client->booking_type) { 'personal' => 'Perorangan', 'company' => 'Instansi / Perusahaan', default => '-' } }}</td>
+        </tr>
+        <tr>
+            <td class="label">Instansi / Lembaga</td>
+            <td>: {{ $client->instance ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Alamat</td>
+            <td>: {{ $client->address ?? '-' }}</td>
         </tr>
         <tr>
             <td class="label">Layanan</td>

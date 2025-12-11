@@ -22,4 +22,12 @@ class EditClient extends EditRecord
             RestoreAction::make(),
         ];
     }
+
+    protected function afterSave(): void
+    {
+        $client = $this->record;
+        
+        // Trigger Email Notification for Update
+        app(\App\Services\NotificationService::class)->sendClientUpdated($client);
+    }
 }

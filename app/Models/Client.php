@@ -19,7 +19,14 @@ class Client extends Model
     protected $fillable = [
         'ticket_number',
         'access_token',
-        'contact_details', // {name, email, wa, agency}
+        // 'contact_details', // Deprecated, keeping for backup
+        'name',
+        'email',
+        'whatsapp',
+        'instance',
+        'address',
+        'booking_type',
+        
         'status',          // pending, scheduled, waiting_approval, finished, canceled
         'metadata',
         'service_id',
@@ -32,7 +39,7 @@ class Client extends Model
     }
 
     protected $casts = [
-        'contact_details' => 'array',
+        'contact_details' => 'array', // Keep casting just in case we need to read old data
         'metadata' => 'array',
         'access_token' => 'string', // It's a uuid string
     ];
@@ -45,6 +52,11 @@ class Client extends Model
         parent::boot();
 
         static::creating(function ($model) {
+            // FIX: Populate legacy contact_details to prevent SQL error (1364)
+            if (is_null($model->contact_details)) {
+                $model->contact_details = [];
+            }
+
             // Generate UUID Access Token
             if (empty($model->access_token)) {
                 $model->access_token = (string) Str::uuid();
@@ -102,11 +114,5 @@ class Client extends Model
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Helper to get email from JSON contact_details
-     */
-    public function getEmailAttribute(): ?string
-    {
-        return $this->contact_details['email'] ?? null;
-    }
+    // Legacy getters removed to allow direct column access
 }

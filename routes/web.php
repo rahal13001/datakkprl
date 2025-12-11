@@ -18,7 +18,11 @@ if (app()->isLocal()) {
     // NOTE: User must set up host file for this to work locally.
 }
 
-Route::domain($domain)->group(function () {
+// In local, we allow access from any domain (localhost, ip, etc)
+// In production, we assume strict domain
+$routingConfig = app()->isLocal() ? [] : ['domain' => $domain];
+
+Route::group($routingConfig, function () {
     Route::get('/', LandingPage::class)->name('landing');
     
     // Regulation Preview/Download (Public)

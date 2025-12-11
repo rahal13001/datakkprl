@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Mail\BookingCreatedMail;
 use App\Mail\BookingFinishedMail;
+use App\Mail\ClientUpdated; // Import the Mailable
 use App\Mail\RescheduleProposalMail;
 use App\Models\Client;
 use App\Models\NotificationLog;
@@ -22,6 +23,19 @@ class NotificationService
             $this->log($client, 'BookingCreatedMail', 'sent');
         } catch (Exception $e) {
             $this->log($client, 'BookingCreatedMail', 'failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Send Client Updated Email
+     */
+    public function sendClientUpdated(Client $client)
+    {
+        try {
+            Mail::to($client->email)->send(new ClientUpdated($client));
+            $this->log($client, 'ClientUpdated', 'sent');
+        } catch (Exception $e) {
+            $this->log($client, 'ClientUpdated', 'failed: ' . $e->getMessage());
         }
     }
 
@@ -59,7 +73,7 @@ class NotificationService
         NotificationLog::create([
             'client_id' => $client->id,
             'channel' => 'email',
-            'destination' => $client->email,
+            'destination' => $client->email ?? 'no-email', // Prevent null error
             'message_body' => $messageBody,
             'status' => substr($status, 0, 255), // Truncate if error too long
         ]);

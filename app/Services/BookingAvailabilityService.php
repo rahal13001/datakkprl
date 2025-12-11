@@ -82,6 +82,8 @@ class BookingAvailabilityService
         $officersOnLeave = 0;
 
         // 5. Existing Bookings (Schedules count)
+        // USER REQUEST: Disable capacity check for now.
+        /*
         // This logic is tricky. Slots are time-based. 
         // "Available Slots" usually means "How many more bookings can be made today?".
         // If 10 officers, and we have 5 bookings at 09:00, we have 5 slots left at 09:00.
@@ -97,6 +99,9 @@ class BookingAvailabilityService
         $maxDailyCapacity = $totalOfficers * 5; 
 
         return max(0, ($maxDailyCapacity - $existingBookings));
+        */
+
+        return 50; // Temporarily allow many slots
     }
 
     /**
@@ -108,7 +113,7 @@ class BookingAvailabilityService
         
         // Holidays
         if (Holiday::where('date', $date)->exists()) {
-             return false;
+            return false;
         }
 
         // Weekends
@@ -118,13 +123,41 @@ class BookingAvailabilityService
 
         $time = Carbon::parse($startTime, self::TIMEZONE);
         $hour = $time->hour;
+        $minute = $time->minute;
 
-        // Friday: 08:00 - 11:00 (Close early)
+        // Friday: 08:00 - 16:30
         if ($carbonDate->isFriday()) {
-            return ($hour >= 8 && $hour < 11);
+            // Check if between 08:00 (inclusive) and 16:30 (exclusive of end time start)
+            // Start times can range from 08:00 to 15:30 (assuming 1 hour slots, last slot ends 16:30)
+            // Or if they mean OPEN until 16:30...
+            // User said: "final hours on Fridays are 3:00 PM - 4:30 PM" (15:00 - 16:30).
+            // This implies the last slot *starts* at 15:30 (if 1h) or 15:00.
+            // Let's be generous: Allow start times up to 15:30 (so it ends at 16:30).
+            
+            if ($hour < 8) return false;
+            if ($hour > 16) return false;
+            
+            // If 16:xx, only allow if not past 16:30? No, usually last slot is earlier.
+            // If they select 16:00, it ends 17:00.
+            // We need to cut off slots that would END after 16:30.
+            // If slot is 1 hour, start time max is 15:30.
+            
+            // Simplified check: Allow start hours 08 to 15 (3 PM).
+            // 15:00 start -> 16:00 end.
+            // 15:30 start -> 16:30 end.
+            return ($hour >= 8 && ($hour < 16 || ($hour == 16 && $minute <= 0))); // Allow 16:00 start? Limits to 17:00.
+            // Let's stick to safe bounds for now: 08:00 - 16:00 start range?
+            // User said "final hours... 3:00 PM - 4:30 PM".
+            // That sounds like a 90 min slot or just open time.
+            // Let's assume standard starts 08, 09... 15 (3pm).
+            return ($hour >= 8 && $hour <= 15);
         }
 
-        // Mon-Thu: 08:00 - 15:00
-        return ($hour >= 8 && $hour < 15);
+        // Mon-Thu: 08:00 - 16:00
+        // Allows start times 08, 09... 15 (3pm) -> ends 16:00.
+        // User said "office hours 8:00 AM - 4:00 PM".
+        // This usually means close at 4:00 PM.
+        // So last booking start is 15:00.
+        return ($hour >= 8 && $hour < 16); 
     }
 }
