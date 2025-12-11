@@ -21,11 +21,6 @@ if (app()->isLocal()) {
 Route::domain($domain)->group(function () {
     Route::get('/', LandingPage::class)->name('landing');
     
-    // Debug Route
-    Route::get('/debug-test', function() {
-        return 'Debug Route Working on ' . request()->getHost();
-    });
-
     // Regulation Preview/Download (Public)
     Route::get('/regulasi/{slug}', function ($slug) {
         $regulation = \App\Models\Regulation::where('slug', $slug)->firstOrFail();
@@ -45,11 +40,6 @@ Route::domain($domain)->group(function () {
             ]
         );
     })->name('regulation.download');
-});
-
-// Global fallback for debugging (optional, remove later)
-Route::get('/debug-global', function() {
-    return 'Global Route: ' . request()->getHost();
 });
 
 // Fallback or Admin Routes (Filament usually registers its own, but we keep the existing closures for safety)
