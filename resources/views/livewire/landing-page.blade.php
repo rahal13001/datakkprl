@@ -182,10 +182,15 @@
             <!-- Regulations -->
             <div>
                 <h3 class="font-mono text-sm font-bold text-slate-400 uppercase tracking-widest mb-8">Dokumen & Regulasi</h3>
-                <div class="space-y-4">
-                    @forelse($regulations as $regulation)
+                
+                <div x-data="{ expanded: false }" class="space-y-4">
+                    @forelse($regulations as $index => $regulation)
                     <!-- Item -->
-                    <a href="{{ route('regulation.download', $regulation->slug) }}" target="_blank" class="group block p-5 rounded-2xl border border-slate-100 bg-white hover:border-brand-blue/30 hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+                    <a href="{{ route('regulation.download', $regulation->slug) }}" 
+                       target="_blank" 
+                       x-show="{{ $index }} < 3 || expanded"
+                       x-collapse
+                       class="group block p-5 rounded-2xl border border-slate-100 bg-white hover:border-brand-blue/30 hover:shadow-lg hover:shadow-blue-500/5 transition-all">
                         <div class="flex justify-between items-start">
                             <div class="flex gap-4">
                                 <div class="w-10 h-10 rounded-lg bg-red-50 text-red-500 flex items-center justify-center flex-shrink-0">
@@ -204,13 +209,16 @@
                     @empty
                     <div class="text-sm text-slate-500 italic">Belum ada regulasi yang diunggah.</div>
                     @endforelse
-                </div>
-                
-                <!-- New Link: Other Regulations -->
-                <div class="mt-6 text-center md:text-left">
-                    <a href="#" class="inline-flex items-center gap-2 text-sm font-semibold text-brand-blue hover:text-brand-black transition-colors border-b border-transparent hover:border-brand-black pb-1">
-                        Lihat Arsip Lengkap <i class="fa-solid fa-arrow-right-long"></i>
-                    </a>
+
+                     <!-- Toggle Link -->
+                    @if(count($regulations) > 3)
+                    <div class="mt-6 text-center md:text-left">
+                        <button @click="expanded = !expanded" class="inline-flex items-center gap-2 text-sm font-semibold text-brand-blue hover:text-brand-black transition-colors border-b border-transparent hover:border-brand-black pb-1">
+                            <span x-text="expanded ? 'Tutup Arsip' : 'Lihat Arsip Lengkap'"></span> 
+                            <i class="fa-solid" :class="expanded ? 'fa-arrow-up-long' : 'fa-arrow-right-long'"></i>
+                        </button>
+                    </div>
+                    @endif
                 </div>
             </div>
 
@@ -219,9 +227,10 @@
                 <h3 class="font-mono text-sm font-bold text-slate-400 uppercase tracking-widest mb-8">Pertanyaan Umum</h3>
                 <div x-data="{ 
                     active: null,
+                    showAll: false
                 }" class="space-y-3">
                     @forelse($faqs as $index => $faq)
-                        <div class="border-b border-slate-100 last:border-0">
+                        <div x-show="{{ $index }} < 5 || showAll" x-collapse class="border-b border-slate-100 last:border-0">
                             <button @click="active === {{ $index }} ? active = null : active = {{ $index }}" class="w-full py-4 flex justify-between items-center text-left group">
                                 <span class="text-slate-800 font-medium group-hover:text-brand-blue transition-colors">{{ $faq->question }}</span>
                                 <i class="fa-solid fa-plus text-slate-300 text-xs transition-transform duration-300" :class="active === {{ $index }} ? 'rotate-45' : ''"></i>
@@ -233,13 +242,16 @@
                     @empty
                         <div class="text-sm text-slate-500 italic">Belum ada FAQ.</div>
                     @endforelse
-                </div>
 
-                <!-- New Link: Other FAQs -->
-                <div class="mt-6 text-center md:text-left">
-                     <a href="#" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-brand-blue transition-colors">
-                        Lihat Semua Pertanyaan <i class="fa-solid fa-circle-question"></i>
-                    </a>
+                    <!-- Toggle Link -->
+                    @if(count($faqs) > 5)
+                    <div class="mt-6 text-center md:text-left">
+                        <button @click="showAll = !showAll" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-brand-blue transition-colors">
+                            <span x-text="showAll ? 'Sembunyikan' : 'Lihat Semua Pertanyaan'"></span>
+                            <i class="fa-solid" :class="showAll ? 'fa-minus-circle' : 'fa-circle-question'"></i>
+                        </button>
+                    </div>
+                    @endif
                 </div>
             </div>
 
