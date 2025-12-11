@@ -63,6 +63,7 @@ class ConsultationReportResource extends Resource
 
                         Forms\Components\FileUpload::make('documentation')
                             ->label('Dokumentasi')
+                            ->disk('public')
                             ->image()
                             ->multiple()
                             ->minFiles(1)

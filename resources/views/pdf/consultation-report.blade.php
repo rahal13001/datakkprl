@@ -128,8 +128,18 @@
         <div class="section-title">Dokumentasi</div>
         <div class="gallery">
             @foreach($report->documentation as $image)
+                @php
+                    $path = public_path('storage/' . $image);
+                    $exists = file_exists($path);
+                @endphp
                 <div class="gallery-item">
-                    <img src="{{ storage_path('app/public/' . $image) }}" alt="Dokumentasi">
+                    @if($exists)
+                        <img src="{{ $path }}" alt="Dokumentasi">
+                    @else
+                        <div style="border:1px solid red; padding:10px;">
+                            File not found: {{ $image }}
+                        </div>
+                    @endif
                 </div>
             @endforeach
         </div>
