@@ -25,8 +25,8 @@ class LayanankkprlPanelProvider extends PanelProvider
     {
         return $panel
             ->id('layanankkprl')
-            ->domain('datakkprl.timurbersinar.com') // Admin Domain
-            ->path('layanankkprl')
+            ->domain('kawanruanglaut.timurbersinar.com') 
+            ->path('layananruanglaut')
             ->colors([
                 'primary' => Color::Amber,
             ])
