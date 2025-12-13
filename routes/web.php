@@ -7,7 +7,7 @@ use App\Http\Controllers\RegulationController; // Assuming we might need this or
 // Admin Panel fallback or specific domain if needed (Laravel Filament usually handles its own routes via panel provider)
 // But for our Custom Frontend:
 
-$domain = 'layanankkprl.timurbersinar.com';
+$domain = 'kawanruanglaut.timurbersinar.com';
 
 // Local dev fallback
 if (app()->isLocal()) {

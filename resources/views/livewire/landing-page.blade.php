@@ -111,8 +111,8 @@
                                 <h4 class="text-5xl font-mono font-bold text-slate-900 tracking-tighter mb-1">Rp 0</h4>
                                 <p class="text-sm text-slate-500 font-medium">Layanan Bebas Biaya</p>
                                 <div class="mt-4 flex items-center gap-2">
-                                    <i class="fa-solid fa-circle-check text-brand-blue text-xs"></i>
-                                    <span class="text-xs text-slate-400 font-medium">Anti-Gratifikasi</span>
+                                    <i class="fa-solid fa-circle-check text-brand-blue text-sm"></i>
+                                    <span class="text-sm font-bold text-slate-600 uppercase tracking-wide">Anti-Gratifikasi</span>
                                 </div>
                             </div>
                         </div>
