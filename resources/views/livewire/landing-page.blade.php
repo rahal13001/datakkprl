@@ -52,7 +52,7 @@
             <div class="grid lg:grid-cols-12 gap-12 items-end">
                 
                 <!-- Typography Main -->
-                <div class="lg:col-span-8 relative z-10">
+                <div class="lg:col-span-6 relative z-10">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-slate-200 bg-white/50 backdrop-blur-sm mb-8">
                         <span class="w-2 h-2 rounded-full bg-brand-blue animate-pulse"></span>
                         <span class="text-xs font-mono font-medium text-slate-500 uppercase tracking-wide">System Online</span>
@@ -80,42 +80,13 @@
                 </div>
 
                 <!-- Abstract Visual (Right) -->
-                <div class="lg:col-span-4 relative h-full min-h-[300px] flex items-end justify-end lg:justify-center">
+                <div class="lg:col-span-6 relative h-full min-h-[300px] flex items-end justify-end lg:justify-center">
                     <!-- Modern Card Stack -->
-                    <div class="relative w-64 h-80">
-                        <!-- Back Card -->
-                        <div class="absolute top-0 right-0 w-full h-full bg-slate-100 rounded-3xl transform rotate-6 border border-slate-200"></div>
-                        <!-- Middle Card -->
-                        <div class="absolute top-2 right-2 w-full h-full bg-white rounded-3xl transform rotate-3 shadow-lg border border-slate-100 flex items-center justify-center">
-                           <div class="w-32 h-32 rounded-full bg-blue-50/50 flex items-center justify-center">
-                                <i class="fa-solid fa-fingerprint text-6xl text-brand-blue/20"></i>
-                           </div>
-                        </div>
-                        <!-- Front Card (Floating) -->
-                        <div class="absolute top-4 right-4 w-full h-full bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white p-6 flex flex-col justify-between animate-float overflow-hidden">
-                            <!-- Watermark Background -->
-                            <div class="absolute -bottom-4 -right-4 text-slate-100 text-9xl transform -rotate-12 z-0">
-                                <i class="fa-solid fa-shield-halved"></i>
-                            </div>
-                            
-                            <div class="relative z-10 flex justify-between items-start">
-                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-black to-slate-800 text-white flex items-center justify-center shadow-lg">
-                                    <i class="fa-solid fa-shield-halved text-lg"></i>
-                                </div>
-                                <div class="px-3 py-1 rounded-full bg-green-100 border border-green-200 text-green-700 text-[10px] font-bold tracking-wider uppercase">
-                                    Official
-                                </div>
-                            </div>
-                            
-                            <div class="relative z-10">
-                                <h4 class="text-5xl font-mono font-bold text-slate-900 tracking-tighter mb-1">Rp 0</h4>
-                                <p class="text-sm text-slate-500 font-medium">Layanan Bebas Biaya</p>
-                                <div class="mt-4 flex items-center gap-2">
-                                    <i class="fa-solid fa-circle-check text-brand-blue text-sm"></i>
-                                    <span class="text-sm font-bold text-slate-600 uppercase tracking-wide">Anti-Gratifikasi</span>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Anti Gratifikasi Image -->
+                    <div class="relative w-full transition-transform hover:scale-105 duration-500 ease-out">
+                         <img src="{{ asset('img/anti_gratifikasi.svg') }}" 
+                              alt="Anti Gratifikasi" 
+                              class="w-full h-auto drop-shadow-2xl animate-float">
                     </div>
                 </div>
             </div>
