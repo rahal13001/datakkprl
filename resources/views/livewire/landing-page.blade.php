@@ -23,6 +23,7 @@
                 <a href="#home" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Home</a>
                 <a href="#services" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Layanan</a>
                 <a href="#knowledge" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Regulasi</a>
+                <a href="{{ route('check-status') }}" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Cek Status</a>
                 
                 <!-- Action Button -->
                 <a href="#booking" class="px-6 py-2.5 bg-brand-black text-white text-sm font-medium rounded-full hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 hover:shadow-2xl hover:-translate-y-0.5 flex items-center gap-2">
@@ -42,6 +43,7 @@
             <a href="#home" class="block text-sm font-medium text-slate-600">Home</a>
             <a href="#services" class="block text-sm font-medium text-slate-600">Layanan</a>
             <a href="#knowledge" class="block text-sm font-medium text-slate-600">Regulasi</a>
+            <a href="{{ route('check-status') }}" class="block text-sm font-medium text-slate-600">Cek Status</a>
             <a href="#booking" class="block w-full text-center px-6 py-3 bg-brand-black text-white text-sm font-medium rounded-xl">Reservasi</a>
         </div>
     </nav>

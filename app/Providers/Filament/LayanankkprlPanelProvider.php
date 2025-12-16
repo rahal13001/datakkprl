@@ -25,7 +25,7 @@ class LayanankkprlPanelProvider extends PanelProvider
     {
         return $panel
             ->id('layanankkprl')
-            ->domain('kawanruanglaut.timurbersinar.com') 
+            ->domain(app()->isLocal() ? null : 'kawanruanglaut.timurbersinar.com') 
             ->path('layananruanglaut')
             ->colors([
                 'primary' => Color::Amber,

@@ -24,6 +24,7 @@ $routingConfig = app()->isLocal() ? [] : ['domain' => $domain];
 
 Route::group($routingConfig, function () {
     Route::get('/', LandingPage::class)->name('landing');
+    Route::get('/cek-status', \App\Livewire\CheckStatus::class)->name('check-status');
     
     // Regulation Preview/Download (Public)
     Route::get('/regulasi/{slug}', function ($slug) {
