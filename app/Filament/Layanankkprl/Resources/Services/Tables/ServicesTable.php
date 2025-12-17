@@ -22,6 +22,10 @@ class ServicesTable
                 TextColumn::make('name')
                     ->label('Nama Layanan')
                     ->searchable(),
+                TextColumn::make('description')
+                    ->label('Deskripsi')
+                    ->limit(50)
+                    ->wrap(),
                 \Filament\Tables\Columns\ToggleColumn::make('is_active')
                     ->label('Status Aktif'),
                 TextColumn::make('created_at')

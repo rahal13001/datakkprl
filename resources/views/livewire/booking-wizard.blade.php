@@ -208,29 +208,78 @@
             @endif
 
 
-            <!-- STEP 2: SERVICE -->
             @if($step === 2)
-                <div class="grid md:grid-cols-2 gap-4">
-                    @foreach($this->services as $service)
-                        <div wire:click="selectService({{ $service->id }})"
-                            class="cursor-pointer p-6 rounded-2xl border transition-all hover:shadow-md 
-                             {{ $service_id == $service->id ? 'border-brand-blue bg-blue-50/50 ring-2 ring-brand-blue/20' : 'border-slate-200 hover:border-brand-blue/50' }}">
-                            <div class="flex items-center gap-4">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-brand-blue shadow-sm">
-                                    <!-- Icon Placeholder -->
-                                    <i class="fa-solid fa-briefcase"></i>
+                <div x-data="{ showModal: false, title: '', desc: '' }" class="relative">
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        @foreach($this->services as $service)
+                            <div wire:click="selectService({{ $service->id }})"
+                                class="relative cursor-pointer p-6 rounded-2xl border transition-all hover:shadow-md 
+                                 {{ $service_id == $service->id ? 'border-brand-blue bg-blue-50/50 ring-2 ring-brand-blue/20' : 'border-slate-200 hover:border-brand-blue/50' }}">
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-brand-blue shadow-sm">
+                                        <!-- Icon Placeholder -->
+                                        <i class="fa-solid fa-briefcase"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2">
+                                            <h4 class="font-bold text-slate-900">{{ $service->name }}</h4>
+                                            <button type="button" 
+                                                @click.stop="showModal = true; title = '{{ $service->name }}'; desc = `{{ $service->description ?? 'Belum ada deskripsi untuk layanan ini.' }}`"
+                                                class="text-slate-400 hover:text-brand-blue transition-colors"
+                                                title="Lihat Deskripsi">
+                                                <i class="fa-solid fa-circle-info"></i>
+                                            </button>
+                                        </div>
+                                        <p class="text-xs text-slate-500 mt-1">Klik untuk memilih</p>
+                                    </div>
+                                    
+                                    @if($service_id == $service->id)
+                                        <div class="text-brand-blue"><i class="fa-solid fa-circle-check text-xl"></i></div>
+                                    @endif
                                 </div>
-                                <div>
-                                    <h4 class="font-bold text-slate-900">{{ $service->name }}</h4>
-                                    <p class="text-xs text-slate-500 mt-1">Klik untuk memilih</p>
-                                </div>
-                                @if($service_id == $service->id)
-                                    <div class="ml-auto text-brand-blue"><i class="fa-solid fa-circle-check"></i></div>
-                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <!-- Description Modal -->
+                    <div x-show="showModal" style="display: none;" 
+                        class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/50 backdrop-blur-sm"
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0"
+                        x-transition:enter-end="opacity-100"
+                        x-transition:leave="transition ease-in duration-200"
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0">
+                        
+                        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all"
+                             @click.away="showModal = false"
+                             x-transition:enter="transition ease-out duration-300 transform"
+                             x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                             x-transition:leave="transition ease-in duration-200 transform"
+                             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                             x-transition:leave-end="opacity-0 translate-y-4 scale-95">
+                            
+                            <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                                <h3 class="font-bold text-slate-900 text-lg" x-text="title"></h3>
+                                <button @click="showModal = false" class="text-slate-400 hover:text-red-500 transition-colors">
+                                    <i class="fa-solid fa-xmark text-xl"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="p-6">
+                                <p class="text-slate-600 leading-relaxed whitespace-pre-line" x-text="desc"></p>
+                            </div>
+
+                            <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 text-right">
+                                <button @click="showModal = false" class="px-4 py-2 bg-brand-blue text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                                    Tutup
+                                </button>
                             </div>
                         </div>
-                    @endforeach
+                    </div>
                 </div>
             @endif
 
