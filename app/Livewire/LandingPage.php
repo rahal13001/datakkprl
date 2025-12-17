@@ -4,7 +4,9 @@ namespace App\Livewire;
 
 use App\Services\ContentDeliveryService;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
+#[Layout('components.layouts.app')]
 class LandingPage extends Component
 {
     public $faqs;

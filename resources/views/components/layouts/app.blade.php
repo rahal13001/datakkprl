@@ -25,5 +25,6 @@
 
     {{ $slot }}
 
+    <livewire:ai-chat-widget />
 </body>
 </html>

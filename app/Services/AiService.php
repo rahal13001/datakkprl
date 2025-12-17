@@ -12,51 +12,49 @@ use Exception;
 
 class AiService
 {
-    protected $geminiApiKey;
+    protected $groqApiKey;
     protected $parser;
 
     public function __construct()
     {
-        $this->geminiApiKey = config('services.gemini.key'); // Needs explicit config
+        $this->groqApiKey = config('services.groq.key');
         $this->parser = new Parser();
     }
 
     /**
-     * Ask Gemini a question based on RAG context.
+     * Ask LLM a question based on RAG context.
      */
     public function askGemini($sessionId, $question, $ipAddress = null)
     {
         // 1. Context Search (Simple LIKE for now)
         $context = $this->searchContext($question);
 
-        // 2. Prompt Construction
-        $systemPrompt = "You are an AI Assistant for KKPRL (Kesesuaian Kegiatan Pemanfaatan Ruang Laut) in Sorong, under KKP Indonesia. " .
-                        "Answer the user's question based strictly on the provided Context. " .
-                        "If the answer is not in the context, politely suggest them to book a consultation via our website. " .
-                        "Do not hallucinate rules. Speak in formal but helpful Indonesian.";
-        
-        $userPrompt = "Context:\n" . $context . "\n\nQuestion: " . $question;
+        // 2. System Prompt
+        $systemPrompt = "Kamu adalah Kawan Ruang Laut AI, asisten virtual untuk layanan KKPRL (Kesesuaian Kegiatan Pemanfaatan Ruang Laut) di LPSPL Sorong, KKP Indonesia. " .
+                        "Jawab pertanyaan pengguna berdasarkan Context yang diberikan. " .
+                        "Jika jawaban tidak ada di context, sarankan untuk booking konsultasi via website kami. " .
+                        "Jangan membuat aturan sendiri. Gunakan bahasa Indonesia yang formal tapi ramah.";
 
-        // 3. API Call to Gemini (v1beta models)
-        // Using direct REST API for dependency minimization if SDK not present
+        // 3. API Call to Groq (OpenAI-compatible format)
         $response = 'Maaf, layanan AI sedang tidak tersedia (API Key missing).';
 
-        if ($this->geminiApiKey) {
+        if ($this->groqApiKey) {
             try {
                 $apiResponse = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $this->groqApiKey,
                     'Content-Type' => 'application/json',
-                ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$this->geminiApiKey}", [
-                    'contents' => [
-                        [
-                            'parts' => [
-                                ['text' => $systemPrompt . "\n\n" . $userPrompt]
-                            ]
-                        ]
-                    ]
+                ])->timeout(30)->post("https://api.groq.com/openai/v1/chat/completions", [
+                    'model' => 'llama-3.3-70b-versatile',
+                    'messages' => [
+                        ['role' => 'system', 'content' => $systemPrompt],
+                        ['role' => 'user', 'content' => "Context:\n" . $context . "\n\nPertanyaan: " . $question]
+                    ],
+                    'temperature' => 0.7,
+                    'max_tokens' => 1024,
                 ]);
 
                 if ($apiResponse->successful()) {
-                    $response = $apiResponse->json()['candidates'][0]['content']['parts'][0]['text'] ?? 'Maaf, saya tidak dapat memproses jawaban.';
+                    $response = $apiResponse->json()['choices'][0]['message']['content'] ?? 'Maaf, saya tidak dapat memproses jawaban.';
                 } else {
                     $response = 'Error: ' . $apiResponse->status() . ' - ' . $apiResponse->body();
                 }

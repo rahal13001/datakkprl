@@ -248,56 +248,10 @@
         </div>
     </section>
 
-    <!-- AI Floating Widget (Minimalist Pill) -->
-    <div x-data="{ open: false }" class="fixed bottom-8 right-8 z-50 flex flex-col items-end">
-        
-        <!-- Chat Interface -->
-        <div x-show="open" 
-             style="display: none;"
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0 translate-y-4 scale-95"
-             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-             x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-             class="mb-4 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col">
-            
-            <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wide">LPSPL AI</span>
-                </div>
-                <button @click="open = false" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark"></i></button>
-            </div>
 
-            <div class="h-64 bg-white p-4 overflow-y-auto space-y-4">
-                <div class="flex gap-3">
-                    <div class="w-6 h-6 rounded-full bg-brand-black text-white flex items-center justify-center text-[10px] flex-shrink-0">
-                        <i class="fa-solid fa-robot"></i>
-                    </div>
-                    <div class="bg-slate-100 text-slate-600 text-xs p-3 rounded-2xl rounded-tl-none leading-relaxed">
-                        Halo. Saya asisten virtual yang membaca seluruh regulasi LPSPL. Tanyakan apa saja.
-                    </div>
-                </div>
-            </div>
 
-            <div class="p-3 border-t border-slate-100">
-                <div class="flex bg-slate-50 rounded-full px-1 py-1 border border-slate-200 focus-within:border-brand-blue transition-colors">
-                    <input type="text" placeholder="Tanya sesuatu..." class="flex-1 bg-transparent px-3 text-xs focus:outline-none text-slate-700">
-                    <button class="w-7 h-7 bg-brand-black text-white rounded-full flex items-center justify-center hover:bg-slate-800 transition-colors">
-                        <i class="fa-solid fa-arrow-up text-[10px]"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Trigger Button -->
-        <button @click="open = !open" class="group flex items-center gap-3 pl-5 pr-2 py-2 bg-white border border-slate-200 text-slate-800 rounded-full shadow-lg hover:shadow-xl hover:border-brand-blue/30 transition-all duration-300">
-            <span class="text-xs font-bold tracking-wide">Tanya AI</span>
-            <div class="w-8 h-8 bg-brand-black rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
-            </div>
-        </button>
-    </div>
+    {{-- AI Chat Widget --}}
+    @livewire('ai-chat-widget')
 
 </div>
