@@ -29,6 +29,12 @@ class ClientUpdated extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.client_updated',
+            with: [
+                'url' => route('check-status', [
+                    'ticket' => $this->client->ticket_number,
+                    'token' => $this->client->access_token
+                ]),
+            ],
         );
     }
 

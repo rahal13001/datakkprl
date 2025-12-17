@@ -20,6 +20,19 @@ class CheckStatus extends Component
     public $criticism;
     public $suggestion;
 
+    protected $queryString = [
+        'ticket_number' => ['except' => '', 'as' => 'ticket'],
+        'access_token' => ['except' => '', 'as' => 'token'],
+    ];
+
+    public function mount()
+    {
+        // Auto-check if parameters exist in URL
+        if ($this->ticket_number && $this->access_token) {
+            $this->check();
+        }
+    }
+
     public function check()
     {
         $this->validate([

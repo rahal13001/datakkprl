@@ -30,7 +30,10 @@ class BookingFinishedMail extends Mailable implements ShouldQueue
         return new Content(
             markdown: 'emails.booking.finished',
              with: [
-                'surveyUrl' => url('/booking/survey/' . $this->client->ticket_number . '?token=' . $this->client->access_token),
+                'surveyUrl' => route('check-status', [
+                    'ticket' => $this->client->ticket_number,
+                    'token' => $this->client->access_token
+                ]),
             ],
         );
     }

@@ -31,7 +31,10 @@ class BookingCreatedMail extends Mailable implements ShouldQueue
         return new Content(
             view: 'emails.client_created',
             with: [
-                'url' => url('/booking/tracking/' . $this->client->ticket_number . '?token=' . $this->client->access_token),
+                'url' => route('check-status', [
+                    'ticket' => $this->client->ticket_number,
+                    'token' => $this->client->access_token
+                ]),
                 'pdf_download_url' => route('client.ticket.download', $this->client),
             ],
         );

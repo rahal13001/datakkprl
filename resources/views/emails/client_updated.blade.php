@@ -29,7 +29,15 @@
         <p>Silakan cek jadwal terbaru yang telah kami tetapkan.</p>
     @endif
 
-    <p>Anda dapat mengunduh bukti tiket terbaru melalui tautan yang tersedia di dashboard kami (menggunakan Access Token Anda).</p>
+    <p>Silakan cek jadwal terbaru atau unduh tiket Anda melalui tautan di bawah ini:</p>
+
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="{{ $url }}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Cek Status
+        </a>
+    </div>
+
+    <p style="font-size: 12px; color: #666;">Atau salin tautan berikut: <br>{{ $url }}</p>
     
     <p>Salam,<br>
     Admin Layanan KKPRL</p>
