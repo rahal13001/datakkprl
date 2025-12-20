@@ -20,6 +20,7 @@ class Regulation extends Model
         'download_count',
         'is_published',
         'extracted_text',
+        'is_chunked',
     ];
 
     public function getRouteKeyName(): string
@@ -29,8 +30,17 @@ class Regulation extends Model
 
     protected $casts = [
         'is_published' => 'boolean',
+        'is_chunked' => 'boolean',
         'download_count' => 'integer',
     ];
+
+    /**
+     * Get the chunks for this regulation.
+     */
+    public function chunks()
+    {
+        return $this->hasMany(\App\Models\RegulationChunk::class);
+    }
 
     protected static function boot()
     {

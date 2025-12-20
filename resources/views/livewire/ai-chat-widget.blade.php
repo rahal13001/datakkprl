@@ -21,11 +21,18 @@
                     </span>
                 </div>
             </div>
-            <button wire:click="toggleChat" class="krl-close-btn">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-            </button>
+            <div class="krl-header-actions">
+                <button wire:click="clearChat" class="krl-clear-btn" title="Hapus percakapan">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                </button>
+                <button wire:click="toggleChat" class="krl-close-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
         </div>
         
         {{-- Messages Area --}}
@@ -36,7 +43,11 @@
                     <div class="krl-bot-avatar">🤖</div>
                     @endif
                     <div class="krl-bubble {{ $msg['role'] === 'user' ? 'krl-bubble-user' : 'krl-bubble-bot' }}">
-                        {!! nl2br(e($msg['content'])) !!}
+                        @if($msg['role'] === 'assistant')
+                            {!! Str::markdown($msg['content']) !!}
+                        @else
+                            {!! nl2br(e($msg['content'])) !!}
+                        @endif
                     </div>
                 </div>
             @endforeach
@@ -54,6 +65,17 @@
         
         {{-- Input Area --}}
         <div class="krl-input-area">
+            {{-- Suggested Questions --}}
+            @if(count($messages) <= 1)
+            <div class="krl-suggestions">
+                @foreach($suggestedQuestions as $suggestion)
+                    <button wire:click="askQuestion('{{ $suggestion }}')" class="krl-suggestion-chip">
+                        {{ $suggestion }}
+                    </button>
+                @endforeach
+            </div>
+            @endif
+            
             <form wire:submit.prevent="sendMessage" class="krl-input-form">
                 <input 
                     wire:model="question" 
@@ -363,5 +385,86 @@
             color: #94a3b8;
             margin-top: 12px;
         }
+
+        /* Header Actions */
+        .krl-header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .krl-clear-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .krl-clear-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Suggested Questions */
+        .krl-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .krl-suggestion-chip {
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #334155;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .krl-suggestion-chip:hover {
+            background: #0057FF;
+            color: white;
+            border-color: #0057FF;
+        }
+
+        /* Markdown styling in chat bubbles */
+        .krl-bubble-bot p {
+            margin: 0 0 8px 0;
+        }
+
+        .krl-bubble-bot p:last-child {
+            margin-bottom: 0;
+        }
+
+        .krl-bubble-bot strong {
+            font-weight: 600;
+        }
+
+        .krl-bubble-bot ul, .krl-bubble-bot ol {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .krl-bubble-bot li {
+            margin-bottom: 4px;
+        }
+
+        .krl-bubble-bot code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 13px;
+        }
     </style>
 </div>
+

@@ -14,6 +14,16 @@ class AiChatWidget extends Component
     public $question = '';
     public $isLoading = false;
 
+    /**
+     * Suggested questions for users to click
+     */
+    public array $suggestedQuestions = [
+        'Apa itu KKPRL?',
+        'Bagaimana cara booking konsultasi?',
+        'Apa saja syarat dokumen yang diperlukan?',
+        'Berapa lama proses pengurusan izin?',
+    ];
+
     public function mount()
     {
         try {
@@ -40,13 +50,37 @@ class AiChatWidget extends Component
     {
         $this->messages[] = [
             'role' => 'assistant',
-            'content' => 'Halo! Saya Kawan Ruang Laut AI. Saya siap membantu menjawab pertanyaan Anda seputar regulasi dan layanan KKPRL.'
+            'content' => 'Halo! Saya **Kawan Ruang Laut AI**. Saya siap membantu menjawab pertanyaan Anda seputar regulasi dan layanan KKPRL.'
         ];
     }
 
     public function toggleChat()
     {
         $this->isOpen = !$this->isOpen;
+    }
+
+    /**
+     * Handle clicking a suggested question
+     */
+    public function askQuestion(string $questionText)
+    {
+        $this->question = $questionText;
+        $this->sendMessage(app(AiService::class));
+    }
+
+    /**
+     * Clear chat history
+     */
+    public function clearChat()
+    {
+        try {
+            AiChatLog::where('session_id', Session::getId())->delete();
+        } catch (\Exception $e) {
+            // Ignore if table doesn't exist
+        }
+        
+        $this->messages = [];
+        $this->setDefaultMessage();
     }
 
     public function sendMessage(AiService $aiService)
@@ -63,8 +97,16 @@ class AiChatWidget extends Component
         $this->isLoading = true;
 
         try {
-            // Call Gemini API via AiService
-            $response = $aiService->askGemini(Session::getId(), $userQuestion, request()->ip());
+            // Get conversation history for multi-turn context (last 6 messages = 3 exchanges)
+            $conversationHistory = array_slice($this->messages, -6);
+            
+            // Call AI API via AiService with conversation context
+            $response = $aiService->askGemini(
+                Session::getId(), 
+                $userQuestion, 
+                request()->ip(),
+                $conversationHistory
+            );
             $this->messages[] = ['role' => 'assistant', 'content' => $response];
         } catch (\Exception $e) {
             $this->messages[] = ['role' => 'assistant', 'content' => 'Maaf, terjadi kesalahan saat menghubungkan ke AI. Silakan coba lagi nanti.'];
@@ -78,3 +120,4 @@ class AiChatWidget extends Component
         return view('livewire.ai-chat-widget');
     }
 }
+

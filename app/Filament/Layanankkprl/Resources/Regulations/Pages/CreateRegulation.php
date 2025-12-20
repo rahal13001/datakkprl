@@ -3,6 +3,8 @@
 namespace App\Filament\Layanankkprl\Resources\Regulations\Pages;
 
 use App\Filament\Layanankkprl\Resources\Regulations\RegulationResource;
+use App\Jobs\ChunkRegulationJob;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateRegulation extends CreateRecord
@@ -19,16 +21,14 @@ class CreateRegulation extends CreateRecord
         $record = $this->getRecord();
         
         if ($record->file_path) {
-            try {
-                $path = \Illuminate\Support\Facades\Storage::disk('public')->path($record->file_path);
-                $text = app(\App\Services\AiService::class)->parsePdf($path);
-                
-                if ($text) {
-                    $record->update(['extracted_text' => \Illuminate\Support\Str::limit($text, 10000)]);
-                }
-            } catch (\Exception $e) {
-                // Log or ignore if parser fails
-            }
+            // Dispatch background job for chunking
+            ChunkRegulationJob::dispatch($record);
+            
+            Notification::make()
+                ->title('Dokumen sedang diproses')
+                ->body('PDF akan di-chunking untuk pencarian AI. Proses selesai dalam beberapa detik.')
+                ->info()
+                ->send();
         }
     }
 }
