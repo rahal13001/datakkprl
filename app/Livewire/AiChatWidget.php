@@ -21,7 +21,6 @@ class AiChatWidget extends Component
         'Apa itu KKPRL?',
         'Bagaimana cara booking konsultasi?',
         'Apa saja syarat dokumen yang diperlukan?',
-        'Berapa lama proses pengurusan izin?',
     ];
 
     public function mount()
