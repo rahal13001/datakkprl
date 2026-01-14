@@ -9,6 +9,9 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Step 0: Fix any invalid data that might cause truncation (e.g., empty strings)
+        DB::update("UPDATE clients SET status = 'pending' WHERE status NOT IN ('pending', 'scheduled', 'waiting_approval', 'finished', 'canceled')");
+
         // Step 1: First expand the enum to include ALL values (old + new)
         DB::statement("ALTER TABLE clients MODIFY COLUMN status ENUM('pending', 'scheduled', 'waiting_approval', 'finished', 'canceled', 'waiting', 'completed') DEFAULT 'waiting'");
         
