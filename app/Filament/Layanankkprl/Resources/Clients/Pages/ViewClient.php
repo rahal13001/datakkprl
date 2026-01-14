@@ -10,6 +10,11 @@ class ViewClient extends ViewRecord
 {
     protected static string $resource = ClientResource::class;
 
+    public function refreshRecord(): void
+    {
+        $this->getRecord()->refresh();
+    }
+
     protected function getHeaderActions(): array
     {
         return [

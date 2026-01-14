@@ -50,17 +50,25 @@ class CheckStatus extends Component
             return;
         }
 
-        // Initialize ratings keys for binding if needed, though alpine/wire handles it naturally
+        // Initialize ratings with null for each assignment to ensure validation catches unrated items
+        foreach ($this->client->assignments as $assignment) {
+            $this->ratings[$assignment->id] = null;
+        }
     }
 
     public function submitFeedback()
     {
-        $this->validate([
-            'ratings' => 'required|array',
-            'ratings.*' => 'required|integer|min:1|max:5',
+        $rules = [
             'criticism' => 'nullable|string',
             'suggestion' => 'nullable|string',
-        ]);
+        ];
+
+        if ($this->client->assignments->isNotEmpty()) {
+            $rules['ratings'] = 'required|array';
+            $rules['ratings.*'] = 'required|integer|min:1|max:5';
+        }
+
+        $this->validate($rules);
 
         if (! $this->client) return;
 

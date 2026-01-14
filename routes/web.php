@@ -82,3 +82,19 @@ Route::get('/clients/{client}/ticket/download', function (\App\Models\Client $cl
     
     return $pdf->stream('Ticket-' . $client->ticket_number . '.pdf');
 })->name('client.ticket.download');
+
+Route::get('/clients/{client}/report/download', function (\Illuminate\Http\Request $request, \App\Models\Client $client) {
+    if ($request->query('token') !== $client->access_token && !auth()->check()) {
+        abort(403, 'Unauthorized');
+    }
+
+    $report = $client->latestConsultationReport;
+    if (! $report) {
+         abort(404, 'Belum ada laporan konsultasi.');
+    }
+
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.consultation-report', compact('client', 'report'));
+    $pdf->setPaper('a4', 'portrait');
+    
+    return $pdf->stream('Laporan-Konsultasi-' . $client->ticket_number . '.pdf');
+})->name('client.report.download');

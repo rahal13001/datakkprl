@@ -2,162 +2,153 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Laporan Konsultasi - {{ $client->ticket_number }}</title>
+    <title>Laporan - {{ $client->ticket_number }}</title>
     <style>
         body {
-            font-family: sans-serif;
-            font-size: 14px;
-            line-height: 1.5;
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 12px;
             color: #333;
+            line-height: 1.4;
         }
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #000;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-            text-transform: uppercase;
-        }
-        .header p {
-            margin: 5px 0 0;
-            font-size: 14px;
-        }
-        .meta-table {
+        .container {
             width: 100%;
-            margin-bottom: 30px;
-            border-collapse: collapse;
+            margin: 0 auto;
         }
-        .meta-table td {
-            padding: 5px;
-            vertical-align: top;
+        .header-image {
+            width: 100%;
+            margin-bottom: 20px;
+            border-bottom: none;
         }
-        .meta-table .label {
-            font-weight: bold;
-            width: 150px;
-        }
-        .section-title {
+        .page-title {
+            text-align: center;
             font-size: 16px;
             font-weight: bold;
-            background-color: #f3f4f6;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-left: 4px solid #3b82f6;
-        }
-        .content {
+            text-transform: uppercase;
             margin-bottom: 30px;
-            text-align: justify;
+            letter-spacing: 1px;
+            text-decoration: underline;
         }
-        .footer {
-            margin-top: 50px;
-            text-align: right;
+        .section-title {
             font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: #000;
         }
-        .signature-box {
-            display: inline-block;
-            text-align: center;
-            width: 200px;
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
         }
-        .signature-space {
-            height: 80px;
-        }
-        .page-break {
-            page-break-before: always;
-        }
-        .gallery {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .gallery-item {
-            display: inline-block;
-            width: 45%;
-            margin: 5px;
+        .info-table td {
+            padding: 5px 0;
             vertical-align: top;
         }
-        .gallery-item img {
-            width: 100%;
-            height: auto;
-            border: 1px solid #ddd;
-            padding: 3px;
+        .label-col { width: 35%; font-weight: bold; color: #555; }
+        .separator-col { width: 5%; text-align: center; }
+        .value-col { width: 60%; color: #000; }
+        .content-box {
+            margin-top: 10px;
+            text-align: justify;
         }
+        .docs-grid {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .docs-row {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .doc-item {
+            display: inline-block;
+            width: 48%; /* fit two in a row roughly with spacing */
+            margin-right: 1%;
+            vertical-align: top;
+            text-align: center;
+        }
+        .doc-img {
+            max-width: 100%;
+            max-height: 250px;
+            border: 1px solid #ccc;
+            padding: 2px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+            font-size: 9px;
+            color: #666;
+            text-align: left;
+        }
+        .text-upper { text-transform: uppercase; }
+        .text-bold { font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Laporan Konsultasi</h1>
-        <p>Aplikasi Layanan KKPRL</p>
-    </div>
+    <div class="container">
+        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/kop_surat.png'))) }}" class="header-image" alt="Kop Surat">
 
-    <table class="meta-table">
-        <tr>
-            <td class="label">Nomor Tiket</td>
-            <td>: {{ $client->ticket_number }}</td>
-        </tr>
-        <tr>
-            <td class="label">Nama Pemohon</td>
-            <td>: {{ $client->name ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td class="label">Kategori</td>
-            <td>: {{ match($client->booking_type) { 'personal' => 'Perorangan', 'company' => 'Instansi / Perusahaan', default => '-' } }}</td>
-        </tr>
-        <tr>
-            <td class="label">Instansi / Lembaga</td>
-            <td>: {{ $client->instance ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td class="label">Alamat</td>
-            <td>: {{ $client->address ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td class="label">Layanan</td>
-            <td>: {{ $client->service->name ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td class="label">Tanggal Konsultasi</td>
-            <td>: {{ $client->schedules->pluck('date')->map(fn($d) => \Carbon\Carbon::parse($d)->format('d M Y'))->join(', ') }}</td>
-        </tr>
-        <tr>
-            <td class="label">Status</td>
-            <td>: {{ ucfirst($report->status ?? 'Draft') }}</td>
-        </tr>
-    </table>
+        <div class="page-title">LAPORAN HASIL KONSULTASI</div>
 
-    <div class="section-title">Hasil Konsultasi</div>
-
-    <div class="content">
-        {!! $report->content ?? '<p>Belum ada isi laporan.</p>' !!}
-    </div>
-
-    @if(!empty($report->documentation))
-        <div class="page-break"></div>
-        <div class="section-title">Dokumentasi</div>
-        <div class="gallery">
-            @foreach($report->documentation as $image)
-                @php
-                    $path = public_path('storage/' . $image);
-                    $exists = file_exists($path);
-                @endphp
-                <div class="gallery-item">
-                    @if($exists)
-                        <img src="{{ $path }}" alt="Dokumentasi">
+        <div class="section-title">DATA PEMOHON</div>
+        <table class="info-table">
+            <tr>
+                <td class="label-col">Nomor Tiket</td>
+                <td class="separator-col">:</td>
+                <td class="value-col text-bold">{{ $client->ticket_number }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Nama Lengkap</td>
+                <td class="separator-col">:</td>
+                <td class="value-col text-upper text-bold">{{ $client->name }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Instansi / Lembaga</td>
+                <td class="separator-col">:</td>
+                <td class="value-col">{{ $client->instance ?? '-' }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Layanan</td>
+                <td class="separator-col">:</td>
+                <td class="value-col">{{ $client->service->name }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Tanggal Konsultasi</td>
+                <td class="separator-col">:</td>
+                <td class="value-col">
+                    @if($client->schedules->isNotEmpty())
+                        {{ $client->schedules->pluck('date')->map(fn($d) => \Carbon\Carbon::parse($d)->translatedFormat('d F Y'))->sort()->implode(', ') }}
                     @else
-                        <div style="border:1px solid red; padding:10px;">
-                            File not found: {{ $image }}
-                        </div>
+                        -
                     @endif
+                </td>
+            </tr>
+        </table>
+
+        <div class="section-title">ISI LAPORAN</div>
+        <div class="content-box">
+            {!! $report->content !!}
+        </div>
+
+        @if($report->documentation && count($report->documentation) > 0)
+        <div class="section-title">DOKUMENTASI</div>
+        <div class="docs-grid">
+            @foreach($report->documentation as $doc)
+                @if(\Illuminate\Support\Facades\Storage::disk('public')->exists($doc))
+                <div class="doc-item">
+                    <img src="data:image/jpeg;base64,{{ base64_encode(\Illuminate\Support\Facades\Storage::disk('public')->get($doc)) }}" class="doc-img">
                 </div>
+                @endif
             @endforeach
         </div>
-    @endif
+        @endif
 
-    <div class="footer">
-        <div class="signature-box">
-            <p>Dicetak pada: {{ now()->format('d M Y') }}</p>
-            <div class="signature-space"></div>
-            <p><strong>{{ auth()->user()->name ?? 'Petugas' }}</strong></p>
+        <div class="footer">
+            <p>Dokumen ini adalah laporan resmi hasil layanan konsultasi KKPRL.</p>
+            <p>Dicetak secara otomatis oleh sistem pada tanggal {{ now()->timezone('Asia/Jayapura')->translatedFormat('d F Y, H:i') }} WIT.</p>
+            <p style="margin-top: 10px; font-style: italic; font-weight: bold;">Dokumen ini bukan merupakan dokumen hukum yang menjadi dasar hukum formil pengurusan izin KKPRL.</p>
         </div>
     </div>
 </body>

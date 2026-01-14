@@ -39,7 +39,7 @@
 
         @if($client)
             <!-- Results -->
-            <div class="bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-100 animate-fade-in-up">
+            <div wire:poll.5s class="bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-100 animate-fade-in-up">
                 
                 <!-- Client Info Header -->
                 <div class="p-8 bg-slate-50 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -55,8 +55,8 @@
                     <div class="text-right">
                         <div class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg shadow-sm">
                             <span class="w-2 h-2 rounded-full 
-                                @if($client->status === 'finished') bg-green-500 
-                                @elseif($client->status === 'pending') bg-slate-400
+                                @if($client->status === 'completed') bg-green-500 
+                                @elseif($client->status === 'waiting') bg-slate-400
                                 @else bg-blue-500 @endif
                             animate-pulse"></span>
                             <span class="font-mono text-sm font-medium uppercase">{{ str_replace('_', ' ', $client->status) }}</span>
@@ -82,7 +82,7 @@
 
                             <!-- Step 2: Scheduled -->
                             <div class="relative">
-                                @php $isScheduled = in_array($client->status, ['scheduled', 'waiting_approval', 'finished']); @endphp
+                                @php $isScheduled = in_array($client->status, ['scheduled', 'completed']); @endphp
                                 <span class="absolute -left-[41px] w-6 h-6 rounded-full border-2 border-white shadow-sm flex items-center justify-center z-10
                                     {{ $isScheduled ? 'bg-green-500 text-white' : 'bg-slate-200 text-slate-400' }}">
                                     @if($isScheduled) <i class="fa-solid fa-check"></i> @else 2 @endif
@@ -107,7 +107,7 @@
 
                             <!-- Step 3: Finished -->
                             <div class="relative">
-                                @php $isFinished = $client->status === 'finished'; @endphp
+                                @php $isFinished = $client->status === 'completed'; @endphp
                                 <span class="absolute -left-[41px] w-6 h-6 rounded-full border-2 border-white shadow-sm flex items-center justify-center z-10
                                     {{ $isFinished ? 'bg-green-500 text-white' : 'bg-slate-200 text-slate-400' }}">
                                     @if($isFinished) <i class="fa-solid fa-check"></i> @else 3 @endif
@@ -120,14 +120,21 @@
 
                     <!-- Actions / Survey -->
                     <div>
-                        @if($client->status === 'finished')
+                        @if($client->status === 'completed')
                             @if($this->hasFeedback)
                                 <div class="h-full flex flex-col items-center justify-center text-center p-8 bg-green-50/50 rounded-2xl border border-green-100">
                                     <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4 text-2xl">
                                         <i class="fa-solid fa-heart"></i>
                                     </div>
                                     <h4 class="font-bold text-slate-900 mb-2">Terima Kasih!</h4>
-                                    <p class="text-slate-600 text-sm">Masukan Anda sangat berharga bagi kami untuk meningkatkan kualitas layanan.</p>
+                                    <p class="text-slate-600 text-sm mb-6">Masukan Anda sangat berharga bagi kami untuk meningkatkan kualitas layanan.</p>
+                                    
+                                    @if($client->latestConsultationReport)
+                                        <a href="{{ route('client.report.download', ['client' => $client->ticket_number, 'token' => $client->access_token]) }}" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-green-600 border border-green-200 rounded-xl font-bold hover:bg-green-50 transition-colors shadow-sm cursor-pointer">
+                                            <i class="fa-solid fa-file-pdf"></i>
+                                            Unduh Laporan Konsultasi
+                                        </a>
+                                    @endif
                                 </div>
                             @else
                                 <div class="bg-indigo-50/50 rounded-2xl border border-indigo-100 p-6">
@@ -135,6 +142,11 @@
                                         <i class="fa-regular fa-star text-indigo-500"></i>
                                         Berikan Penilaian
                                     </h4>
+                                    
+                                    <div class="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-xl flex gap-3 text-blue-700 text-sm">
+                                        <i class="fa-solid fa-circle-info mt-0.5"></i>
+                                        <p>Mohon luangkan waktu sejenak untuk menilai layanan kami. <strong>Laporan Hasil Konsultasi</strong> dapat diunduh setelah Anda mengisi survei ini.</p>
+                                    </div>
                                     
                                     <form wire:submit="submitFeedback">
                                         <!-- Ratings Loop -->

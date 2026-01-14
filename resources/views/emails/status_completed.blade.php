@@ -17,10 +17,10 @@
 
     @if($client->latestConsultationReport)
     <div style="text-align: center; margin: 30px 0;">
-        <p>Anda dapat mengunduh laporan hasil konsultasi melalui tombol di bawah ini:</p>
-        <!-- Note: Ensure the route for downloading PDF exists and is accessible via token or public link -->
-        <a href="{{ url('/booking/check?token=' . $client->access_token) }}" style="background-color: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-            Lihat Laporan Konsultasi
+        <p>Silakan memberikan penilaian layanan dan mengunduh laporan hasil konsultasi melalui tombol di bawah ini:</p>
+        <!-- Redirect to Check Status Page with auto-login params -->
+        <a href="{{ route('check-status', ['ticket' => $client->ticket_number, 'token' => $client->access_token]) }}" style="background-color: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            Cek Status Layanan
         </a>
     </div>
     @endif
