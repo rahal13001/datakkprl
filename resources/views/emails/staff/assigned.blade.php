@@ -108,7 +108,12 @@
                 <div class="info-card">
                     <div class="info-row">
                         <span class="label">Klien</span>
-                        <span class="value">{{ $clientName }}</span>
+                        <span class="value">
+                            {{ $assignment->schedule->client->name }}
+                            @if($assignment->schedule->client->instance)
+                                / {{ $assignment->schedule->client->instance }}
+                            @endif
+                        </span>
                     </div>
                     <div class="info-row">
                         <span class="label">Layanan</span>

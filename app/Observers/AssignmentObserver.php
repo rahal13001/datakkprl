@@ -3,7 +3,10 @@
 namespace App\Observers;
 
 use App\Models\Assignment;
+use App\Models\Client;
 use App\Mail\StaffAssigned;
+use App\Mail\StatusScheduledMail;
+use App\Mail\StatusWaitingMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 
@@ -14,8 +17,8 @@ class AssignmentObserver
      */
     public function created(Assignment $assignment): void
     {
+        // 1. Send Email to Staff
         try {
-            // Load relationships needed for email
             $assignment->load(['user', 'schedule.client.service']);
 
             if ($assignment->user && $assignment->user->email) {
@@ -25,15 +28,21 @@ class AssignmentObserver
         } catch (\Exception $e) {
             Log::error("Failed to send StaffAssigned email: " . $e->getMessage());
         }
-    }
 
-    /**
-     * Handle the Assignment "updated" event.
-     */
-    public function updated(Assignment $assignment): void
-    {
-        // Optional: Send update email if schedule changes?
-        // For now, user only asked for "assigned" confirmation.
+        // 2. Update Client Status to Scheduled
+        try {
+            $client = $assignment->schedule->client;
+            if ($client && $client->status === 'waiting') {
+                $client->update(['status' => 'scheduled']);
+                
+                if ($client->email) {
+                    Mail::to($client->email)->send(new StatusScheduledMail($client));
+                    Log::info("StatusScheduledMail sent to {$client->email}");
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Failed to update client status/email on assignment creation: " . $e->getMessage());
+        }
     }
 
     /**
@@ -41,15 +50,7 @@ class AssignmentObserver
      */
     public function deleted(Assignment $assignment): void
     {
-        //
-    }
-
-    /**
-     * Handle the Assignment "restored" event.
-     */
-    public function restored(Assignment $assignment): void
-    {
-        //
+        $this->checkIfRevertToWaiting($assignment);
     }
 
     /**
@@ -57,6 +58,35 @@ class AssignmentObserver
      */
     public function forceDeleted(Assignment $assignment): void
     {
-        //
+        $this->checkIfRevertToWaiting($assignment);
+    }
+
+    /**
+     * Check if client should revert to "waiting" status.
+     */
+    protected function checkIfRevertToWaiting(Assignment $assignment): void
+    {
+        try {
+            // Reload schedule->client to ensure we have the latest data
+            $assignment->load('schedule.client');
+            $client = $assignment->schedule->client;
+
+            if ($client && $client->status === 'scheduled') {
+                // Check if there are any ACTIVE assignments left for this client
+                // We assume hasManyThrough relationship 'assignments' is defined in Client model
+                $activeAssignmentsCount = $client->assignments()->count();
+
+                if ($activeAssignmentsCount === 0) {
+                    $client->update(['status' => 'waiting']);
+
+                    if ($client->email) {
+                        Mail::to($client->email)->send(new StatusWaitingMail($client));
+                        Log::info("StatusWaitingMail sent to {$client->email}");
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Failed to check revert status on assignment deletion: " . $e->getMessage());
+        }
     }
 }

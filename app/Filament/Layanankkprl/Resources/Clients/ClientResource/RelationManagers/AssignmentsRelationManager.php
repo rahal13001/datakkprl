@@ -64,22 +64,7 @@ class AssignmentsRelationManager extends RelationManager
                         'scheduled' => 'Terjadwal',
                         'hadir' => 'Hadir',
                         'izin_mendadak' => 'Izin Mendadak',
-                    ])
-                    ->afterStateUpdated(function ($record, $state) {
-                        $client = $record->schedule->client;
-                        if ($state === 'scheduled') {
-                            $client->update(['status' => 'scheduled']);
-                        } elseif ($state === 'hadir') {
-                            $client->update(['status' => 'in_progress']);
-                        }
-                        
-                        \Filament\Notifications\Notification::make()
-                            ->title('Status Diperbarui')
-                            ->success()
-                            ->send();
-                            
-                        return redirect(request()->header('Referer'));
-                    }),
+                    ]),
                 Tables\Columns\TextColumn::make('score'),
             ])
             ->filters([
@@ -179,63 +164,19 @@ class AssignmentsRelationManager extends RelationManager
                             }
                         }
                         
-                        // Automate Client Status
-                        $client = $livewire->getOwnerRecord();
-                        if ($data['status'] === 'scheduled') {
-                            $client->update(['status' => 'scheduled']);
-                        } elseif ($data['status'] === 'hadir') {
-                            $client->update(['status' => 'in_progress']);
-                        }
-                        
                         \Filament\Notifications\Notification::make()
                             ->title('Assignments Created')
-                            ->body('Status Klien diperbarui otomatis.')
                             ->success()
                             ->send();
-                            
-                        // Refresh page to show status changes
-                        return redirect(request()->header('Referer'));
                     }),
             ])
             ->actions([
                 \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make()
-                    ->after(function ($record) {
-                        $client = $record->schedule->client;
-                        $hasAssignments = \App\Models\Assignment::whereHas('schedule', function ($q) use ($client) {
-                            $q->where('client_id', $client->id);
-                        })->exists();
-
-                        if (!$hasAssignments) {
-                            $client->update(['status' => 'pending']);
-                            \Filament\Notifications\Notification::make()
-                                ->title('Status Klien Kembali ke Menunggu')
-                                ->warning()
-                                ->send();
-                                
-                            return redirect(request()->header('Referer'));
-                        }
-                    }),
+                \Filament\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make()
-                        ->after(function (\Illuminate\Database\Eloquent\Collection $records) {
-                            $client = $records->first()->schedule->client;
-                            $hasAssignments = \App\Models\Assignment::whereHas('schedule', function ($q) use ($client) {
-                                $q->where('client_id', $client->id);
-                            })->exists();
-
-                            if (!$hasAssignments) {
-                                $client->update(['status' => 'pending']);
-                                \Filament\Notifications\Notification::make()
-                                    ->title('Status Klien Kembali ke Menunggu')
-                                    ->warning()
-                                    ->send();
-                                    
-                                return redirect(request()->header('Referer'));
-                            }
-                        }),
+                    \Filament\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

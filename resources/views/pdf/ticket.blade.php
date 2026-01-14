@@ -145,19 +145,19 @@
             <tr>
                 <td class="label-col">Nama Lengkap</td>
                 <td class="separator-col">:</td>
-                <td class="value-col text-upper text-bold">{{ $client->contact_details['name'] ?? '-' }}</td>
+                <td class="value-col text-upper text-bold">{{ $client->name }}</td>
             </tr>
             <tr>
                 <td class="label-col">Instansi / Lembaga</td>
                 <td class="separator-col">:</td>
-                <td class="value-col">{{ $client->contact_details['agency'] ?? '-' }}</td>
+                <td class="value-col">{{ $client->instance ?? '-' }}</td>
             </tr>
             <tr>
                 <td class="label-col">Email / Kontak</td>
                 <td class="separator-col">:</td>
                 <td class="value-col">
-                    {{ $client->contact_details['email'] ?? '-' }} 
-                    @if(isset($client->contact_details['wa'])) / {{ $client->contact_details['wa'] }} @endif
+                    {{ $client->email }} 
+                    @if($client->whatsapp) / {{ $client->whatsapp }} @endif
                 </td>
             </tr>
         </table>
@@ -180,20 +180,31 @@
                     <td>{{ $schedule->start_time }} - {{ $schedule->end_time }}</td>
                     <td class="text-upper">{{ $schedule->is_online ? 'Online' : 'Offline' }}</td>
                     <td style="vertical-align: top;">
-                        @if($schedule->meeting_link)
-                            <div style="font-size: 10px; font-weight: bold; margin-bottom: 2px; color: #333;">Link Meeting</div>
-                            <table style="width: 100%; border: none;">
-                                <tr>
-                                    <td style="width: 12px; padding: 0; border: none; vertical-align: top;">
-                                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAbElEQVR4nGP4//8/AypgGPz///+MqIqR5DAYsCggSYI0T2BgYDBgYGBg+P///38g/w0qBwImAvkfQJoZgLQIkG8A1QICjgwMDg4M7OzsDJ+fPgXKM0DNBbkGqgYkC9IMVAN3tRvBL6Ad/4E4FwB03iom6675qgAAAABJRU5ErkJggg==" width="10" alt="link" style="margin-top: 2px;">
-                                    </td>
-                                    <td style="padding: 0 0 0 5px; border: none; word-wrap: break-word; word-break: break-all; font-size: 10px; color: #2563eb;">
-                                        <a href="{{ $schedule->meeting_link }}" style="color: #2563eb; text-decoration: none;">{{ $schedule->meeting_link }}</a>
-                                    </td>
-                                </tr>
-                            </table>
+                        @if($schedule->is_online)
+                            @if($schedule->meeting_link)
+                                <div style="font-size: 10px; font-weight: bold; margin-bottom: 2px; color: #333;">Link Meeting</div>
+                                <table style="width: 100%; border: none;">
+                                    <tr>
+                                        <td style="width: 12px; padding: 0; border: none; vertical-align: top;">
+                                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAbElEQVR4nGP4//8/AypgGPz///+MqIqR5DAYsCggSYI0T2BgYDBgYGBg+P///38g/w0qBwImAvkfQJoZgLQIkG8A1QICjgwMDg4M7OzsDJ+fPgXKM0DNBbkGqgYkC9IMVAN3tRvBL6Ad/4E4FwB03iom6675qgAAAABJRU5ErkJggg==" width="10" alt="link" style="margin-top: 2px;">
+                                        </td>
+                                        <td style="padding: 0 0 0 5px; border: none; word-wrap: break-word; word-break: break-all; font-size: 10px; color: #2563eb;">
+                                            <a href="{{ $schedule->meeting_link }}" style="color: #2563eb; text-decoration: none;">{{ $schedule->meeting_link }}</a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            @else
+                                <span style="font-style: italic; color: #666;">Tautan rapat virtual akan segera disiapkan.</span>
+                            @endif
                         @else
-                            -
+                            <div style="font-weight: bold; margin-bottom: 2px;">LOKASI:</div>
+                            {{ $client->consultationLocation->name ?? 'Kantor LPSPL Sorong' }}
+                            
+                            @if($client->consultationLocation && $client->consultationLocation->address)
+                                <div style="font-size: 9px; color: #555; margin-top: 2px;">
+                                    {{ $client->consultationLocation->address }}
+                                </div>
+                            @endif
                         @endif
                     </td>
                 </tr>
@@ -215,7 +226,7 @@
 
         <div class="footer">
             <p>Halaman ini adalah bukti sah pendaftaran konsultasi layanan KKPRL.</p>
-            <p>Dicetak secara otomatis oleh sistem pada tanggal {{ now()->translatedFormat('d F Y, H:i') }} WIB.</p>
+            <p>Dicetak secara otomatis oleh sistem pada tanggal {{ now()->timezone('Asia/Jayapura')->translatedFormat('d F Y, H:i') }} WIT.</p>
         </div>
     </div>
 </body>

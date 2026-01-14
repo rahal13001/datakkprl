@@ -16,6 +16,7 @@ class Service extends Model
         'description',
         'slug',
         'is_active',
+        'requires_documents',
     ];
 
     public function getRouteKeyName(): string
@@ -25,6 +26,7 @@ class Service extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'requires_documents' => 'boolean',
     ];
 
     public function clients(): \Illuminate\Database\Eloquent\Relations\HasMany

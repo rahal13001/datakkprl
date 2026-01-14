@@ -49,8 +49,8 @@ class ConsultationReportResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('client_id')
                             ->relationship('client')
-                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->ticket_number} - " . ($record->contact_details['agency'] ?? 'Instansi Tidak Diketahui'))
-                            ->searchable(['ticket_number', 'contact_details->agency'])
+                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->ticket_number} - " . ($record->instance ?? 'Instansi Tidak Diketahui'))
+                            ->searchable(['ticket_number', 'instance', 'name'])
                             ->preload()
                             ->required()
                             ->label('Tiket Klien')
@@ -75,23 +75,16 @@ class ConsultationReportResource extends Resource
                     ])
                     ->columnSpan(['lg' => 2]),
 
-                \Filament\Schemas\Components\Section::make('Status & Persetujuan')
+                \Filament\Schemas\Components\Section::make('Status Laporan')
                     ->schema([
                         Forms\Components\Select::make('status')
                             ->options([
                                 'draft' => 'Draft',
-                                'review' => 'Menunggu Review',
-                                'approved' => 'Disetujui',
-                                'rejected' => 'Ditolak',
+                                'completed' => 'Selesai',
                             ])
                             ->required()
                             ->default('draft')
                             ->live(),
-
-                        Forms\Components\Textarea::make('feedback')
-                            ->label('Catatan Reviewer')
-                            ->visible(fn ($get) => in_array($get('status'), ['rejected', 'approved']))
-                            ->placeholder('Berikan alasan penolakan atau catatan tambahan...'),
                     ])
                     ->columnSpan(['lg' => 1]),
             ])
@@ -107,14 +100,42 @@ class ConsultationReportResource extends Resource
                     ->searchable()
                     ->sortable(),
                 
-                TextColumn::make('client.contact_details.name')
+                TextColumn::make('client.name')
                     ->label('Nama Pemohon')
+                    ->searchable()
+                    ->sortable()
                     ->toggleable(),
 
-                TextColumn::make('client.contact_details.agency')
+                TextColumn::make('client.instance')
                     ->label('Instansi')
                     ->searchable()
+                    ->sortable()
                     ->toggleable(),
+
+                TextColumn::make('assigned_officers')
+                    ->label('Petugas')
+                    ->getStateUsing(function ($record) {
+                        $names = $record->client?->assignments
+                            ->loadMissing('user') // Ensure users are loaded
+                            ->pluck('user.name')
+                            ->unique()
+                            ->filter()
+                            ->values();
+
+                        if (!$names || $names->isEmpty()) {
+                            return '-';
+                        }
+
+                        if ($names->count() === 1) {
+                            return $names->first();
+                        }
+
+                        $last = $names->pop();
+                        return $names->implode(', ') . ' & ' . $last;
+                    })
+                    ->badge()
+                    ->color('info')
+                    ->wrap(),
 
                 TextColumn::make('schedule_dates')
                     ->label('Tgl. Konsultasi')
@@ -144,15 +165,12 @@ class ConsultationReportResource extends Resource
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'draft' => 'gray',
-                        'review' => 'warning',
-                        'approved' => 'success',
-                        'rejected' => 'danger',
+                        'completed' => 'success',
+                        default => 'danger',
                     })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'draft' => 'Draft',
-                        'review' => 'Butuh Review',
-                        'approved' => 'Disetujui',
-                        'rejected' => 'Ditolak',
+                        'completed' => 'Selesai',
                         default => $state,
                     }),
 
@@ -165,9 +183,7 @@ class ConsultationReportResource extends Resource
                 SelectFilter::make('status')
                     ->options([
                         'draft' => 'Draft',
-                        'review' => 'Menunggu Review',
-                        'approved' => 'Disetujui',
-                        'rejected' => 'Ditolak',
+                        'completed' => 'Selesai',
                     ]),
                 
                 \Filament\Tables\Filters\Filter::make('consultation_date')

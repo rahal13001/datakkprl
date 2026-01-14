@@ -40,7 +40,7 @@ class StaffAssigned extends Mailable implements ShouldQueue
             view: 'emails.staff.assigned',
             with: [
                 'staffName' => $this->assignment->user->name,
-                'clientName' => $this->assignment->schedule->client->contact_details['name'] ?? 'Klien',
+                'clientName' => $this->assignment->schedule->client->name . ($this->assignment->schedule->client->instance ? ' / ' . $this->assignment->schedule->client->instance : ''),
                 'serviceName' => $this->assignment->schedule->client->service->name ?? 'Layanan',
                 'date' => \Carbon\Carbon::parse($this->assignment->schedule->date)->format('d M Y'),
                 'time' => $this->assignment->schedule->start_time . ' - ' . $this->assignment->schedule->end_time,

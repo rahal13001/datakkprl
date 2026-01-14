@@ -20,21 +20,48 @@ class ClientsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
+            ->persistSortInSession()
             ->columns([
-                TextColumn::make('No')->rowIndex()->label('No'),
+                TextColumn::make('index')->rowIndex()->label('No'),
+                
+                TextColumn::make('created_at')
+                    ->label('Tanggal Daftar')
+                    ->dateTime('d M Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false), // Visible as per user request context implied
+
                 TextColumn::make('ticket_number')
                     ->label('No. Tiket')
                     ->searchable()
-                    ->copyable(),
+                    ->copyable()
+                    ->sortable(),
+
                 TextColumn::make('name')
                     ->label('Nama Pemohon')
                     ->searchable()
                     ->sortable()
                     ->description(fn ($record) => $record->instance),
+
+                TextColumn::make('instance')
+                    ->label('Instansi')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true), // Hidden by default, but available for sort
+
                 TextColumn::make('service.name')
                     ->label('Layanan')
                     ->searchable()
-                    ->badge(),
+                    ->badge()
+                    ->sortable(),
+
+                TextColumn::make('consultationLocation.name')
+                    ->label('Lokasi')
+                    ->badge()
+                    ->icon(fn ($record) => $record->consultationLocation?->is_online ? 'heroicon-m-video-camera' : 'heroicon-m-building-office')
+                    ->color(fn ($record) => $record->consultationLocation?->is_online ? 'success' : 'gray')
+                    ->placeholder('-')
+                    ->sortable(),
 
                 TextColumn::make('activity_type')
                     ->label('Bentuk Kegiatan')
@@ -70,31 +97,35 @@ class ClientsTable
                     })
                     ->badge()
                     ->color('info')
-                    ->separator(','),
+                    ->separator(',')
+                    // Custom sort for HasMany relationship (using min date)
+                    ->sortable(query: function (\Illuminate\Database\Eloquent\Builder $query, string $direction): \Illuminate\Database\Eloquent\Builder {
+                        return $query->orderBy(
+                            \App\Models\Schedule::select('date')
+                                ->whereColumn('schedules.client_id', 'clients.id')
+                                ->orderBy('date', 'asc') // Always pick earliest date for comparison
+                                ->limit(1),
+                            $direction
+                        );
+                    }),
 
                 IconColumn::make('report_status_display')
                     ->label('Laporan')
                     ->state(fn ($record) => $record->consultationReports()->latest()->first()?->status ?? 'none')
                     ->color(fn (string $state): string => match ($state) {
                         'draft' => 'gray',
-                        'review' => 'warning',
-                        'approved' => 'info',
-                        'rejected' => 'danger',
+                        'completed' => 'success',
                         default => 'danger',
                     })
                     ->icon(fn (string $state): string => match ($state) {
                         'draft' => 'heroicon-m-document',
-                        'review' => 'heroicon-m-clock',
-                        'approved' => 'heroicon-m-check-circle',
-                        'rejected' => 'heroicon-m-x-circle',
+                        'completed' => 'heroicon-m-check-circle',
                         default => 'heroicon-m-x-mark',
                     })
                     ->alignCenter()
                     ->tooltip(fn (string $state): string => match ($state) {
                         'draft' => 'Draft',
-                        'review' => 'Menunggu Review',
-                        'approved' => 'Disetujui',
-                        'rejected' => 'Ditolak',
+                        'completed' => 'Selesai',
                         'none' => 'Belum Ada',
                         default => 'Status Tidak Diketahui',
                     })
@@ -119,16 +150,11 @@ class ClientsTable
                                 \Filament\Forms\Components\Select::make('status')
                                     ->options([
                                         'draft' => 'Draft',
-                                        'review' => 'Menunggu Review',
-                                        'approved' => 'Disetujui',
-                                        'rejected' => 'Ditolak',
+                                        'completed' => 'Selesai',
                                     ])
                                     ->required()
                                     ->default('draft')
                                     ->live(),
-                                \Filament\Forms\Components\Textarea::make('feedback')
-                                    ->label('Feedback')
-                                    ->visible(fn ($get) => in_array($get('status'), ['approved', 'rejected'])),
                             ])
                             ->fillForm(fn ($record) => $record->consultationReports()->latest()->first()?->toArray() ?? [])
                             ->action(function (array $data, \App\Models\Client $record) {
@@ -146,19 +172,15 @@ class ClientsTable
                     ->label('Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'pending' => 'gray',
-                        'scheduled' => 'warning',
-                        'waiting_approval' => 'info',
-                        'finished' => 'success',
-                        'canceled' => 'danger',
+                        'waiting' => 'warning',
+                        'scheduled' => 'info',
+                        'completed' => 'success',
                         default => 'gray',
                     })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'pending' => 'Menunggu',
+                        'waiting' => 'Menunggu',
                         'scheduled' => 'Dijadwalkan',
-                        'waiting_approval' => 'Menunggu Persetujuan',
-                        'finished' => 'Selesai',
-                        'canceled' => 'Dibatalkan',
+                        'completed' => 'Selesai',
                         default => $state,
                     }),
                 TextColumn::make('created_at')
@@ -184,21 +206,23 @@ class ClientsTable
                 
                 \Filament\Tables\Filters\SelectFilter::make('status')
                     ->options([
-                        'pending' => 'Menunggu',
+                        'waiting' => 'Menunggu',
                         'scheduled' => 'Dijadwalkan',
-                        'waiting_approval' => 'Menunggu Persetujuan',
-                        'finished' => 'Selesai',
-                        'canceled' => 'Dibatalkan',
+                        'completed' => 'Selesai',
                     ])
                     ->label('Status'),
+
+                \Filament\Tables\Filters\SelectFilter::make('consultation_location_id')
+                    ->relationship('consultationLocation', 'name')
+                    ->label('Lokasi')
+                    ->searchable()
+                    ->preload(),
 
                 \Filament\Tables\Filters\SelectFilter::make('report_status')
                     ->label('Status Laporan')
                     ->options([
                         'draft' => 'Draft',
-                        'review' => 'Menunggu Review',
-                        'approved' => 'Disetujui',
-                        'rejected' => 'Ditolak',
+                        'completed' => 'Selesai',
                     ])
                     ->query(function (\Illuminate\Database\Eloquent\Builder $query, array $data): \Illuminate\Database\Eloquent\Builder {
                         return $query->when(
@@ -317,11 +341,9 @@ class ClientsTable
                                 \pxlrbt\FilamentExcel\Columns\Column::make('status')
                                     ->heading('Status')
                                     ->formatStateUsing(fn ($state) => match ($state) {
-                                        'pending' => 'Menunggu',
+                                        'waiting' => 'Menunggu',
                                         'scheduled' => 'Dijadwalkan',
-                                        'waiting_approval' => 'Menunggu Persetujuan',
-                                        'finished' => 'Selesai',
-                                        'canceled' => 'Dibatalkan',
+                                        'completed' => 'Selesai',
                                         default => $state,
                                     }),
 
@@ -329,9 +351,7 @@ class ClientsTable
                                     ->heading('Status Laporan')
                                     ->getStateUsing(fn ($record) => match ($record->latestConsultationReport?->status ?? 'none') {
                                         'draft' => 'Draft',
-                                        'review' => 'Menunggu Review',
-                                        'approved' => 'Disetujui',
-                                        'rejected' => 'Ditolak',
+                                        'completed' => 'Selesai',
                                         'none' => 'Belum Ada',
                                         default => '-',
                                     }),
@@ -377,10 +397,27 @@ class ClientsTable
                                     \pxlrbt\FilamentExcel\Columns\Column::make('metadata_string')
                                         ->heading('Data Teknis')
                                         ->getStateUsing(function ($record) {
-                                            if (empty($record->metadata)) return '-';
-                                            return collect($record->metadata)
-                                                ->map(fn ($value, $key) => "$key: $value")
-                                                ->join('; ');
+                                            $data = $record->metadata['data_teknis'] ?? [];
+                                            if (!empty($data) && is_array($data)) {
+                                                return collect($data)
+                                                    ->map(function ($row) {
+                                                        $activity = $row['activity'] ?? '-';
+                                                        $location = $row['location'] ?? '-';
+                                                        $dimension = $row['dimension'] ?? '-';
+                                                        return "{$activity} di {$location} ({$dimension})";
+                                                    })
+                                                    ->join('; ');
+                                            }
+                                            
+                                            // Fallback for legacy data
+                                            if (!empty($record->metadata)) {
+                                                return collect($record->metadata)
+                                                    ->map(fn ($value, $key) => is_string($value) ? "$key: $value" : null)
+                                                    ->filter()
+                                                    ->join('; ');
+                                            }
+                                            
+                                            return '-';
                                         }),
     
                                     \pxlrbt\FilamentExcel\Columns\Column::make('schedule_details')
@@ -398,11 +435,9 @@ class ClientsTable
                                     \pxlrbt\FilamentExcel\Columns\Column::make('status')
                                         ->heading('Status')
                                         ->formatStateUsing(fn ($state) => match ($state) {
-                                            'pending' => 'Menunggu',
+                                            'waiting' => 'Menunggu',
                                             'scheduled' => 'Dijadwalkan',
-                                            'waiting_approval' => 'Menunggu Persetujuan',
-                                            'finished' => 'Selesai',
-                                            'canceled' => 'Dibatalkan',
+                                            'completed' => 'Selesai',
                                             default => $state,
                                         }),
     
@@ -410,9 +445,7 @@ class ClientsTable
                                         ->heading('Status Laporan')
                                         ->getStateUsing(fn ($record) => match ($record->latestConsultationReport?->status ?? 'none') {
                                             'draft' => 'Draft',
-                                            'review' => 'Menunggu Review',
-                                            'approved' => 'Disetujui',
-                                            'rejected' => 'Ditolak',
+                                            'completed' => 'Selesai',
                                             'none' => 'Belum Ada',
                                             default => '-',
                                         }),

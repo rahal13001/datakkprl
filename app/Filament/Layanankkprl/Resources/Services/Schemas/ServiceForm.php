@@ -24,6 +24,10 @@ class ServiceForm
                     ->label('Status Aktif')
                     ->default(true)
                     ->required(),
+                Toggle::make('requires_documents')
+                    ->label('Wajib Upload Dokumen?')
+                    ->helperText('Jika aktif, pemohon wajib upload dokumen pendukung saat reservasi.')
+                    ->default(false),
             ]);
     }
 }

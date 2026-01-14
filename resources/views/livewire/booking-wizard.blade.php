@@ -23,11 +23,18 @@
         <div class="bg-slate-50 border-b border-slate-100 p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-bold text-slate-900">Formulir Reservasi</h3>
-                <span class="text-xs font-mono text-slate-400">STEP {{ $step }} / 3</span>
+                <span class="text-xs font-mono text-slate-400">STEP {{ $step }} / 4</span>
             </div>
             <!-- Progress Bar -->
             <div class="h-1 w-full bg-slate-200 rounded-full overflow-hidden">
-                <div class="h-full bg-brand-blue transition-all duration-500" style="width: {{ ($step / 3) * 100 }}%"></div>
+                <div class="h-full bg-brand-blue transition-all duration-500" style="width: {{ ($step / 4) * 100 }}%"></div>
+            </div>
+            <!-- Step Labels -->
+            <div class="flex justify-between mt-3 text-xs text-slate-400">
+                <span class="{{ $step >= 1 ? 'text-brand-blue font-medium' : '' }}">Identitas</span>
+                <span class="{{ $step >= 2 ? 'text-brand-blue font-medium' : '' }}">Layanan</span>
+                <span class="{{ $step >= 3 ? 'text-brand-blue font-medium' : '' }}">Lokasi</span>
+                <span class="{{ $step >= 4 ? 'text-brand-blue font-medium' : '' }}">Jadwal</span>
             </div>
         </div>
 
@@ -121,7 +128,7 @@
                             placeholder="Alamat lengkap..."></textarea>
                     </div>
 
-                    <!-- Informasi Tambahan -->
+                    <!-- Technical Data Repeater -->
                     <div class="border-t border-slate-100 pt-8">
                         <div class="flex items-center justify-between mb-4">
                             <h4 class="text-base font-bold text-slate-800">Data Teknis & Kegiatan</h4>
@@ -133,13 +140,9 @@
 
                         <div class="space-y-4">
                             @foreach($technical_data as $index => $row)
-                                <div
-                                    class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:border-brand-blue/30 transition-all group">
-
-                                    <!-- Card Header (Index & Delete) -->
+                                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:border-brand-blue/30 transition-all group">
                                     <div class="bg-slate-50 px-4 py-3 border-b border-slate-100 flex justify-between items-center">
-                                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Data No.
-                                            {{ $index + 1 }}</span>
+                                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Data No. {{ $index + 1 }}</span>
                                         @if(count($technical_data) > 1)
                                             <button wire:click="removeTechnicalRow({{ $index }})"
                                                 class="text-xs font-semibold text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-md transition-all flex items-center gap-1">
@@ -148,46 +151,43 @@
                                         @endif
                                     </div>
 
-                                    <div class="p-5 grid md:grid-cols-12 gap-4">
-                                        <!-- 1. Sifat Kegiatan -->
-                                        <div class="md:col-span-3">
-                                            <label
-                                                class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Sifat</label>
+                                    <div class="p-5 grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Sifat</label>
                                             <div class="relative">
                                                 <select wire:model="technical_data.{{ $index }}.nature"
-                                                    class="w-full appearance-none px-3 py-2.5 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-blue focus:ring-2 focus:ring-blue-100 outline-none text-sm font-medium text-slate-700 transition-all">
+                                                    class="w-full appearance-none px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-blue focus:ring-2 focus:ring-blue-100 outline-none text-sm font-medium text-slate-700 transition-all">
                                                     <option value="non_business">Non Berusaha</option>
                                                     <option value="business">Berusaha</option>
                                                 </select>
-                                                <div
-                                                    class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
+                                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400">
                                                     <i class="fa-solid fa-chevron-down text-xs"></i>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <!-- 2. Jenis Kegiatan -->
-                                        <div class="md:col-span-5">
-                                            <label
-                                                class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Jenis
-                                                Kegiatan</label>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Jenis Kegiatan</label>
                                             <input wire:model="technical_data.{{ $index }}.activity" type="text"
-                                                class="w-full px-3 py-2.5 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-blue focus:ring-2 focus:ring-blue-100 outline-none text-sm placeholder:text-slate-400 transition-all"
+                                                class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-blue focus:ring-2 focus:ring-blue-100 outline-none text-sm placeholder:text-slate-400 transition-all"
                                                 placeholder="Contoh: Reklamasi, Dermaga...">
-                                            @error("technical_data.{$index}.activity") <span
-                                            class="text-[10px] text-red-500 block mt-1">Wajib diisi</span> @enderror
+                                            @error("technical_data.{$index}.activity") <span class="text-[10px] text-red-500 block mt-1">Wajib diisi</span> @enderror
                                         </div>
 
-                                        <!-- 3. Luasan / Panjang -->
-                                        <div class="md:col-span-4">
-                                            <label
-                                                class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Dimensi
-                                                (Luas/Panjang)</label>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Lokasi (Kab/Kota)</label>
+                                            <input wire:model="technical_data.{{ $index }}.location" type="text"
+                                                class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-blue focus:ring-2 focus:ring-blue-100 outline-none text-sm placeholder:text-slate-400 transition-all"
+                                                placeholder="Contoh: Kota Sorong">
+                                            @error("technical_data.{$index}.location") <span class="text-[10px] text-red-500 block mt-1">Wajib diisi</span> @enderror
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Dimensi</label>
                                             <input wire:model="technical_data.{{ $index }}.dimension" type="text"
-                                                class="w-full px-3 py-2.5 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-blue focus:ring-2 focus:ring-blue-100 outline-none text-sm placeholder:text-slate-400 transition-all"
+                                                class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-blue focus:ring-2 focus:ring-blue-100 outline-none text-sm placeholder:text-slate-400 transition-all"
                                                 placeholder="Contoh: 2 Ha / 150 m">
-                                            @error("technical_data.{$index}.dimension") <span
-                                            class="text-[10px] text-red-500 block mt-1">Wajib diisi</span> @enderror
+                                            @error("technical_data.{$index}.dimension") <span class="text-[10px] text-red-500 block mt-1">Wajib diisi</span> @enderror
                                         </div>
                                     </div>
                                 </div>
@@ -208,6 +208,7 @@
             @endif
 
 
+            <!-- STEP 2: SERVICE SELECTION + DOCUMENTS -->
             @if($step === 2)
                 <div x-data="{ showModal: false, title: '', desc: '' }" class="relative">
                     
@@ -217,14 +218,15 @@
                                 class="relative cursor-pointer p-6 rounded-2xl border transition-all hover:shadow-md 
                                  {{ $service_id == $service->id ? 'border-brand-blue bg-blue-50/50 ring-2 ring-brand-blue/20' : 'border-slate-200 hover:border-brand-blue/50' }}">
                                 <div class="flex items-center gap-4">
-                                    <div
-                                        class="w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-brand-blue shadow-sm">
-                                        <!-- Icon Placeholder -->
+                                    <div class="w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-brand-blue shadow-sm">
                                         <i class="fa-solid fa-briefcase"></i>
                                     </div>
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2">
                                             <h4 class="font-bold text-slate-900">{{ $service->name }}</h4>
+                                            @if($service->requires_documents)
+                                                <span class="text-[10px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-medium">Perlu Dokumen</span>
+                                            @endif
                                             <button type="button" 
                                                 @click.stop="showModal = true; title = '{{ $service->name }}'; desc = `{{ $service->description ?? 'Belum ada deskripsi untuk layanan ini.' }}`"
                                                 class="text-slate-400 hover:text-brand-blue transition-colors"
@@ -242,6 +244,117 @@
                             </div>
                         @endforeach
                     </div>
+
+                    @error('service_id') <p class="text-red-500 text-sm mt-4">{{ $message }}</p> @enderror
+
+                    <!-- Document Upload Section (Conditional) -->
+                    @if($selectedService?->requires_documents)
+                        <div class="mt-8 pt-8 border-t border-slate-100">
+                            <h4 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-file-arrow-up text-brand-blue"></i>
+                                Dokumen Pendukung <span class="text-red-500">*</span>
+                            </h4>
+                            <p class="text-sm text-slate-500 mb-4">Upload 1-6 dokumen pendukung (PDF, DOC, DOCX, JPG, PNG). Maksimal 10MB per file.</p>
+
+                            <!-- Supporting Documents Upload -->
+                            <div class="mb-6">
+                                <div class="border-2 border-dashed border-slate-200 rounded-xl p-6 text-center hover:border-brand-blue/50 transition-colors cursor-pointer relative"
+                                    x-data="{ dragging: false }"
+                                    @dragover.prevent="dragging = true"
+                                    @dragleave.prevent="dragging = false"
+                                    @drop.prevent="dragging = false; $refs.supportingInput.files = $event.dataTransfer.files; $refs.supportingInput.dispatchEvent(new Event('change'))"
+                                    :class="{ 'border-brand-blue bg-blue-50/50': dragging }">
+                                    
+                                    <input type="file" 
+                                        x-ref="supportingInput"
+                                        wire:model="temp_supporting_documents" 
+                                        multiple 
+                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                    
+                                    <div class="pointer-events-none">
+                                        <i class="fa-solid fa-cloud-arrow-up text-4xl text-brand-blue mb-3"></i>
+                                        <p class="font-semibold text-slate-700">Drag & Drop file di sini</p>
+                                        <p class="text-sm text-slate-400 mt-1">atau <span class="text-brand-blue underline">klik untuk pilih file</span></p>
+                                        <p class="text-xs text-slate-400 mt-3">PDF, DOC, DOCX, JPG, PNG (maks. 10MB per file)</p>
+                                    </div>
+                                </div>
+
+                                <!-- Uploaded Files List -->
+                                <div wire:loading wire:target="temp_supporting_documents" class="mt-3 text-sm text-slate-500 flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-brand-blue"></i> Mengupload...
+                                </div>
+                                
+                                @if(count($supporting_documents) > 0)
+                                    <div class="mt-4 space-y-2">
+                                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ count($supporting_documents) }} file dipilih:</p>
+                                        @foreach($supporting_documents as $index => $doc)
+                                            <div class="flex items-center justify-between gap-3 text-sm text-slate-600 bg-slate-50 px-4 py-3 rounded-lg">
+                                                <div class="flex items-center gap-3 min-w-0">
+                                                    <i class="fa-solid fa-file text-brand-blue flex-shrink-0"></i>
+                                                    <span class="truncate">{{ $doc->getClientOriginalName() }}</span>
+                                                    <span class="text-slate-400 text-xs flex-shrink-0">({{ number_format($doc->getSize() / 1024, 1) }} KB)</span>
+                                                </div>
+                                                <button type="button" 
+                                                    wire:click="removeDocument({{ $index }})"
+                                                    class="text-slate-400 hover:text-red-500 transition-colors flex-shrink-0 text-lg"
+                                                    title="Hapus file">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                @error('supporting_documents') <p class="text-red-500 text-xs mt-2">{{ $message }}</p> @enderror
+                                @error('supporting_documents.*') <p class="text-red-500 text-xs mt-2">{{ $message }}</p> @enderror
+                            </div>
+
+                            <!-- Coordinate File Upload -->
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">File Koordinat (Opsional)</label>
+                                <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-green-500/50 transition-colors cursor-pointer relative"
+                                    x-data="{ dragging: false }"
+                                    @dragover.prevent="dragging = true"
+                                    @dragleave.prevent="dragging = false"
+                                    @drop.prevent="dragging = false; $refs.coordInput.files = $event.dataTransfer.files; $refs.coordInput.dispatchEvent(new Event('change'))"
+                                    :class="{ 'border-green-500 bg-green-50/50': dragging }">
+                                    
+                                    <input type="file" 
+                                        x-ref="coordInput"
+                                        wire:model="coordinate_file" 
+                                        accept=".xlsx,.xls,.pdf,.doc,.docx,.ppt,.pptx"
+                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                    
+                                    <div class="pointer-events-none">
+                                        <i class="fa-solid fa-map-location-dot text-2xl text-green-600 mb-2"></i>
+                                        <p class="font-semibold text-slate-700 text-sm">File Koordinat</p>
+                                        <p class="text-xs text-slate-400">Excel, PDF, DOC, PPT (maks. 10MB)</p>
+                                    </div>
+                                </div>
+
+                                <div wire:loading wire:target="coordinate_file" class="mt-2 text-sm text-slate-500 flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-green-600"></i> Mengupload...
+                                </div>
+                                
+                                @if($coordinate_file)
+                                    <div class="mt-3 flex items-center justify-between gap-3 text-sm text-slate-600 bg-green-50 px-4 py-3 rounded-lg">
+                                        <div class="flex items-center gap-3 min-w-0">
+                                            <i class="fa-solid fa-map-location-dot text-green-600 flex-shrink-0"></i>
+                                            <span class="truncate">{{ $coordinate_file->getClientOriginalName() }}</span>
+                                        </div>
+                                        <button type="button" 
+                                            wire:click="$set('coordinate_file', null)"
+                                            class="text-slate-400 hover:text-red-500 transition-colors flex-shrink-0">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </div>
+                                @endif
+
+                                @error('coordinate_file') <p class="text-red-500 text-xs mt-2">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+                    @endif
 
                     <!-- Description Modal -->
                     <div x-show="showModal" style="display: none;" 
@@ -283,8 +396,55 @@
                 </div>
             @endif
 
-            <!-- STEP 3: SCHEDULE -->
+
+            <!-- STEP 3: LOCATION SELECTION -->
             @if($step === 3)
+                <div class="space-y-6">
+                    <div class="text-center mb-8">
+                        <h4 class="text-lg font-bold text-slate-800">Pilih Lokasi Konsultasi</h4>
+                        <p class="text-sm text-slate-500 mt-1">Tentukan lokasi kantor atau pilih konsultasi online</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        @foreach($this->consultationLocations as $location)
+                            <div wire:click="selectLocation({{ $location->id }})"
+                                class="relative cursor-pointer p-6 rounded-2xl border transition-all hover:shadow-md text-center
+                                 {{ $consultation_location_id == $location->id ? 'border-brand-blue bg-blue-50/50 ring-2 ring-brand-blue/20' : 'border-slate-200 hover:border-brand-blue/50' }}">
+                                
+                                <div class="w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center
+                                    {{ $location->is_online ? 'bg-green-50 text-green-600' : 'bg-slate-100 text-slate-600' }}">
+                                    @if($location->is_online)
+                                        <i class="fa-solid fa-video text-xl"></i>
+                                    @else
+                                        <i class="fa-solid fa-building text-xl"></i>
+                                    @endif
+                                </div>
+                                
+                                <h5 class="font-bold text-slate-900 text-lg">{{ $location->name }}</h5>
+                                <p class="text-xs text-slate-500 mt-1">
+                                    @if($location->is_online)
+                                        Konsultasi via Video Call
+                                    @else
+                                        Konsultasi Tatap Muka
+                                    @endif
+                                </p>
+
+                                @if($consultation_location_id == $location->id)
+                                    <div class="absolute top-3 right-3 text-brand-blue">
+                                        <i class="fa-solid fa-circle-check text-xl"></i>
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+
+                    @error('consultation_location_id') <p class="text-red-500 text-sm mt-4 text-center">{{ $message }}</p> @enderror
+                </div>
+            @endif
+
+
+            <!-- STEP 4: SCHEDULE -->
+            @if($step === 4)
                 <div class="space-y-8">
 
                     <div class="bg-blue-50/50 p-6 rounded-2xl border border-blue-100">
@@ -340,11 +500,9 @@
                             <h4 class="text-sm font-semibold text-slate-700 mb-3">Jadwal Dipilih ({{ count($schedules_list) }})</h4>
                             <div class="space-y-3">
                                 @foreach($schedules_list as $index => $item)
-                                    <div
-                                        class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
+                                    <div class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
                                         <div class="flex items-center gap-4">
-                                            <div
-                                                class="w-10 h-10 rounded-full bg-blue-50 text-brand-blue flex items-center justify-center">
+                                            <div class="w-10 h-10 rounded-full bg-blue-50 text-brand-blue flex items-center justify-center">
                                                 <i class="fa-regular fa-calendar"></i>
                                             </div>
                                             <div>
@@ -369,6 +527,22 @@
                         </div>
                     @endif
 
+                    <!-- Location Summary -->
+                    @if($selectedLocation)
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center
+                                    {{ $selectedLocation->is_online ? 'bg-green-100 text-green-600' : 'bg-slate-200 text-slate-600' }}">
+                                    <i class="fa-solid {{ $selectedLocation->is_online ? 'fa-video' : 'fa-building' }}"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-500">Lokasi Konsultasi</p>
+                                    <p class="font-bold text-slate-800">{{ $selectedLocation->name }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                 </div>
             @endif
 
@@ -385,7 +559,7 @@
                 <div></div> <!-- Spacer -->
             @endif
 
-            @if($step < 3)
+            @if($step < 4)
                 <button wire:click="nextStep"
                     class="px-8 py-3 bg-brand-black text-white rounded-xl font-bold shadow-lg hover:bg-slate-800 transition-all flex items-center gap-2">
                     Selanjutnya <i class="fa-solid fa-arrow-right"></i>

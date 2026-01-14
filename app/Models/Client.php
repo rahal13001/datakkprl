@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne as HasOneSurvey;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
@@ -30,7 +31,10 @@ class Client extends Model
         'status',          // pending, scheduled, waiting_approval, finished, canceled
         'metadata',
         'service_id',
+        'consultation_location_id',
         'activity_type',
+        'supporting_documents',
+        'coordinate_file',
     ];
 
     public function getRouteKeyName(): string
@@ -42,6 +46,7 @@ class Client extends Model
         'contact_details' => 'array', // Keep casting just in case we need to read old data
         'metadata' => 'array',
         'access_token' => 'string', // It's a uuid string
+        'supporting_documents' => 'array',
     ];
 
     /**
@@ -106,6 +111,11 @@ class Client extends Model
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
+    }
+
+    public function consultationLocation(): BelongsTo
+    {
+        return $this->belongsTo(ConsultationLocation::class);
     }
 
     /*

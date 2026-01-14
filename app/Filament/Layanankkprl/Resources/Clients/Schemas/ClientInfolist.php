@@ -24,23 +24,23 @@ class ClientInfolist
                             ->label('Status')
                             ->badge()
                             ->color(fn (string $state): string => match ($state) {
-                                'pending' => 'gray',
-                                'scheduled' => 'warning',
-                                'in_progress' => 'info',
-                                'waiting_approval' => 'info',
-                                'finished' => 'success',
-                                'canceled' => 'danger',
+                                'waiting' => 'warning',
+                                'scheduled' => 'info',
+                                'completed' => 'success',
                                 default => 'gray',
                             })
                             ->formatStateUsing(fn (string $state): string => match ($state) {
-                                'pending' => 'Menunggu',
+                                'waiting' => 'Menunggu',
                                 'scheduled' => 'Dijadwalkan',
-                                'in_progress' => 'Sedang Berlangsung',
-                                'waiting_approval' => 'Menunggu Persetujuan',
-                                'finished' => 'Selesai',
-                                'canceled' => 'Dibatalkan',
+                                'completed' => 'Selesai',
                                 default => $state,
                             }),
+                        TextEntry::make('consultationLocation.name')
+                            ->label('Lokasi Konsultasi')
+                            ->icon(fn ($record) => $record->consultationLocation?->is_online ? 'heroicon-m-video-camera' : 'heroicon-m-building-office-2')
+                            ->badge()
+                            ->color(fn ($record) => $record->consultationLocation?->is_online ? 'success' : 'gray')
+                            ->placeholder('Belum dipilih'),
                     ])->columns(2),
 
                 \Filament\Schemas\Components\Section::make('Detail Kontak')
@@ -106,11 +106,56 @@ class ClientInfolist
                                     }),
                                 \Filament\Infolists\Components\TextEntry::make('activity')
                                     ->label('Jenis Kegiatan'),
+                                \Filament\Infolists\Components\TextEntry::make('location')
+                                    ->label('Lokasi (Kab/Kota)'),
                                 \Filament\Infolists\Components\TextEntry::make('dimension')
                                     ->label('Luasan / Panjang'),
                             ])
-                            ->columns(3),
+                            ->columns(4),
                     ]),
+
+                \Filament\Schemas\Components\Section::make('Dokumen Pendukung')
+                    ->icon('heroicon-m-paper-clip')
+                    ->schema([
+                        \Filament\Infolists\Components\TextEntry::make('supporting_documents')
+                            ->label('Dokumen Pendukung')
+                            ->state(function ($record) {
+                                if (empty($record->supporting_documents)) {
+                                    return '<span class="text-gray-400 italic">Tidak ada dokumen pendukung</span>';
+                                }
+                                $html = '<div class="flex flex-wrap gap-2">';
+                                foreach ($record->supporting_documents as $index => $file) {
+                                    $num = $index + 1;
+                                    $url = asset('storage/' . $file);
+                                    $ext = strtoupper(pathinfo($file, PATHINFO_EXTENSION));
+                                    $html .= "<a href=\"{$url}\" target=\"_blank\" class=\"inline-flex items-center gap-2 px-3 py-2 bg-primary-50 text-primary-700 rounded-lg hover:bg-primary-100 transition-colors border border-primary-200\">
+                                        <svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z\"></path></svg>
+                                        <span class=\"font-medium\">Dokumen {$num}</span>
+                                        <span class=\"text-xs bg-primary-200 px-1.5 py-0.5 rounded\">{$ext}</span>
+                                    </a>";
+                                }
+                                $html .= '</div>';
+                                return $html;
+                            })
+                            ->html(),
+                        \Filament\Infolists\Components\TextEntry::make('coordinate_file')
+                            ->label('File Koordinat')
+                            ->state(function ($record) {
+                                if (empty($record->coordinate_file)) {
+                                    return '<span class="text-gray-400 italic">Tidak ada file koordinat</span>';
+                                }
+                                $url = asset('storage/' . $record->coordinate_file);
+                                $ext = strtoupper(pathinfo($record->coordinate_file, PATHINFO_EXTENSION));
+                                return "<a href=\"{$url}\" target=\"_blank\" class=\"inline-flex items-center gap-2 px-3 py-2 bg-success-50 text-success-700 rounded-lg hover:bg-success-100 transition-colors border border-success-200\">
+                                    <svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7\"></path></svg>
+                                    <span class=\"font-medium\">File Koordinat</span>
+                                    <span class=\"text-xs bg-success-200 px-1.5 py-0.5 rounded\">{$ext}</span>
+                                </a>";
+                            })
+                            ->html(),
+                    ])
+                    ->columns(1)
+                    ->visible(fn ($record) => $record->service?->requires_documents || !empty($record->supporting_documents) || !empty($record->coordinate_file)),
 
                 \Filament\Schemas\Components\Section::make('Jadwal Konsultasi')
                     ->schema([
@@ -133,7 +178,7 @@ class ClientInfolist
                                     ->formatStateUsing(fn (bool $state): string => $state ? 'Online' : 'Offline')
                                     ->color(fn (bool $state): string => $state ? 'success' : 'gray'),
                                 \Filament\Infolists\Components\TextEntry::make('meeting_link')
-                                    ->label('Link Meeting')
+                                    ->label('Tautan Rapat')
                                     ->icon('heroicon-m-link')
                                     ->copyable()
                                     ->visible(fn ($record) => $record->is_online && filled($record->meeting_link))

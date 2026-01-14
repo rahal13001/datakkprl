@@ -45,9 +45,7 @@ class ConsultationReportsRelationManager extends RelationManager
                 Forms\Components\Select::make('status')
                     ->options([
                         'draft' => 'Draft',
-                        'review' => 'Menunggu Review',
-                        'approved' => 'Disetujui',
-                        'rejected' => 'Ditolak',
+                        'completed' => 'Selesai',
                     ])
                     ->default('draft')
                     ->required(),
@@ -85,15 +83,12 @@ class ConsultationReportsRelationManager extends RelationManager
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'draft' => 'gray',
-                        'review' => 'warning',
-                        'approved' => 'success',
-                        'rejected' => 'danger',
+                        'completed' => 'success',
+                        default => 'danger',
                     })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'draft' => 'Draft',
-                        'review' => 'Butuh Review',
-                        'approved' => 'Disetujui',
-                        'rejected' => 'Ditolak',
+                        'completed' => 'Selesai',
                         default => $state,
                     }),
 
@@ -107,9 +102,7 @@ class ConsultationReportsRelationManager extends RelationManager
                 \Filament\Tables\Filters\SelectFilter::make('status')
                     ->options([
                         'draft' => 'Draft',
-                        'review' => 'Menunggu Review',
-                        'approved' => 'Disetujui',
-                        'rejected' => 'Ditolak',
+                        'completed' => 'Selesai',
                     ]),
                 
                 \Filament\Tables\Filters\Filter::make('consultation_date')

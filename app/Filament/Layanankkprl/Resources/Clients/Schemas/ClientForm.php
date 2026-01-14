@@ -24,15 +24,18 @@ class ClientForm
                             ->label('Layanan')
                             ->relationship('service', 'name')
                             ->required(),
+                        Select::make('consultation_location_id')
+                            ->label('Lokasi Konsultasi')
+                            ->relationship('consultationLocation', 'name')
+                            ->preload()
+                            ->nullable(),
                         Select::make('status')
                             ->options([
-                                'pending' => 'Menunggu',
+                                'waiting' => 'Menunggu',
                                 'scheduled' => 'Dijadwalkan',
-                                'in_progress' => 'Dalam Proses',
-                                'finished' => 'Selesai',
-                                'canceled' => 'Dibatalkan',
+                                'completed' => 'Selesai',
                             ])
-                            ->default('pending')
+                            ->default('waiting')
                             ->required(),
                     ])->columns(2),
 
@@ -108,14 +111,61 @@ class ClientForm
                                 'business' => 'Berusaha',
                                 'non_business' => 'Non Berusaha',
                             ]),
-                        \Filament\Forms\Components\KeyValue::make('metadata')
+                        \Filament\Forms\Components\Repeater::make('metadata.data_teknis')
                             ->label('Data Teknis')
-                            ->helperText('Contoh: Jenis Kegiatan (Reklamasi) -> Luasan (2 Ha)')
-                            ->keyLabel('Jenis Kegiatan')
-                            ->valueLabel('Luasan / Panjang')
+                            ->schema([
+                                \Filament\Forms\Components\Select::make('nature')
+                                    ->label('Sifat')
+                                    ->options([
+                                        'non_business' => 'Non Berusaha',
+                                        'business' => 'Berusaha',
+                                    ])
+                                    ->required(),
+                                \Filament\Forms\Components\TextInput::make('activity')
+                                    ->label('Jenis Kegiatan')
+                                    ->required(),
+                                \Filament\Forms\Components\TextInput::make('location')
+                                    ->label('Lokasi (Kab/Kota)')
+                                    ->required(),
+                                \Filament\Forms\Components\TextInput::make('dimension')
+                                    ->label('Luasan / Panjang')
+                                    ->required(),
+                            ])
+                            ->columns(2)
                             ->addActionLabel('Tambah Data')
                             ->columnSpanFull(),
                     ])
+                    ->collapsed(),
+
+                \Filament\Schemas\Components\Section::make('Dokumen Pendukung')
+                    ->schema([
+                        \Filament\Forms\Components\Placeholder::make('supporting_documents_display')
+                            ->label('Dokumen Pendukung')
+                            ->content(function ($record) {
+                                if (!$record || empty($record->supporting_documents)) {
+                                    return 'Tidak ada dokumen.';
+                                }
+                                $links = collect($record->supporting_documents)->map(function ($path) {
+                                    $url = \Storage::disk('public')->url($path);
+                                    $name = basename($path);
+                                    return "<a href='{$url}' target='_blank' class='text-primary-600 hover:underline'>{$name}</a>";
+                                })->join('<br>');
+                                return new \Illuminate\Support\HtmlString($links);
+                            })
+                            ->columnSpanFull(),
+                        \Filament\Forms\Components\Placeholder::make('coordinate_file_display')
+                            ->label('File Koordinat')
+                            ->content(function ($record) {
+                                if (!$record || empty($record->coordinate_file)) {
+                                    return 'Tidak ada file koordinat.';
+                                }
+                                $url = \Storage::disk('public')->url($record->coordinate_file);
+                                $name = basename($record->coordinate_file);
+                                return new \Illuminate\Support\HtmlString("<a href='{$url}' target='_blank' class='text-primary-600 hover:underline'>{$name}</a>");
+                            })
+                            ->columnSpanFull(),
+                    ])
+                    ->hiddenOn('create')
                     ->collapsed(),
             ]);
     }
