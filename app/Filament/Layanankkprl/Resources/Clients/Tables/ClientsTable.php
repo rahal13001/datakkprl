@@ -111,28 +111,43 @@ class ClientsTable
 
                 IconColumn::make('report_status_display')
                     ->label('Laporan')
-                    ->state(fn ($record) => $record->consultationReports()->latest()->first()?->status ?? 'none')
+                    ->state(function ($record) {
+                        // Check if there are any assignments first
+                        $hasAssignments = $record->schedules()
+                            ->whereHas('assignments')
+                            ->exists();
+                        
+                        if (!$hasAssignments) {
+                            return 'no_staff';
+                        }
+                        
+                        return $record->consultationReports()->latest()->first()?->status ?? 'none';
+                    })
                     ->color(fn (string $state): string => match ($state) {
                         'draft' => 'gray',
                         'completed' => 'success',
+                        'no_staff' => 'warning',
                         default => 'danger',
                     })
                     ->icon(fn (string $state): string => match ($state) {
                         'draft' => 'heroicon-m-document',
                         'completed' => 'heroicon-m-check-circle',
+                        'no_staff' => 'heroicon-m-user-minus',
                         default => 'heroicon-m-x-mark',
                     })
                     ->alignCenter()
                     ->tooltip(fn (string $state): string => match ($state) {
                         'draft' => 'Draft',
                         'completed' => 'Selesai',
-                        'none' => 'Belum Ada',
+                        'none' => 'Belum Ada Laporan',
+                        'no_staff' => 'Belum Ada Petugas Ditugaskan',
                         default => 'Status Tidak Diketahui',
                     })
                     ->action(
                         Action::make('manageReport')
                             ->modalHeading('Kelola Laporan Konsultasi')
                             ->modalWidth('2xl')
+                            ->hidden(fn ($record) => !$record->schedules()->whereHas('assignments')->exists())
                             ->form([
                                 \Filament\Forms\Components\RichEditor::make('content')
                                     ->label('Isi Laporan')

@@ -64,7 +64,8 @@ class AssignmentsRelationManager extends RelationManager
                         'scheduled' => 'Terjadwal',
                         'hadir' => 'Hadir',
                         'izin_mendadak' => 'Izin Mendadak',
-                    ]),
+                    ])
+                    ->disabled(fn () => !auth()->user()->can('UpdateAssignment')),
                 Tables\Columns\TextColumn::make('score'),
             ])
             ->filters([
@@ -74,6 +75,7 @@ class AssignmentsRelationManager extends RelationManager
                 \Filament\Actions\CreateAction::make()
                     ->label('Buat Assignment')
                     ->icon('heroicon-m-plus')
+                    ->visible(fn () => auth()->user()->can('CreateAssignment'))
                     ->form([
                         Forms\Components\Placeholder::make('conflict_warning')
                             ->hiddenLabel()
@@ -171,12 +173,15 @@ class AssignmentsRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
+                \Filament\Actions\EditAction::make()
+                    ->visible(fn () => auth()->user()->can('UpdateAssignment')),
+                \Filament\Actions\DeleteAction::make()
+                    ->visible(fn () => auth()->user()->can('DeleteAssignment')),
             ])
             ->bulkActions([
                 \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                    \Filament\Actions\DeleteBulkAction::make()
+                        ->visible(fn () => auth()->user()->can('DeleteAssignment')),
                 ]),
             ]);
     }
