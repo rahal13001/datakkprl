@@ -187,6 +187,7 @@
                                             <input wire:model="technical_data.{{ $index }}.dimension" type="text"
                                                 class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-blue focus:ring-2 focus:ring-blue-100 outline-none text-sm placeholder:text-slate-400 transition-all"
                                                 placeholder="Contoh: 2 Ha / 150 m">
+                                            <p class="text-[10px] text-slate-400 mt-1">Jika tidak diketahui, cukup tulis <strong>tidak tahu</strong>.</p>
                                             @error("technical_data.{$index}.dimension") <span class="text-[10px] text-red-500 block mt-1">Wajib diisi</span> @enderror
                                         </div>
                                     </div>
@@ -474,7 +475,7 @@
                                 <div class="w-full md:w-auto">
                                     <button wire:click="addSchedule"
                                         class="w-full md:w-auto px-6 py-3 bg-brand-blue text-white rounded-xl font-medium hover:bg-blue-700 transition-colors whitespace-nowrap">
-                                        <i class="fa-solid fa-plus"></i> Tambah
+                                        <i class="fa-solid fa-plus"></i> Ajukan Jadwal
                                     </button>
                                 </div>
                             @endif
@@ -485,6 +486,13 @@
                                 <i class="fa-solid fa-circle-exclamation mr-1"></i> Tidak ada slot tersedia pada tanggal ini.
                             </div>
                         @endif
+
+                        <div class="mt-4 pt-4 border-t border-blue-200/50">
+                            <p class="text-xs text-slate-500 italic">
+                                <i class="fa-solid fa-circle-info mr-1 text-brand-blue"></i> 
+                                Saran: Sebaiknya jadwalkan reservasi setidaknya 24 jam sebelum layanan.
+                            </p>
+                        </div>
 
                         @error('schedules_list')
                             <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
