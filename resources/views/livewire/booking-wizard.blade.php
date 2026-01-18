@@ -559,18 +559,20 @@
         <!-- Footer Actions -->
         <div class="bg-slate-50 border-t border-slate-100 p-6 flex justify-between items-center">
             @if($step > 1)
-                <button wire:click="previousStep"
+                <button wire:click="previousStep" wire:loading.attr="disabled" wire:loading.class="opacity-50 cursor-not-allowed"
                     class="px-6 py-2 rounded-xl text-slate-500 font-medium hover:bg-slate-200 transition-colors">
-                    Kembali
+                    <span wire:loading.remove wire:target="previousStep">Kembali</span>
+                    <span wire:loading wire:target="previousStep"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
                 </button>
             @else
                 <div></div> <!-- Spacer -->
             @endif
 
             @if($step < 4)
-                <button wire:click="nextStep"
+                <button wire:click="nextStep" wire:loading.attr="disabled" wire:loading.class="opacity-50 cursor-not-allowed"
                     class="px-8 py-3 bg-brand-black text-white rounded-xl font-bold shadow-lg hover:bg-slate-800 transition-all flex items-center gap-2">
-                    Selanjutnya <i class="fa-solid fa-arrow-right"></i>
+                    <span wire:loading.remove wire:target="nextStep">Selanjutnya <i class="fa-solid fa-arrow-right"></i></span>
+                    <span wire:loading wire:target="nextStep"><i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...</span>
                 </button>
             @else
                 <button wire:click="submit" wire:loading.attr="disabled"

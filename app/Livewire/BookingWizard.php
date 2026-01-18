@@ -199,7 +199,9 @@ class BookingWizard extends Component
 
     public function previousStep()
     {
-        $this->step--;
+        if ($this->step > 1) {
+            $this->step--;
+        }
     }
 
     public function submit()
