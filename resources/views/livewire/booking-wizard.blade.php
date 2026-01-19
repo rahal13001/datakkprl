@@ -290,11 +290,20 @@
                                     <div class="mt-4 space-y-2">
                                         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ count($supporting_documents) }} file dipilih:</p>
                                         @foreach($supporting_documents as $index => $doc)
+                                            @php
+                                                try {
+                                                    $fileName = $doc->getClientOriginalName();
+                                                    $fileSize = number_format($doc->getSize() / 1024, 1);
+                                                } catch (\Exception $e) {
+                                                    $fileName = 'File ' . ($index + 1);
+                                                    $fileSize = '?';
+                                                }
+                                            @endphp
                                             <div class="flex items-center justify-between gap-3 text-sm text-slate-600 bg-slate-50 px-4 py-3 rounded-lg">
                                                 <div class="flex items-center gap-3 min-w-0">
                                                     <i class="fa-solid fa-file text-brand-blue flex-shrink-0"></i>
-                                                    <span class="truncate">{{ $doc->getClientOriginalName() }}</span>
-                                                    <span class="text-slate-400 text-xs flex-shrink-0">({{ number_format($doc->getSize() / 1024, 1) }} KB)</span>
+                                                    <span class="truncate">{{ $fileName }}</span>
+                                                    <span class="text-slate-400 text-xs flex-shrink-0">({{ $fileSize }} KB)</span>
                                                 </div>
                                                 <button type="button" 
                                                     wire:click="removeDocument({{ $index }})"
@@ -339,10 +348,17 @@
                                 </div>
                                 
                                 @if($coordinate_file)
+                                    @php
+                                        try {
+                                            $coordFileName = $coordinate_file->getClientOriginalName();
+                                        } catch (\Exception $e) {
+                                            $coordFileName = 'File Koordinat';
+                                        }
+                                    @endphp
                                     <div class="mt-3 flex items-center justify-between gap-3 text-sm text-slate-600 bg-green-50 px-4 py-3 rounded-lg">
                                         <div class="flex items-center gap-3 min-w-0">
                                             <i class="fa-solid fa-map-location-dot text-green-600 flex-shrink-0"></i>
-                                            <span class="truncate">{{ $coordinate_file->getClientOriginalName() }}</span>
+                                            <span class="truncate">{{ $coordFileName }}</span>
                                         </div>
                                         <button type="button" 
                                             wire:click="$set('coordinate_file', null)"
