@@ -178,7 +178,7 @@ class BookingWizard extends Component
                     'supporting_documents.min' => 'Mohon upload minimal 1 dokumen pendukung.',
                     'supporting_documents.max' => 'Maksimal 6 dokumen pendukung.',
                     'supporting_documents.*.mimes' => 'Format dokumen: PDF, DOC, DOCX, JPG, PNG.',
-                    'supporting_documents.*.max' => 'Ukuran maksimal per file 10MB.',
+                    'supporting_documents.*.max' => 'Ukuran maksimal per file 50MB.',
                 ]);
             }
         }
