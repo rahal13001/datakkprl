@@ -591,12 +591,29 @@
                     <span wire:loading wire:target="nextStep"><i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...</span>
                 </button>
             @else
-                <button wire:click="submit" wire:loading.attr="disabled"
-                    class="px-8 py-3 bg-brand-blue text-white rounded-xl font-bold shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all flex items-center gap-2">
-                    <span wire:loading.remove>Konfirmasi Janji</span>
-                    <span wire:loading><i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...</span>
+                <button wire:click="submit" wire:loading.attr="disabled" wire:loading.class="opacity-50 cursor-not-allowed" wire:target="submit"
+                    class="px-8 py-3 bg-brand-blue text-white rounded-xl font-bold shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span wire:loading.remove wire:target="submit">Konfirmasi Janji</span>
+                    <span wire:loading wire:target="submit"><i class="fa-solid fa-circle-notch fa-spin"></i> Mengirim Data...</span>
                 </button>
             @endif
+        </div>
+
+        {{-- Processing overlay during submit --}}
+        <div wire:loading wire:target="submit" 
+            class="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center">
+            <div class="bg-white rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4 text-center">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-50 flex items-center justify-center">
+                    <i class="fa-solid fa-paper-plane text-brand-blue text-2xl animate-bounce"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 mb-2">Sedang Memproses...</h3>
+                <p class="text-sm text-slate-500">Data sedang diproses dan email konfirmasi sedang dikirim. Mohon tunggu beberapa saat dan jangan menutup halaman ini.</p>
+                <div class="mt-4">
+                    <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-brand-blue rounded-full animate-pulse" style="width: 70%"></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
     @endif
