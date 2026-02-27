@@ -53,6 +53,19 @@
             margin-top: 10px;
             text-align: justify;
         }
+        /* User generated table styles */
+        .content-box table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        .content-box table, .content-box th, .content-box td {
+            border: 1px solid #333;
+        }
+        .content-box th, .content-box td {
+            padding: 5px;
+            text-align: left;
+        }
         .docs-grid {
             width: 100%;
             margin-top: 10px;
