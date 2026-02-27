@@ -38,8 +38,6 @@ class LayanankkprlPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Layanankkprl/Widgets'), for: 'App\Filament\Layanankkprl\Widgets')
             ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
