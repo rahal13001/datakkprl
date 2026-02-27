@@ -3,10 +3,13 @@
 namespace App\Filament\Layanankkprl\Widgets;
 
 use App\Models\Client;
+use App\Models\ConsultationLocation;
+use App\Models\Service;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\ChartWidget\Concerns\HasFiltersSchema;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Carbon\Carbon;
 
 class ActivityTypeChart extends ChartWidget
@@ -24,6 +27,16 @@ class ActivityTypeChart extends ChartWidget
     public function filtersSchema(Schema $schema): Schema
     {
         return $schema->components([
+            Select::make('service_id')
+                ->label('Layanan')
+                ->options(Service::pluck('name', 'id'))
+                ->placeholder('Semua Layanan')
+                ->searchable(),
+            Select::make('location_id')
+                ->label('Lokasi')
+                ->options(ConsultationLocation::pluck('name', 'id'))
+                ->placeholder('Semua Lokasi')
+                ->searchable(),
             DatePicker::make('start_date')
                 ->label('Dari')
                 ->default(Carbon::now()->startOfYear()),
@@ -43,15 +56,21 @@ class ActivityTypeChart extends ChartWidget
             Carbon::parse($end)->endOfDay(),
         ]);
 
+        if (!empty($this->filters['service_id'])) {
+            $query->where('service_id', $this->filters['service_id']);
+        }
+
+        if (!empty($this->filters['location_id'])) {
+            $query->where('consultation_location_id', $this->filters['location_id']);
+        }
+
         $businessCount = (clone $query)->where('activity_type', 'business')->count();
         $nonBusinessCount = (clone $query)->where('activity_type', 'non_business')->count();
         $otherCount = (clone $query)
-            ->whereNotIn('activity_type', ['business', 'non_business'])
-            ->orWhereNull('activity_type')
-            ->whereBetween('created_at', [
-                Carbon::parse($start)->startOfDay(),
-                Carbon::parse($end)->endOfDay(),
-            ])
+            ->where(function ($q) {
+                $q->whereNotIn('activity_type', ['business', 'non_business'])
+                  ->orWhereNull('activity_type');
+            })
             ->count();
 
         return [

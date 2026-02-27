@@ -4,10 +4,12 @@ namespace App\Filament\Layanankkprl\Widgets;
 
 use App\Models\Client;
 use App\Models\ConsultationLocation;
+use App\Models\Service;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\ChartWidget\Concerns\HasFiltersSchema;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Carbon\Carbon;
 
 class ServiceLocationChart extends ChartWidget
@@ -25,6 +27,18 @@ class ServiceLocationChart extends ChartWidget
     public function filtersSchema(Schema $schema): Schema
     {
         return $schema->components([
+            Select::make('service_id')
+                ->label('Layanan')
+                ->options(Service::pluck('name', 'id'))
+                ->placeholder('Semua Layanan')
+                ->searchable(),
+            Select::make('activity_type')
+                ->label('Sifat')
+                ->options([
+                    'non_business' => 'Non Berusaha',
+                    'business' => 'Berusaha',
+                ])
+                ->placeholder('Semua Sifat'),
             DatePicker::make('start_date')
                 ->label('Dari')
                 ->default(Carbon::now()->startOfYear()),
@@ -39,12 +53,26 @@ class ServiceLocationChart extends ChartWidget
         $start = $this->filters['start_date'] ?? Carbon::now()->startOfYear()->toDateString();
         $end = $this->filters['end_date'] ?? Carbon::now()->toDateString();
 
-        $locations = ConsultationLocation::withCount(['clients' => function ($query) use ($start, $end) {
-            $query->whereBetween('clients.created_at', [
-                Carbon::parse($start)->startOfDay(),
-                Carbon::parse($end)->endOfDay(),
-            ]);
-        }])->get();
+        $query = Client::whereBetween('created_at', [
+            Carbon::parse($start)->startOfDay(),
+            Carbon::parse($end)->endOfDay(),
+        ]);
+
+        if (!empty($this->filters['service_id'])) {
+            $query->where('service_id', $this->filters['service_id']);
+        }
+
+        if (!empty($this->filters['activity_type'])) {
+            $query->where('activity_type', $this->filters['activity_type']);
+        }
+
+        $locations = ConsultationLocation::all();
+
+        $countsByLocation = (clone $query)
+            ->selectRaw('consultation_location_id, COUNT(*) as count')
+            ->groupBy('consultation_location_id')
+            ->pluck('count', 'consultation_location_id')
+            ->toArray();
 
         $colors = [
             'rgba(54, 162, 235, 0.8)',
@@ -62,7 +90,7 @@ class ServiceLocationChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'data' => $locations->pluck('clients_count')->toArray(),
+                    'data' => $locations->map(fn($l) => $countsByLocation[$l->id] ?? 0)->toArray(),
                     'backgroundColor' => array_slice($colors, 0, $locations->count()),
                     'borderColor' => array_slice($borderColors, 0, $locations->count()),
                     'borderWidth' => 2,

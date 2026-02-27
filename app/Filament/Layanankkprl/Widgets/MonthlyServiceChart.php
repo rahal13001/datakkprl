@@ -3,10 +3,13 @@
 namespace App\Filament\Layanankkprl\Widgets;
 
 use App\Models\Client;
+use App\Models\ConsultationLocation;
+use App\Models\Service;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\ChartWidget\Concerns\HasFiltersSchema;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -25,6 +28,23 @@ class MonthlyServiceChart extends ChartWidget
     public function filtersSchema(Schema $schema): Schema
     {
         return $schema->components([
+            Select::make('service_id')
+                ->label('Layanan')
+                ->options(Service::pluck('name', 'id'))
+                ->placeholder('Semua Layanan')
+                ->searchable(),
+            Select::make('location_id')
+                ->label('Lokasi')
+                ->options(ConsultationLocation::pluck('name', 'id'))
+                ->placeholder('Semua Lokasi')
+                ->searchable(),
+            Select::make('activity_type')
+                ->label('Sifat')
+                ->options([
+                    'non_business' => 'Non Berusaha',
+                    'business' => 'Berusaha',
+                ])
+                ->placeholder('Semua Sifat'),
             DatePicker::make('start_date')
                 ->label('Dari')
                 ->default(Carbon::now()->startOfYear()),
@@ -47,12 +67,27 @@ class MonthlyServiceChart extends ChartWidget
             $current->addMonth();
         }
 
+        // Build query with filters
+        $query = Client::whereBetween('created_at', [$start, $end]);
+
+        if (!empty($this->filters['service_id'])) {
+            $query->where('service_id', $this->filters['service_id']);
+        }
+
+        if (!empty($this->filters['location_id'])) {
+            $query->where('consultation_location_id', $this->filters['location_id']);
+        }
+
+        if (!empty($this->filters['activity_type'])) {
+            $query->where('activity_type', $this->filters['activity_type']);
+        }
+
         // Query monthly counts
-        $results = Client::select(
+        $results = $query
+            ->select(
                 DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"),
                 DB::raw('COUNT(*) as total')
             )
-            ->whereBetween('created_at', [$start, $end])
             ->groupBy('month')
             ->orderBy('month')
             ->pluck('total', 'month')
