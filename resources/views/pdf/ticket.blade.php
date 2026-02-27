@@ -102,7 +102,7 @@
 </head>
 <body>
     <div class="container">
-        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/kop_surat.png'))) }}" class="header-image" alt="Kop Surat">
+        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/kop_surat_lprlsorong.png'))) }}" class="header-image" alt="Kop Surat">
 
         <div class="page-title">BUKTI PENDAFTARAN KONSULTASI</div>
 

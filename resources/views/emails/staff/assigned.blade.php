@@ -129,7 +129,7 @@
                     </div>
                     <div class="info-row">
                         <span class="label">Pukul</span>
-                        <span class="value">{{ $time }} WIB</span>
+                        <span class="value">{{ $time }} WIT</span>
                     </div>
                     <div class="info-row">
                         <span class="label">Lokasi</span>

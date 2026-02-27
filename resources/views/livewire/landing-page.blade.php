@@ -13,7 +13,7 @@
                     <i class="fa-solid fa-anchor text-sm"></i>
                 </div>
                 <div class="leading-tight">
-                    <h1 class="font-mono font-bold text-lg text-slate-900 tracking-tight">LPSPL.SORONG</h1>
+                    <h1 class="font-mono font-bold text-lg text-slate-900 tracking-tight">LPRL SORONG</h1>
                     <p class="text-[10px] text-slate-500 font-medium tracking-widest uppercase">Official Platform V2</p>
                 </div>
             </div>
@@ -66,7 +66,7 @@
                     </h1>
                     
                     <p class="text-xl text-slate-500 font-light max-w-xl leading-relaxed mb-10">
-                        Transformasi digital perizinan Kementerian Kelautan & Perikanan. 
+                        Transformasi digital layanan perizinan LPRL Sorong, Direktorat Jenderal Pengelolaan Kelautan, Kementerian Kelautan & Perikanan. 
                         Transparan, presisi, dan terintegrasi teknologi AI.
                     </p>
 

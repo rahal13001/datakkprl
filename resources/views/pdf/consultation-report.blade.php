@@ -88,7 +88,7 @@
 </head>
 <body>
     <div class="container">
-        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/kop_surat.png'))) }}" class="header-image" alt="Kop Surat">
+        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/kop_surat_lprlsorong.png'))) }}" class="header-image" alt="Kop Surat">
 
         <div class="page-title">LAPORAN HASIL KONSULTASI</div>
 
@@ -123,6 +123,13 @@
                     @else
                         -
                     @endif
+                </td>
+            </tr>
+            <tr>
+                <td class="label-col">Petugas (PIC)</td>
+                <td class="separator-col">:</td>
+                <td class="value-col">
+                    {{ $client->assignments->pluck('user.name')->filter()->unique()->implode(', ') ?: '-' }}
                 </td>
             </tr>
         </table>
