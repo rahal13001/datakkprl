@@ -171,8 +171,8 @@ class BookingWizard extends Component
             if ($this->selectedService?->requires_documents) {
                 $this->validate([
                     'supporting_documents' => 'required|array|min:1|max:6',
-                    'supporting_documents.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
-                    'coordinate_file' => 'nullable|file|mimes:xlsx,xls,pdf,doc,docx,ppt,pptx|max:10240',
+                    'supporting_documents.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:51200',
+                    'coordinate_file' => 'nullable|file|mimes:xlsx,xls,pdf,doc,docx,ppt,pptx|max:51200',
                 ], [
                     'supporting_documents.required' => 'Mohon upload minimal 1 dokumen pendukung.',
                     'supporting_documents.min' => 'Mohon upload minimal 1 dokumen pendukung.',
