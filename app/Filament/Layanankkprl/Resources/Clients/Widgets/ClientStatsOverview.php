@@ -126,6 +126,7 @@ class ClientStatsOverview extends BaseWidget
         // 3. Breakdown by Service
         $clientsByService = (clone $query)
             ->reorder() // Clear default table ordering to prevent SQL strict mode error
+            ->select([]) // Clear inherited selects (e.g. subquery columns) to avoid strict mode error
             ->selectRaw('service_id, count(*) as count')
             ->groupBy('service_id')
             ->pluck('count', 'service_id')

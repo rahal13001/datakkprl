@@ -1,4 +1,39 @@
 <div class="relative">
+    <style>
+        /* Service Card Hover Effects */
+        .service-card-stripe {
+            background: linear-gradient(to right, var(--accent-from), var(--accent-to));
+        }
+        .service-card-icon {
+            background-color: var(--accent-bg);
+            color: var(--accent-text);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .service-card:hover .service-card-icon {
+            transform: scale(1.15);
+            box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent-text) 12%, transparent);
+        }
+        .service-card-inner {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .service-card:hover .service-card-inner {
+            transform: translateY(-6px);
+            box-shadow: 0 25px 50px -12px color-mix(in srgb, var(--accent-from) 20%, transparent),
+                        0 8px 20px rgba(0, 0, 0, 0.06);
+            border-color: var(--accent-ring);
+        }
+        .service-card-cta {
+            color: var(--accent-text);
+        }
+        .service-card-arrow {
+            background-color: var(--accent-bg);
+            color: var(--accent-text);
+        }
+        .service-card-glow {
+            background: radial-gradient(circle, color-mix(in srgb, var(--accent-from) 10%, transparent), transparent 70%);
+        }
+    </style>
     <!-- Navbar (Minimalist Sticky) -->
     <nav x-data="{ scrolled: false, mobileOpen: false }" 
          @scroll.window="scrolled = (window.pageYOffset > 20)"
@@ -66,8 +101,8 @@
                     </h1>
                     
                     <p class="text-xl text-slate-500 font-light max-w-xl leading-relaxed mb-10">
-                        Transformasi digital layanan perizinan LPRL Sorong, Direktorat Jenderal Pengelolaan Kelautan, Kementerian Kelautan & Perikanan. 
-                        Transparan, presisi, dan terintegrasi teknologi AI.
+                        Transformasi digital layanan perizinan LPRL Sorong, Direktorat Jenderal Penataan Ruang Laut, Kementerian Kelautan & Perikanan. 
+                        Transparan dan presisi.
                     </p>
 
                     <div class="flex flex-wrap gap-4">
@@ -95,56 +130,94 @@
         </div>
     </section>
 
-    <!-- Services (Bento Grid Layout) -->
-    <section id="services" class="py-24 bg-brand-surface/50 border-y border-slate-100">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <div class="flex justify-between items-end mb-12">
-                <h2 class="text-3xl font-bold text-slate-900 tracking-tight">Layanan Utama</h2>
-                <a href="#booking" class="hidden md:flex items-center gap-2 text-sm font-medium text-brand-blue hover:underline">
-                    Lihat Prosedur <i class="fa-solid fa-arrow-right"></i>
-                </a>
+    <!-- Services Section -->
+    <section id="services" class="py-28 relative overflow-hidden">
+        <!-- Background Decoration -->
+        <div class="absolute inset-0 bg-gradient-to-b from-white via-slate-50/80 to-white"></div>
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-brand-blue/[0.03] rounded-full blur-3xl"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+            <!-- Section Header -->
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-200 bg-white/80 backdrop-blur-sm mb-6">
+                    <span class="w-1.5 h-1.5 rounded-full bg-brand-blue"></span>
+                    <span class="text-xs font-mono font-semibold text-slate-500 uppercase tracking-widest">Layanan Kami</span>
+                </div>
+                <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight mb-4">Layanan Utama</h2>
+                <p class="text-slate-500 max-w-2xl mx-auto text-lg">Solusi lengkap untuk kebutuhan perizinan pemanfaatan ruang laut Anda</p>
             </div>
 
-            <!-- Bento Grid -->
-            <div class="grid md:grid-cols-3 gap-6">
-                
-                <!-- Large Card -->
-                <div class="md:col-span-2 bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-                    <div class="relative z-10">
-                        <div class="w-12 h-12 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center text-xl mb-6">
-                            <i class="fa-regular fa-comments"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-slate-900 mb-2">Konsultasi PKKPRL</h3>
-                        <p class="text-slate-500 leading-relaxed max-w-md mb-8">
-                            Diskusi mendalam mengenai persyaratan teknis dan tata cara penerbitan Persetujuan Kesesuaian Kegiatan Pemanfaatan Ruang Laut.
-                        </p>
-                        <a href="#booking" class="px-6 py-3 rounded-full border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 hover:border-slate-300 transition-all inline-block">
-                            Pilih Jadwal
-                        </a>
-                    </div>
-                    <!-- Decoration -->
-                    <div class="absolute right-0 bottom-0 w-64 h-64 bg-gradient-to-tl from-blue-50 to-transparent rounded-tl-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
-                </div>
+            <!-- Service Cards Grid -->
+            @if($services->count() > 0)
+            @php
+                $gridCols = match(true) {
+                    $services->count() === 1 => 'lg:grid-cols-1',
+                    $services->count() === 2 => 'lg:grid-cols-2',
+                    default => 'lg:grid-cols-3',
+                };
 
-                <!-- Tall Card -->
-                <div class="bg-brand-black text-white rounded-3xl p-8 shadow-xl flex flex-col justify-between relative overflow-hidden group">
-                    <div class="relative z-10">
-                        <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-white text-xl mb-6">
-                            <i class="fa-solid fa-magnifying-glass-chart"></i>
+                $accents = [
+                    ['from' => '#2563eb', 'to' => '#06b6d4', 'bg' => '#eff6ff', 'text' => '#2563eb', 'ring' => '#bfdbfe'],
+                    ['from' => '#7c3aed', 'to' => '#6366f1', 'bg' => '#f5f3ff', 'text' => '#7c3aed', 'ring' => '#ddd6fe'],
+                    ['from' => '#059669', 'to' => '#14b8a6', 'bg' => '#ecfdf5', 'text' => '#059669', 'ring' => '#a7f3d0'],
+                    ['from' => '#f59e0b', 'to' => '#f97316', 'bg' => '#fffbeb', 'text' => '#d97706', 'ring' => '#fde68a'],
+                    ['from' => '#e11d48', 'to' => '#ec4899', 'bg' => '#fff1f2', 'text' => '#e11d48', 'ring' => '#fecdd3'],
+                ];
+            @endphp
+            <div class="grid sm:grid-cols-2 {{ $gridCols }} gap-8">
+
+                @foreach($services as $index => $service)
+                @php $a = $accents[$index % count($accents)]; @endphp
+                <div class="group relative service-card"
+                     style="--accent-from: {{ $a['from'] }}; --accent-to: {{ $a['to'] }}; --accent-bg: {{ $a['bg'] }}; --accent-text: {{ $a['text'] }}; --accent-ring: {{ $a['ring'] }};">
+                    <!-- Card -->
+                    <div class="service-card-inner relative bg-white rounded-2xl border border-slate-100 overflow-hidden h-full flex flex-col">
+                        
+                        <!-- Gradient Top Accent -->
+                        <div class="h-1.5 service-card-stripe"></div>
+                        
+                        <!-- Card Content -->
+                        <div class="p-8 flex flex-col flex-1">
+                            <!-- Icon & Number -->
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="service-card-icon w-14 h-14 rounded-2xl flex items-center justify-center text-xl">
+                                    <i class="{{ $service->icon ?? 'fa-solid fa-concierge-bell' }}"></i>
+                                </div>
+                                <span class="text-5xl font-black text-slate-100 group-hover:text-slate-200 transition-colors font-mono select-none">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                            </div>
+
+                            <!-- Text -->
+                            <h3 class="text-xl font-bold text-slate-900 mb-3 transition-colors">{{ $service->name }}</h3>
+                            <p class="text-slate-500 text-sm leading-relaxed flex-1 mb-8">
+                                {{ $service->description ?? 'Layanan resmi LPRL Sorong untuk kebutuhan penataan ruang laut.' }}
+                            </p>
+
+                            <!-- CTA -->
+                            <a href="#booking" class="service-card-cta inline-flex items-center gap-2 text-sm font-semibold group/btn">
+                                <span>Reservasi Sekarang</span>
+                                <div class="service-card-arrow w-6 h-6 rounded-full flex items-center justify-center group-hover/btn:translate-x-1 transition-transform">
+                                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                </div>
+                            </a>
                         </div>
-                        <h3 class="text-xl font-bold mb-2">Asistensi Teknis</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed mb-6">
-                            Verifikasi lapangan dan validasi dokumen teknis perizinan.
-                        </p>
+
+                        <!-- Hover Decoration -->
+                        <div class="service-card-glow absolute -bottom-16 -right-16 w-48 h-48 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl pointer-events-none"></div>
                     </div>
-                    <a href="#booking" class="w-full py-3 rounded-full bg-white text-slate-900 text-center text-sm font-bold hover:bg-slate-100 transition-all block">
-                        Reservasi
-                    </a>
-                    <!-- Deco -->
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-brand-blue rounded-bl-full opacity-20 filter blur-xl group-hover:opacity-40 transition-opacity"></div>
                 </div>
+                @endforeach
 
             </div>
+            @else
+            <!-- Empty State -->
+            <div class="text-center py-20">
+                <div class="w-20 h-20 rounded-3xl bg-slate-100 text-slate-300 flex items-center justify-center text-3xl mx-auto mb-6">
+                    <i class="fa-solid fa-compass"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-slate-400 mb-2">Belum Ada Layanan</h3>
+                <p class="text-slate-400 text-sm">Layanan akan segera tersedia. Silakan kunjungi kembali nanti.</p>
+            </div>
+            @endif
         </div>
     </section>
 

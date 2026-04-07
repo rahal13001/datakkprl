@@ -4,6 +4,7 @@ namespace App\Filament\Layanankkprl\Widgets;
 
 use App\Models\Client;
 use App\Models\ConsultationLocation;
+use App\Models\Schedule;
 use App\Models\Service;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\ChartWidget\Concerns\HasFiltersSchema;
@@ -68,7 +69,12 @@ class MonthlyServiceChart extends ChartWidget
         }
 
         // Build query with filters
-        $query = Client::whereBetween('created_at', [$start, $end]);
+        $query = Client::whereHas('schedules', function ($q) use ($start, $end) {
+            $q->whereBetween('date', [
+                $start->toDateString(),
+                $end->toDateString(),
+            ]);
+        });
 
         if (!empty($this->filters['service_id'])) {
             $query->where('service_id', $this->filters['service_id']);
@@ -83,9 +89,15 @@ class MonthlyServiceChart extends ChartWidget
         }
 
         // Query monthly counts
+        // Use earliest schedule date for monthly grouping
+        $earliestDateSubquery = Schedule::select('date')
+            ->whereColumn('schedules.client_id', 'clients.id')
+            ->orderBy('date', 'asc')
+            ->limit(1);
+
         $results = $query
             ->select(
-                DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"),
+                DB::raw("DATE_FORMAT(({$earliestDateSubquery->toRawSql()}), '%Y-%m') as month"),
                 DB::raw('COUNT(*) as total')
             )
             ->groupBy('month')

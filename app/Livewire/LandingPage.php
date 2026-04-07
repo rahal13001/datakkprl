@@ -11,11 +11,13 @@ class LandingPage extends Component
 {
     public $faqs;
     public $regulations;
+    public $services;
 
     public function mount(ContentDeliveryService $contentService)
     {
         $this->faqs = $contentService->getFaqs();
         $this->regulations = $contentService->getRegulations();
+        $this->services = $contentService->getServices();
     }
 
     public function render()

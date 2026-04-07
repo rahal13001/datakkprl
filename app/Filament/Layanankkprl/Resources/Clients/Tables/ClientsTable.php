@@ -20,16 +20,25 @@ class ClientsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('earliest_schedule_date', 'desc')
             ->persistSortInSession()
+            ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query
+                ->addSelect([
+                    'earliest_schedule_date' => \App\Models\Schedule::select('date')
+                        ->whereColumn('schedules.client_id', 'clients.id')
+                        ->orderBy('date', 'asc')
+                        ->limit(1),
+                ])
+            )
             ->columns([
                 TextColumn::make('index')->rowIndex()->label('No'),
                 
-                TextColumn::make('created_at')
+                TextColumn::make('earliest_schedule_date')
                     ->label('Tanggal Daftar')
-                    ->dateTime('d M Y')
+                    ->date('d M Y')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false), // Visible as per user request context implied
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 TextColumn::make('ticket_number')
                     ->label('No. Tiket')

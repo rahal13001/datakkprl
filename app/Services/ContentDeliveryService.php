@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Faq;
 use App\Models\Regulation;
+use App\Models\Service;
 use Illuminate\Support\Facades\Cache;
 
 class ContentDeliveryService
@@ -16,6 +17,18 @@ class ContentDeliveryService
         return Cache::remember('faqs_published', 60 * 60 * 24, function () {
             return Faq::where('is_published', true)
                 ->orderBy('sort_order', 'asc')
+                ->get();
+        });
+    }
+
+    /**
+     * Get Active Services. Cache 24 hours.
+     */
+    public function getServices()
+    {
+        return Cache::remember('services_active', 60 * 60 * 24, function () {
+            return Service::where('is_active', true)
+                ->orderBy('id', 'asc')
                 ->get();
         });
     }

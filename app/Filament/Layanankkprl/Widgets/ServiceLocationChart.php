@@ -4,6 +4,7 @@ namespace App\Filament\Layanankkprl\Widgets;
 
 use App\Models\Client;
 use App\Models\ConsultationLocation;
+use App\Models\Schedule;
 use App\Models\Service;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\ChartWidget\Concerns\HasFiltersSchema;
@@ -53,10 +54,12 @@ class ServiceLocationChart extends ChartWidget
         $start = $this->filters['start_date'] ?? Carbon::now()->startOfYear()->toDateString();
         $end = $this->filters['end_date'] ?? Carbon::now()->toDateString();
 
-        $query = Client::whereBetween('created_at', [
-            Carbon::parse($start)->startOfDay(),
-            Carbon::parse($end)->endOfDay(),
-        ]);
+        $query = Client::whereHas('schedules', function ($q) use ($start, $end) {
+            $q->whereBetween('date', [
+                Carbon::parse($start)->toDateString(),
+                Carbon::parse($end)->toDateString(),
+            ]);
+        });
 
         if (!empty($this->filters['service_id'])) {
             $query->where('service_id', $this->filters['service_id']);
