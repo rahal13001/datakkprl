@@ -53,6 +53,17 @@ class UserResource extends Resource
                                     ->unique(ignoreRecord: true)
                                     ->prefixIcon('heroicon-m-envelope')
                                     ->disabled(fn (?User $record) => $record?->hasRole('super_admin') && !auth()->user()->hasRole('super_admin')),
+
+                                Forms\Components\TextInput::make('jabatan')
+                                    ->label('Jabatan')
+                                    ->placeholder('Contoh: Analis Kebijakan Ahli Muda')
+                                    ->maxLength(255),
+
+                                Forms\Components\Select::make('instansi')
+                                    ->label('Instansi')
+                                    ->options(\App\Filament\Layanankkprl\Resources\Clients\ClientResource\RelationManagers\BeritaAcaraRelationManager::getInstansiOptions())
+                                    ->searchable()
+                                    ->placeholder('Pilih Instansi'),
                             ])
                             ->columns(2),
 

@@ -26,6 +26,7 @@ class User extends Authenticatable
         'email_verified_at',
         'summary_user_id',
         'jabatan',
+        'instansi',
         'nip',
         'status',
         'avatar_url',

@@ -118,6 +118,11 @@ class Client extends Model
         return $this->belongsTo(ConsultationLocation::class);
     }
 
+    public function beritaAcara(): HasOne
+    {
+        return $this->hasOne(BeritaAcara::class);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Accessors & Helpers

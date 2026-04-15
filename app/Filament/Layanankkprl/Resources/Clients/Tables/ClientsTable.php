@@ -192,6 +192,29 @@ class ClientsTable
                             })
                     ),
 
+                IconColumn::make('ba_status_display')
+                    ->label('BA')
+                    ->state(function ($record) {
+                        return $record->beritaAcara?->status ?? 'none';
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'draft' => 'gray',
+                        'completed' => 'success',
+                        default => 'danger',
+                    })
+                    ->icon(fn (string $state): string => match ($state) {
+                        'draft' => 'heroicon-m-document-text',
+                        'completed' => 'heroicon-m-check-badge',
+                        default => 'heroicon-m-x-mark',
+                    })
+                    ->alignCenter()
+                    ->tooltip(fn (string $state): string => match ($state) {
+                        'draft' => 'Berita Acara Draft',
+                        'completed' => 'Berita Acara Selesai',
+                        'none' => 'Belum Ada Berita Acara',
+                        default => 'Status Tidak Diketahui',
+                    }),
+
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -303,6 +326,42 @@ class ClientsTable
                         return response()->streamDownload(
                             fn () => print($pdf->output()),
                             "Laporan-Konsultasi-{$record->ticket_number}.pdf"
+                        );
+                    }),
+                Action::make('downloadBeritaAcara')
+                    ->label('Unduh BA')
+                    ->icon('heroicon-o-document-check')
+                    ->color('info')
+                    ->iconButton()
+                    ->tooltip('Unduh Berita Acara PDF')
+                    ->hidden(fn (\App\Models\Client $record) => !$record->beritaAcara)
+                    ->action(function (\App\Models\Client $record) {
+                        $beritaAcara = $record->beritaAcara()->with('attendees')->first();
+                        
+                        if (!$beritaAcara) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Berita Acara belum tersedia')
+                                ->warning()
+                                ->send();
+                            return;
+                        }
+
+                        $signatureService = app(\App\Services\SignatureService::class);
+
+                        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.berita-acara', [
+                            'beritaAcara' => $beritaAcara,
+                            'client' => $record->load(['service', 'schedules.assignments.user', 'consultationLocation']),
+                            'signatureService' => $signatureService,
+                        ]);
+
+                        $pdf->setPaper('a4');
+
+                        $filename = 'Berita-Acara-' . ($beritaAcara->nomor_berita_acara ?: $record->ticket_number) . '.pdf';
+                        $filename = str_replace(['/', '\\'], '-', $filename);
+
+                        return response()->streamDownload(
+                            fn () => print($pdf->output()),
+                            $filename
                         );
                     }),
             ])
