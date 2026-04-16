@@ -574,6 +574,27 @@
             <!-- STEP 5: SIGNATURE -->
             @if($step === 5)
                 <div class="space-y-6">
+                    {{-- Terms and Conditions Checkbox --}}
+                    <div class="bg-blue-50/80 p-6 rounded-2xl border border-blue-100 flex gap-4">
+                        <div class="mt-0.5 shrink-0">
+                            <div class="relative flex items-center justify-center p-2 rounded-lg bg-white border border-blue-200">
+                                <input type="checkbox" wire:model="agreed_to_terms" id="agreed_to_terms"
+                                    class="w-5 h-5 text-brand-blue border-slate-300 rounded focus:ring-brand-blue rounded-md cursor-pointer transition flex-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="agreed_to_terms" class="cursor-pointer">
+                                <p class="font-bold text-slate-800 mb-1">Pernyataan Syarat & Ketentuan <span class="text-red-500 text-sm">*</span></p>
+                                <p class="text-sm text-slate-600 leading-relaxed text-justify">
+                                    Dengan menyetujui formulir ini, pemohon sepakat bahwa draf Berita Acara Pendampingan akan dikirimkan setelah jadwal pendampingan dinyatakan selesai oleh petugas layanan. Jika pemohon tidak memberikan tanggapan dalam waktu 3 (tiga) hari kerja sejak draf dikirimkan, maka Berita Acara dianggap sah, mengikat, dan dapat diberlakukan secara hukum meskipun tanpa tanda tangan fisik maupun elektronik dari pemohon.
+                                </p>
+                            </label>
+                            @error('agreed_to_terms')
+                                <p class="text-red-500 text-sm mt-2 font-medium flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
                     <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                         <div class="flex items-center gap-3 mb-5">
                             <div class="w-9 h-9 bg-emerald-100 rounded-lg flex items-center justify-center">
@@ -581,7 +602,7 @@
                             </div>
                             <div>
                                 <h2 class="font-bold text-slate-900">Tanda Tangan <span class="text-red-500 text-sm">*</span></h2>
-                                <p class="text-xs text-slate-500">Bubuhkan tanda tangan Anda sebagai persetujuan pembuatan Berita Acara.</p>
+                                <p class="text-xs text-slate-500">Bubuhkan tanda tangan Anda sebagai tanda pengesahan persetujuan di atas.</p>
                             </div>
                         </div>
 
@@ -722,7 +743,7 @@
                             <div class="text-sm text-blue-700">
                                 <p class="font-semibold mb-1">Pernyataan Persetujuan</p>
                                 <p class="text-blue-600 text-xs leading-relaxed">
-                                    Dengan menandatangani formulir ini, saya menyatakan bahwa data yang saya isi adalah benar. Tanda tangan ini juga akan digunakan sebagai persetujuan Berita Acara pendampingan.
+                                    Dengan menandatangani formulir ini, saya menyatakan bahwa data yang saya isi adalah benar.
                                 </p>
                             </div>
                         </div>

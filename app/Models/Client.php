@@ -29,6 +29,7 @@ class Client extends Model
         'booking_type',
         
         'status',          // pending, scheduled, waiting_approval, finished, canceled
+        'agreed_to_terms', // boolean agreement
         'metadata',
         'service_id',
         'consultation_location_id',

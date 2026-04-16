@@ -46,8 +46,9 @@ class BookingWizard extends Component
     public $availableSlots = 0;
     public $schedules_list = [];
     
-    // Step 5: Signature
+    // Step 5: Signature & T&C
     public $tanda_tangan;
+    public $agreed_to_terms = false;
     
     // UI State
     public $success = false;
@@ -199,7 +200,11 @@ class BookingWizard extends Component
         elseif ($this->step == 5) {
             $this->validate([
                 'tanda_tangan' => 'required|string',
-            ], ['tanda_tangan.required' => 'Tanda tangan wajib diisi sebelum melanjutkan.']);
+                'agreed_to_terms' => 'accepted',
+            ], [
+                'tanda_tangan.required' => 'Tanda tangan wajib diisi sebelum melanjutkan.',
+                'agreed_to_terms.accepted' => 'Anda harus menyetujui pernyataan persetujuan.',
+            ]);
         }
 
         if ($this->step < 5) {
@@ -222,6 +227,7 @@ class BookingWizard extends Component
             'technical_data' => 'required|array|min:1',
             'consultation_location_id' => 'required|exists:consultation_locations,id',
             'tanda_tangan' => 'required|string',
+            'agreed_to_terms' => 'accepted',
         ]);
 
         try {
@@ -239,6 +245,7 @@ class BookingWizard extends Component
                     'contact_details' => [],
                     'service_id' => $this->service_id,
                     'consultation_location_id' => $this->consultation_location_id,
+                    'agreed_to_terms' => $this->agreed_to_terms,
                 ]);
 
                 // 2. Upload supporting documents if any
