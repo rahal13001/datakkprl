@@ -198,13 +198,17 @@
     </p>
 
     {{-- TABEL TANDA TANGAN --}}
-    {{-- Only show officers + attendees who have a signature --}}
+    {{-- Only show attendees who are designated as signatories (is_signatory = true) --}}
     @php
         $signatories = $beritaAcara->attendees->filter(function ($attendee) {
-            return $attendee->is_officer || !empty($attendee->tanda_tangan);
+            return $attendee->is_signatory;
         });
     @endphp
 
+    @if($signatories->isNotEmpty())
+    <p class="paragraph-no-indent" style="font-weight: bold; margin-top: 15px; margin-bottom: 5px;">
+        Yang Menandatangani:
+    </p>
     <table class="signature-table">
         <thead>
             <tr>
@@ -238,6 +242,50 @@
             @endforeach
         </tbody>
     </table>
+    @endif
+
+    {{-- DAFTAR HADIR (Attendance List) --}}
+    {{-- @php
+        $allAttendees = $beritaAcara->attendees;
+    @endphp
+
+    @if($allAttendees->isNotEmpty())
+    <p class="paragraph-no-indent" style="font-weight: bold; margin-top: 15px; margin-bottom: 5px;">
+        Daftar Hadir:
+    </p>
+    <table class="signature-table">
+        <thead>
+            <tr>
+                <th style="width: 5%;">No</th>
+                <th style="width: 30%;">Nama</th>
+                <th style="width: 30%;">Jabatan/Instansi</th>
+                <th style="width: 20%;">Status</th>
+                <th style="width: 15%;">Dikonfirmasi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($allAttendees as $attendee)
+            <tr>
+                <td style="text-align: center;">{{ $loop->iteration }}</td>
+                <td>{{ $attendee->nama }}</td>
+                <td>{{ $attendee->getJabatanInstansiLabel() }}</td>
+                <td style="text-align: center;">
+                    @if($attendee->confirmed_at)
+                        <span style="color: green;">✓ Hadir</span>
+                    @elseif($beritaAcara->isAutoApproved())
+                        <span style="color: #b45309;">Otomatis Disetujui</span>
+                    @else
+                        <span style="color: gray;">Menunggu</span>
+                    @endif
+                </td>
+                <td style="text-align: center; font-size: 10pt;">
+                    {{ $attendee->confirmed_at?->format('d/m/Y H:i') ?? '-' }}
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+    @endif --}}
 
     {{-- LAMPIRAN I: PETA HASIL PLOTTING --}}
     @if($beritaAcara->lampiran_peta)

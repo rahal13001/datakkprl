@@ -47,6 +47,14 @@ Route::group($routingConfig, function () {
     })->name('regulation.download');
 });
 
+// Public Attendee Signing Page (Berita Acara - Individual)
+Route::get('/berita-acara/sign/{token}', \App\Livewire\AttendeeSign::class)
+    ->name('berita-acara.sign');
+
+// Public Attendance List (Daftar Hadir - Master Link for Meeting)
+Route::get('/berita-acara/attendance/{token}', \App\Livewire\PublicAttendance::class)
+    ->name('berita-acara.attendance');
+
 // Fallback or Admin Routes (Filament usually registers its own, but we keep the existing closures for safety)
 // The previous routes were global, we should probably keep them accessible or restrict them?
 // The previous code had:

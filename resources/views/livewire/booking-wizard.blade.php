@@ -23,11 +23,11 @@
         <div class="bg-slate-50 border-b border-slate-100 p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-bold text-slate-900">Formulir Reservasi</h3>
-                <span class="text-xs font-mono text-slate-400">STEP {{ $step }} / 4</span>
+                <span class="text-xs font-mono text-slate-400">STEP {{ $step }} / 5</span>
             </div>
             <!-- Progress Bar -->
             <div class="h-1 w-full bg-slate-200 rounded-full overflow-hidden">
-                <div class="h-full bg-brand-blue transition-all duration-500" style="width: {{ ($step / 4) * 100 }}%"></div>
+                <div class="h-full bg-brand-blue transition-all duration-500" style="width: {{ ($step / 5) * 100 }}%"></div>
             </div>
             <!-- Step Labels -->
             <div class="flex justify-between mt-3 text-xs text-slate-400">
@@ -35,6 +35,7 @@
                 <span class="{{ $step >= 2 ? 'text-brand-blue font-medium' : '' }}">Layanan</span>
                 <span class="{{ $step >= 3 ? 'text-brand-blue font-medium' : '' }}">Lokasi</span>
                 <span class="{{ $step >= 4 ? 'text-brand-blue font-medium' : '' }}">Jadwal</span>
+                <span class="{{ $step >= 5 ? 'text-brand-blue font-medium' : '' }}">Persetujuan</span>
             </div>
         </div>
 
@@ -570,6 +571,165 @@
                 </div>
             @endif
 
+            <!-- STEP 5: SIGNATURE -->
+            @if($step === 5)
+                <div class="space-y-6">
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                        <div class="flex items-center gap-3 mb-5">
+                            <div class="w-9 h-9 bg-emerald-100 rounded-lg flex items-center justify-center">
+                                <i class="fa-solid fa-signature text-emerald-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <h2 class="font-bold text-slate-900">Tanda Tangan <span class="text-red-500 text-sm">*</span></h2>
+                                <p class="text-xs text-slate-500">Bubuhkan tanda tangan Anda sebagai persetujuan pembuatan Berita Acara.</p>
+                            </div>
+                        </div>
+
+                        <div
+                            x-data="{
+                                canvas: null,
+                                ctx: null,
+                                isDrawing: false,
+                                hasSignature: false,
+                                lastX: 0,
+                                lastY: 0,
+
+                                init() {
+                                    this.canvas = this.$refs.signCanvas;
+                                    this.ctx = this.canvas.getContext('2d');
+                                    this.ctx.strokeStyle = '#1e293b';
+                                    this.ctx.lineWidth = 2.5;
+                                    this.ctx.lineCap = 'round';
+                                    this.ctx.lineJoin = 'round';
+
+                                    this.ctx.fillStyle = '#ffffff';
+                                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                                },
+
+                                getPos(e) {
+                                    const rect = this.canvas.getBoundingClientRect();
+                                    const scaleX = this.canvas.width / rect.width;
+                                    const scaleY = this.canvas.height / rect.height;
+
+                                    if (e.touches) {
+                                        return {
+                                            x: (e.touches[0].clientX - rect.left) * scaleX,
+                                            y: (e.touches[0].clientY - rect.top) * scaleY
+                                        };
+                                    }
+                                    return {
+                                        x: (e.clientX - rect.left) * scaleX,
+                                        y: (e.clientY - rect.top) * scaleY
+                                    };
+                                },
+
+                                startDrawing(e) {
+                                    e.preventDefault();
+                                    this.isDrawing = true;
+                                    const pos = this.getPos(e);
+                                    this.lastX = pos.x;
+                                    this.lastY = pos.y;
+                                    this.ctx.beginPath();
+                                    this.ctx.moveTo(pos.x, pos.y);
+                                },
+
+                                draw(e) {
+                                    if (!this.isDrawing) return;
+                                    e.preventDefault();
+                                    const pos = this.getPos(e);
+                                    this.ctx.lineTo(pos.x, pos.y);
+                                    this.ctx.stroke();
+                                    this.lastX = pos.x;
+                                    this.lastY = pos.y;
+                                },
+
+                                stopDrawing() {
+                                    if (this.isDrawing) {
+                                        this.isDrawing = false;
+                                        this.hasSignature = true;
+                                        this.save();
+                                    }
+                                },
+
+                                save() {
+                                    const dataUrl = this.canvas.toDataURL('image/png');
+                                    @this.set('tanda_tangan', dataUrl);
+                                },
+
+                                clear() {
+                                    this.ctx.fillStyle = '#ffffff';
+                                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                                    this.ctx.strokeStyle = '#1e293b';
+                                    this.hasSignature = false;
+                                    @this.set('tanda_tangan', null);
+                                }
+                            }"
+                        >
+                            <div class="relative border-2 border-dashed border-slate-200 rounded-xl overflow-hidden bg-white hover:border-brand-blue/50 transition-colors">
+                                <canvas
+                                    x-ref="signCanvas"
+                                    width="500"
+                                    height="160"
+                                    class="cursor-crosshair w-full touch-none"
+                                    style="aspect-ratio: 500/160;"
+                                    @mousedown="startDrawing($event)"
+                                    @mousemove="draw($event)"
+                                    @mouseup="stopDrawing()"
+                                    @mouseleave="stopDrawing()"
+                                    @touchstart="startDrawing($event)"
+                                    @touchmove="draw($event)"
+                                    @touchend="stopDrawing()"
+                                ></canvas>
+
+                                {{-- Placeholder --}}
+                                <div
+                                    x-show="!hasSignature"
+                                    class="absolute inset-0 flex items-center justify-center pointer-events-none"
+                                >
+                                    <div class="text-center">
+                                        <i class="fa-solid fa-pen-fancy text-slate-300 text-2xl mb-2"></i>
+                                        <p class="text-slate-400 text-sm italic">Tanda tangan di sini</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Clear button --}}
+                            <div class="flex justify-end mt-2">
+                                <button
+                                    type="button"
+                                    @click="clear()"
+                                    x-show="hasSignature"
+                                    x-transition
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-500 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                                >
+                                    <i class="fa-solid fa-eraser text-xs"></i>
+                                    Hapus Tanda Tangan
+                                </button>
+                            </div>
+                        </div>
+
+                        @error('tanda_tangan')
+                            <div class="mt-4 p-3 bg-red-50 text-red-600 rounded-xl border border-red-100 text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-circle-exclamation"></i> {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                    {{-- Consent Notice --}}
+                    <div class="bg-blue-50/80 p-5 rounded-2xl border border-blue-100">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-circle-info text-blue-500 mt-0.5"></i>
+                            <div class="text-sm text-blue-700">
+                                <p class="font-semibold mb-1">Pernyataan Persetujuan</p>
+                                <p class="text-blue-600 text-xs leading-relaxed">
+                                    Dengan menandatangani formulir ini, saya menyatakan bahwa data yang saya isi adalah benar. Tanda tangan ini juga akan digunakan sebagai persetujuan Berita Acara pendampingan.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
         </div>
 
         <!-- Footer Actions -->
@@ -584,7 +744,7 @@
                 <div></div> <!-- Spacer -->
             @endif
 
-            @if($step < 4)
+            @if($step < 5)
                 <button wire:click="nextStep" wire:loading.attr="disabled" wire:loading.class="opacity-50 cursor-not-allowed"
                     class="px-8 py-3 bg-brand-black text-white rounded-xl font-bold shadow-lg hover:bg-slate-800 transition-all flex items-center gap-2">
                     <span wire:loading.remove wire:target="nextStep">Selanjutnya <i class="fa-solid fa-arrow-right"></i></span>
@@ -593,23 +753,23 @@
             @else
                 <button wire:click="submit" wire:loading.attr="disabled" wire:loading.class="opacity-50 cursor-not-allowed" wire:target="submit"
                     class="px-8 py-3 bg-brand-blue text-white rounded-xl font-bold shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-                    <span wire:loading.remove wire:target="submit">Konfirmasi Janji</span>
+                    <span wire:loading.remove wire:target="submit">Kirim & Tandatangani <i class="fa-solid fa-paper-plane"></i></span>
                     <span wire:loading wire:target="submit"><i class="fa-solid fa-circle-notch fa-spin"></i> Mengirim Data...</span>
                 </button>
             @endif
         </div>
 
         {{-- Processing overlay during submit --}}
-        <div wire:loading wire:target="submit" 
-            class="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center">
-            <div class="bg-white rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4 text-center">
-                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-50 flex items-center justify-center">
-                    <i class="fa-solid fa-paper-plane text-brand-blue text-2xl animate-bounce"></i>
+        <div wire:loading.flex wire:target="submit" 
+            class="absolute inset-0 z-[9999] bg-slate-900/60 backdrop-blur-md flex-col items-center justify-center">
+            <div class="bg-white rounded-3xl p-10 shadow-2xl max-w-md w-full mx-4 text-center transform transition-all">
+                <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-blue-50 flex items-center justify-center ring-8 ring-blue-50/50">
+                    <i class="fa-solid fa-paper-plane text-brand-blue text-4xl animate-bounce"></i>
                 </div>
-                <h3 class="text-lg font-bold text-slate-800 mb-2">Sedang Memproses...</h3>
-                <p class="text-sm text-slate-500">Data sedang diproses dan email konfirmasi sedang dikirim. Mohon tunggu beberapa saat dan jangan menutup halaman ini.</p>
-                <div class="mt-4">
-                    <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <h3 class="text-2xl font-bold text-slate-800 mb-3">Sedang Memproses...</h3>
+                <p class="text-base text-slate-500 leading-relaxed">Data Anda sedang diproses secara otomatis dan email konfirmasi sedang dikirimkan. Mohon tunggu beberapa saat dan jangan menutup halaman ini.</p>
+                <div class="mt-8">
+                    <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
                         <div class="h-full bg-brand-blue rounded-full animate-pulse" style="width: 70%"></div>
                     </div>
                 </div>

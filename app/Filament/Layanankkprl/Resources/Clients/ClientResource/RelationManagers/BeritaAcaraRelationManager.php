@@ -4,6 +4,7 @@ namespace App\Filament\Layanankkprl\Resources\Clients\ClientResource\RelationMan
 
 use App\Forms\Components\SignaturePad;
 use App\Models\BeritaAcara;
+use App\Services\BusinessDayService;
 use App\Services\SignatureService;
 use Filament\Forms;
 use Filament\Schemas\Schema;
@@ -87,7 +88,7 @@ class BeritaAcaraRelationManager extends RelationManager
                     ->columnSpanFull(),
 
                 Section::make('Peserta / Yang Hadir')
-                    ->description('Daftar peserta yang hadir pada kegiatan pendampingan.')
+                    ->description('Daftar peserta yang hadir pada kegiatan pendampingan. Toggle "Penanda Tangan BA" untuk menentukan siapa yang tanda tangannya ditampilkan di dokumen.')
                     ->icon('heroicon-o-user-group')
                     ->schema([
                         Forms\Components\Repeater::make('attendees')
@@ -99,6 +100,11 @@ class BeritaAcaraRelationManager extends RelationManager
                                     ->default(false)
                                     ->live()
                                     ->columnSpanFull(),
+                                Forms\Components\Toggle::make('is_signatory')
+                                    ->label('Penanda Tangan BA?')
+                                    ->helperText('Jika aktif, tanda tangan peserta ini akan ditampilkan pada dokumen BA.')
+                                    ->default(true)
+                                    ->columnSpanFull(),
                                 Forms\Components\TextInput::make('nama')
                                     ->label('Nama')
                                     ->required(),
@@ -108,6 +114,13 @@ class BeritaAcaraRelationManager extends RelationManager
                                     ->label('Instansi')
                                     ->datalist(array_values(static::getInstansiOptions()))
                                     ->placeholder('Ketik atau pilih instansi'),
+                                Forms\Components\TextInput::make('email')
+                                    ->label('Email')
+                                    ->email()
+                                    ->placeholder('Email peserta (opsional)'),
+                                Forms\Components\TextInput::make('no_hp')
+                                    ->label('No. HP')
+                                    ->placeholder('08xx-xxxx-xxxx (opsional)'),
                                 SignaturePad::make('tanda_tangan')
                                     ->label('Tanda Tangan')
                                     ->canvasWidth(350)
@@ -118,7 +131,11 @@ class BeritaAcaraRelationManager extends RelationManager
                             ->defaultItems(0)
                             ->reorderable()
                             ->collapsible()
-                            ->itemLabel(fn (array $state): ?string => ($state['nama'] ?? 'Peserta Baru') . (($state['is_officer'] ?? false) ? ' (Petugas)' : ''))
+                            ->itemLabel(fn (array $state): ?string =>
+                                ($state['nama'] ?? 'Peserta Baru')
+                                . (($state['is_officer'] ?? false) ? ' (Petugas)' : '')
+                                . (($state['is_signatory'] ?? true) ? '' : ' [Hadir Saja]')
+                            )
                             ->columnSpanFull(),
                     ])
                     ->columnSpanFull()
@@ -128,6 +145,45 @@ class BeritaAcaraRelationManager extends RelationManager
                     ->description('Tanda tangan calon pemohon. Bersifat opsional.')
                     ->icon('heroicon-o-pencil')
                     ->schema([
+                        Forms\Components\Toggle::make('hadirkan_pemohon')
+                            ->label('Hadirkan Pemohon')
+                            ->helperText('Jika diaktifkan, data pemohon (termasuk tanda tangan) otomatis disalin ke daftar peserta hadir sebagai peserta dan penandatangan.')
+                            ->default(false)
+                            ->live()
+                            ->afterStateUpdated(function ($set, $get, $state, RelationManager $livewire) {
+                                if ($state) {
+                                    $client = $livewire->getOwnerRecord();
+                                    $attendees = $get('attendees') ?? [];
+                                    
+                                    $exists = false;
+                                    foreach($attendees as $key => $att) {
+                                       if(($att['nama'] ?? '') === $client->name) {
+                                           $exists = true; break;
+                                       }
+                                    }
+                                    
+                                    if (!$exists) {
+                                        $uuid = (string) \Illuminate\Support\Str::uuid();
+                                        $attendees[$uuid] = [
+                                            'nama' => $client->name,
+                                            'instansi' => $client->instance ?? '',
+                                            'email' => $client->email ?? '',
+                                            'no_hp' => $client->whatsapp ?? '',
+                                            'is_officer' => false,
+                                            'is_signatory' => true,
+                                            'tanda_tangan' => $get('tanda_tangan_pemohon'),
+                                        ];
+                                        $set('attendees', $attendees);
+                                        
+                                        Notification::make()
+                                            ->title('Berhasil')
+                                            ->body('Pemohon ditambahkan ke Daftar Peserta.')
+                                            ->success()
+                                            ->send();
+                                    }
+                                }
+                            })
+                            ->dehydrated(false),
                         SignaturePad::make('tanda_tangan_pemohon')
                             ->label('Tanda Tangan Pemohon')
                             ->canvasWidth(350)
@@ -164,7 +220,7 @@ class BeritaAcaraRelationManager extends RelationManager
                     ->columnSpanFull()
                     ->collapsed(),
 
-                Section::make('Status')
+                Section::make('Status & Akses')
                     ->schema([
                         Forms\Components\Select::make('status')
                             ->options([
@@ -173,7 +229,12 @@ class BeritaAcaraRelationManager extends RelationManager
                             ])
                             ->required()
                             ->default('draft'),
+                        Forms\Components\Toggle::make('attendance_is_open')
+                            ->label('Buka Daftar Hadir Publik')
+                            ->helperText('Jika diaktifkan, peserta dapat mengakses link daftar hadir dan mengisi kehadiran mereka secara mandiri.')
+                            ->default(true),
                     ])
+                    ->columns(2)
                     ->columnSpanFull(),
             ]);
     }
@@ -198,6 +259,13 @@ class BeritaAcaraRelationManager extends RelationManager
                     ->counts('attendees')
                     ->badge()
                     ->color('info'),
+                TextColumn::make('signing_deadline')
+                    ->label('Batas Tanda Tangan')
+                    ->dateTime('d M Y, H:i')
+                    ->placeholder('Belum dihitung')
+                    ->color(fn (BeritaAcara $record): string =>
+                        $record->isSigningExpired() ? 'danger' : 'success'
+                    ),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -224,6 +292,7 @@ class BeritaAcaraRelationManager extends RelationManager
                     })
                     ->after(function (BeritaAcara $record) {
                         $this->processAttendeeSignatures($record);
+                        $this->calculateAndSaveDeadline($record);
                     })
                     ->using(function (array $data, string $model): BeritaAcara {
                         // Handle auto-populating officers
@@ -239,7 +308,36 @@ class BeritaAcaraRelationManager extends RelationManager
                     })
                     ->after(function (BeritaAcara $record) {
                         $this->processAttendeeSignatures($record);
+                        $this->calculateAndSaveDeadline($record);
                     }),
+                Action::make('copyAttendanceLink')
+                    ->label('Daftar Hadir Publik')
+                    ->icon('heroicon-o-users')
+                    ->color('warning')
+                    ->modalHeading('Link Daftar Hadir Pertemuan')
+                    ->modalDescription('Bagikan link master ini kepada seluruh peserta rapat. Peserta yang mengisi link ini akan otomatis masuk ke daftar peserta BA.')
+                    ->modalContent(function (BeritaAcara $record) {
+                        return view('filament.resources.clients.attendance-link-modal', [
+                            'url' => $record->getAttendanceUrl(),
+                        ]);
+                    })
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup'),
+                Action::make('copySigningLinks')
+                    ->label('Link Tanda Tangan')
+                    ->icon('heroicon-o-link')
+                    ->color('info')
+                    ->modalHeading('Link Tanda Tangan Peserta')
+                    ->modalDescription('Bagikan link berikut ke masing-masing peserta agar mereka dapat mengisi data diri dan tanda tangan.')
+                    ->modalContent(function (BeritaAcara $record) {
+                        $record->load('attendees');
+                        return view('filament.resources.clients.signing-links-modal', [
+                            'attendees' => $record->attendees,
+                            'beritaAcara' => $record,
+                        ]);
+                    })
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup'),
                 Action::make('downloadBeritaAcara')
                     ->label('Unduh PDF')
                     ->icon('heroicon-o-document-arrow-down')
@@ -289,6 +387,7 @@ class BeritaAcaraRelationManager extends RelationManager
             'jabatan' => $user->jabatan ?? '',
             'instansi' => $user->instansi ?? '',
             'is_officer' => true,
+            'is_signatory' => true,
             'tanda_tangan' => null,
         ])->values()->toArray();
     }
@@ -320,6 +419,18 @@ class BeritaAcaraRelationManager extends RelationManager
                 $path = $signatureService->store($attendee->tanda_tangan);
                 $attendee->update(['tanda_tangan' => $path]);
             }
+        }
+    }
+
+    /**
+     * Calculate and save the signing deadline (3 business days from tanggal_pelaksanaan).
+     */
+    protected function calculateAndSaveDeadline(BeritaAcara $record): void
+    {
+        $record->refresh();
+        if ($record->tanggal_pelaksanaan) {
+            $deadline = $record->calculateSigningDeadline();
+            $record->update(['signing_deadline' => $deadline->endOfDay()]);
         }
     }
 }

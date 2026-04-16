@@ -46,6 +46,9 @@ class BookingWizard extends Component
     public $availableSlots = 0;
     public $schedules_list = [];
     
+    // Step 5: Signature
+    public $tanda_tangan;
+    
     // UI State
     public $success = false;
     public $errorMessage;
@@ -193,8 +196,15 @@ class BookingWizard extends Component
                 'schedules_list' => 'required|array|min:1'
             ], ['schedules_list.required' => 'Mohon pilih minimal satu jadwal.']);
         }
+        elseif ($this->step == 5) {
+            $this->validate([
+                'tanda_tangan' => 'required|string',
+            ], ['tanda_tangan.required' => 'Tanda tangan wajib diisi sebelum melanjutkan.']);
+        }
 
-        $this->step++;
+        if ($this->step < 5) {
+            $this->step++;
+        }
     }
 
     public function previousStep()
@@ -211,6 +221,7 @@ class BookingWizard extends Component
             'schedules_list' => 'required|array|min:1',
             'technical_data' => 'required|array|min:1',
             'consultation_location_id' => 'required|exists:consultation_locations,id',
+            'tanda_tangan' => 'required|string',
         ]);
 
         try {
@@ -269,7 +280,20 @@ class BookingWizard extends Component
                     ]);
                 }
 
-                // 7. Send notification
+                // 7. Automatically generate Berita Acara
+                $firstScheduleDate = count($this->schedules_list) > 0 ? $this->schedules_list[0]['date'] : null;
+                $locationName = $this->selectedLocation ? $this->selectedLocation->name : null;
+                
+                \App\Models\BeritaAcara::create([
+                    'client_id' => $client->id,
+                    'tanggal_pelaksanaan' => $firstScheduleDate, // as requested
+                    'lokasi_permohonan' => $locationName,
+                    'tanda_tangan_pemohon' => $this->tanda_tangan,
+                    'status' => 'draft',
+                    'attendance_is_open' => false,
+                ]);
+
+                // 8. Send notification
                 app(NotificationService::class)->sendBookingCreated($client);
             });
 
