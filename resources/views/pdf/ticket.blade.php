@@ -198,7 +198,7 @@
                             @endif
                         @else
                             <div style="font-weight: bold; margin-bottom: 2px;">LOKASI:</div>
-                            {{ $client->consultationLocation->name ?? 'Kantor LPSPL Sorong' }}
+                            {{ $client->consultationLocation->name ?? 'Kantor LPRL Sorong' }}
                             
                             @if($client->consultationLocation && $client->consultationLocation->address)
                                 <div style="font-size: 9px; color: #555; margin-top: 2px;">

@@ -137,7 +137,7 @@
                             @if($isOnline)
                                 <a href="{{ $meetingLink }}" target="_blank" style="color: #0ea5e9; text-decoration: none;">Link Pertemuan &rarr;</a>
                             @else
-                                Kantor LPSPL Sorong
+                                Kantor LPRL Sorong
                             @endif
                         </span>
                     </div>
