@@ -69,33 +69,25 @@ class ActivityTypeChart extends ChartWidget
 
         $businessCount = (clone $query)->where('activity_type', 'business')->count();
         $nonBusinessCount = (clone $query)->where('activity_type', 'non_business')->count();
-        $otherCount = (clone $query)
-            ->where(function ($q) {
-                $q->whereNotIn('activity_type', ['business', 'non_business'])
-                  ->orWhereNull('activity_type');
-            })
-            ->count();
 
         return [
             'datasets' => [
                 [
                     'label' => 'Jumlah Pemohon',
-                    'data' => [$nonBusinessCount, $businessCount, $otherCount],
+                    'data' => [$nonBusinessCount, $businessCount],
                     'backgroundColor' => [
                         'rgba(54, 162, 235, 0.7)',
                         'rgba(255, 159, 64, 0.7)',
-                        'rgba(153, 153, 153, 0.7)',
                     ],
                     'borderColor' => [
                         'rgba(54, 162, 235, 1)',
                         'rgba(255, 159, 64, 1)',
-                        'rgba(153, 153, 153, 1)',
                     ],
                     'borderWidth' => 2,
                     'borderRadius' => 6,
                 ],
             ],
-            'labels' => ['Non Berusaha', 'Berusaha', 'Lainnya'],
+            'labels' => ['Non Berusaha', 'Berusaha'],
         ];
     }
 
