@@ -144,6 +144,25 @@ class ClientInfolist
                                 return $html;
                             })
                             ->html(),
+                        \Filament\Infolists\Components\TextEntry::make('supporting_document_links')
+                            ->label('Link Dokumen Pendukung')
+                            ->state(function ($record) {
+                                if (empty($record->supporting_document_links)) {
+                                    return '<span class="text-gray-400 italic">Tidak ada link dokumen</span>';
+                                }
+                                $html = '<div class="flex flex-col gap-2">';
+                                foreach ($record->supporting_document_links as $index => $url) {
+                                    $num = $index + 1;
+                                    $escapedUrl = e($url);
+                                    $html .= "<a href=\"{$escapedUrl}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"inline-flex items-center gap-2 px-3 py-2 bg-warning-50 text-warning-700 rounded-lg hover:bg-warning-100 transition-colors border border-warning-200\">
+                                        <svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M13.828 10.172a4 4 0 010 5.656l-3 3a4 4 0 01-5.656-5.656l1.5-1.5m3-3l1.5-1.5a4 4 0 115.656 5.656l-3 3a4 4 0 01-5.656 0\"></path></svg>
+                                        <span class=\"font-medium\">Link Dokumen {$num}</span>
+                                    </a>";
+                                }
+                                $html .= '</div>';
+                                return $html;
+                            })
+                            ->html(),
                         \Filament\Infolists\Components\TextEntry::make('coordinate_file')
                             ->label('File Koordinat')
                             ->state(function ($record) {
@@ -161,7 +180,7 @@ class ClientInfolist
                             ->html(),
                     ])
                     ->columns(1)
-                    ->visible(fn ($record) => $record->service?->requires_documents || !empty($record->supporting_documents) || !empty($record->coordinate_file)),
+                    ->visible(fn ($record) => $record->service?->requires_documents || !empty($record->supporting_documents) || !empty($record->supporting_document_links) || !empty($record->coordinate_file)),
 
                 \Filament\Schemas\Components\Section::make('Jadwal Konsultasi')
                     ->schema([

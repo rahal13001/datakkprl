@@ -11,6 +11,7 @@ use App\Models\Schedule;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -34,6 +35,7 @@ class BookingWizard extends Component
     public $selectedService;
     public $temp_supporting_documents = []; // Temp for new file uploads
     public $supporting_documents = [];      // Accumulated files (1-6)
+    public $supporting_document_links = []; // External document links (1-5)
     public $coordinate_file;                // Single file upload
 
     // Step 3: Location
@@ -85,6 +87,7 @@ class BookingWizard extends Component
         // Reset documents when service changes
         $this->supporting_documents = [];
         $this->temp_supporting_documents = [];
+        $this->supporting_document_links = [];
         $this->coordinate_file = null;
     }
 
@@ -141,6 +144,60 @@ class BookingWizard extends Component
         $this->supporting_documents = array_values($this->supporting_documents);
     }
 
+    public function addSupportingDocumentLink()
+    {
+        if (count($this->supporting_document_links) < 5) {
+            $this->supporting_document_links[] = '';
+        }
+    }
+
+    public function removeSupportingDocumentLink($index)
+    {
+        unset($this->supporting_document_links[$index]);
+        $this->supporting_document_links = array_values($this->supporting_document_links);
+    }
+
+    protected function normalizeSupportingDocumentLinks(): void
+    {
+        $this->supporting_document_links = collect($this->supporting_document_links ?? [])
+            ->map(fn ($link) => is_string($link) ? trim($link) : null)
+            ->filter(fn ($link) => filled($link))
+            ->values()
+            ->all();
+    }
+
+    protected function validateSupportingDocuments(): void
+    {
+        $this->normalizeSupportingDocumentLinks();
+
+        $this->validate([
+            'supporting_documents' => 'nullable|array|max:6',
+            'supporting_documents.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:51200',
+            'supporting_document_links' => 'nullable|array|max:5',
+            'supporting_document_links.*' => 'required|url|max:5000',
+            'coordinate_file' => 'nullable|file|mimes:xlsx,xls,pdf,doc,docx,ppt,pptx|max:51200',
+        ], [
+            'supporting_documents.max' => 'Maksimal 6 dokumen pendukung.',
+            'supporting_documents.*.mimes' => 'Format dokumen: PDF, DOC, DOCX, JPG, PNG.',
+            'supporting_documents.*.max' => 'Ukuran maksimal per file 50MB.',
+            'supporting_document_links.max' => 'Maksimal 5 link dokumen.',
+            'supporting_document_links.*.required' => 'Link dokumen tidak boleh kosong.',
+            'supporting_document_links.*.url' => 'Link dokumen harus berupa URL yang valid.',
+            'supporting_document_links.*.max' => 'Panjang link dokumen terlalu panjang.',
+            'coordinate_file.mimes' => 'Format file koordinat: XLSX, XLS, PDF, DOC, DOCX, PPT, PPTX.',
+            'coordinate_file.max' => 'Ukuran maksimal file koordinat 50MB.',
+        ]);
+
+        if (empty($this->supporting_documents) && empty($this->supporting_document_links)) {
+            $message = 'Mohon upload minimal 1 dokumen pendukung atau isi minimal 1 link dokumen.';
+
+            throw ValidationException::withMessages([
+                'supporting_documents' => $message,
+                'supporting_document_links' => $message,
+            ]);
+        }
+    }
+
     public function nextStep()
     {
         if ($this->step == 1) {
@@ -173,17 +230,7 @@ class BookingWizard extends Component
 
             // Validate documents if service requires them
             if ($this->selectedService?->requires_documents) {
-                $this->validate([
-                    'supporting_documents' => 'required|array|min:1|max:6',
-                    'supporting_documents.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:51200',
-                    'coordinate_file' => 'nullable|file|mimes:xlsx,xls,pdf,doc,docx,ppt,pptx|max:51200',
-                ], [
-                    'supporting_documents.required' => 'Mohon upload minimal 1 dokumen pendukung.',
-                    'supporting_documents.min' => 'Mohon upload minimal 1 dokumen pendukung.',
-                    'supporting_documents.max' => 'Maksimal 6 dokumen pendukung.',
-                    'supporting_documents.*.mimes' => 'Format dokumen: PDF, DOC, DOCX, JPG, PNG.',
-                    'supporting_documents.*.max' => 'Ukuran maksimal per file 50MB.',
-                ]);
+                $this->validateSupportingDocuments();
             }
         }
         elseif ($this->step == 3) {
@@ -225,10 +272,15 @@ class BookingWizard extends Component
         $this->validate([
             'schedules_list' => 'required|array|min:1',
             'technical_data' => 'required|array|min:1',
+            'service_id' => 'required|exists:services,id',
             'consultation_location_id' => 'required|exists:consultation_locations,id',
             'tanda_tangan' => 'required|string',
             'agreed_to_terms' => 'accepted',
         ]);
+
+        if ($this->selectedService?->requires_documents) {
+            $this->validateSupportingDocuments();
+        }
 
         try {
             DB::transaction(function () {
@@ -250,12 +302,18 @@ class BookingWizard extends Component
 
                 // 2. Upload supporting documents if any
                 $documentPaths = [];
+                $documentLinks = [];
                 if ($this->selectedService?->requires_documents && !empty($this->supporting_documents)) {
                     $folder = 'client-documents/' . $client->ticket_number;
                     foreach ($this->supporting_documents as $doc) {
                         $path = $doc->store($folder, 'public');
                         $documentPaths[] = $path;
                     }
+                }
+
+                if ($this->selectedService?->requires_documents) {
+                    $this->normalizeSupportingDocumentLinks();
+                    $documentLinks = $this->supporting_document_links;
                 }
                 
                 // 3. Upload coordinate file if any
@@ -266,9 +324,10 @@ class BookingWizard extends Component
                 }
 
                 // 4. Update client with file paths
-                if (!empty($documentPaths) || $coordinatePath) {
+                if (!empty($documentPaths) || !empty($documentLinks) || $coordinatePath) {
                     $client->update([
                         'supporting_documents' => $documentPaths,
+                        'supporting_document_links' => $documentLinks,
                         'coordinate_file' => $coordinatePath,
                     ]);
                 }

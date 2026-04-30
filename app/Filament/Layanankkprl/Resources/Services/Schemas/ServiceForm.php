@@ -29,8 +29,8 @@ class ServiceForm
                     ->default(true)
                     ->required(),
                 Toggle::make('requires_documents')
-                    ->label('Wajib Upload Dokumen?')
-                    ->helperText('Jika aktif, pemohon wajib upload dokumen pendukung saat reservasi.')
+                    ->label('Wajib Dokumen Pendukung?')
+                    ->helperText('Jika aktif, pemohon wajib menyertakan dokumen pendukung saat reservasi, baik dengan upload file maupun mengisi link dokumen.')
                     ->default(false),
             ]);
     }

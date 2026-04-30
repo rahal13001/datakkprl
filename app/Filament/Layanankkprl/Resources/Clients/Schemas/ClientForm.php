@@ -153,6 +153,20 @@ class ClientForm
                                 return new \Illuminate\Support\HtmlString($links);
                             })
                             ->columnSpanFull(),
+                        \Filament\Forms\Components\Placeholder::make('supporting_document_links_display')
+                            ->label('Link Dokumen Pendukung')
+                            ->content(function ($record) {
+                                if (!$record || empty($record->supporting_document_links)) {
+                                    return 'Tidak ada link dokumen.';
+                                }
+                                $links = collect($record->supporting_document_links)->map(function ($url, $index) {
+                                    $number = $index + 1;
+                                    $escapedUrl = e($url);
+                                    return "<a href='{$escapedUrl}' target='_blank' rel='noopener noreferrer' class='text-primary-600 hover:underline'>Link Dokumen {$number}</a>";
+                                })->join('<br>');
+                                return new \Illuminate\Support\HtmlString($links);
+                            })
+                            ->columnSpanFull(),
                         \Filament\Forms\Components\Placeholder::make('coordinate_file_display')
                             ->label('File Koordinat')
                             ->content(function ($record) {

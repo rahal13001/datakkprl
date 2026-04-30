@@ -256,7 +256,10 @@
                                 <i class="fa-solid fa-file-arrow-up text-brand-blue"></i>
                                 Dokumen Pendukung <span class="text-red-500">*</span>
                             </h4>
-                            <p class="text-sm text-slate-500 mb-4">Upload 1-6 dokumen pendukung (PDF, DOC, DOCX, JPG, PNG). Maksimal 10MB per file.</p>
+                            <p class="text-sm text-slate-500 mb-4">
+                                Upload 1-6 dokumen pendukung atau isi 1-5 link dokumen dari Google Drive, OneDrive, Dropbox, atau layanan lain.
+                                Jika salah satu sudah diisi, yang lain tidak wajib.
+                            </p>
 
                             <!-- Supporting Documents Upload -->
                             <div class="mb-6">
@@ -319,6 +322,68 @@
 
                                 @error('supporting_documents') <p class="text-red-500 text-xs mt-2">{{ $message }}</p> @enderror
                                 @error('supporting_documents.*') <p class="text-red-500 text-xs mt-2">{{ $message }}</p> @enderror
+                            </div>
+
+                            <div class="relative my-6">
+                                <div class="absolute inset-0 flex items-center">
+                                    <div class="w-full border-t border-slate-200"></div>
+                                </div>
+                                <div class="relative flex justify-center">
+                                    <span class="bg-white px-4 text-xs font-semibold uppercase tracking-wider text-slate-400">Atau isi link dokumen</span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4 mb-6">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div>
+                                        <h5 class="text-sm font-semibold text-slate-700">Link Dokumen Pendukung</h5>
+                                        <p class="text-xs text-slate-400 mt-1">Tambahkan 1-5 link dokumen agar petugas dapat meninjau file dari penyimpanan cloud Anda.</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        wire:click="addSupportingDocumentLink"
+                                        @disabled(count($supporting_document_links) >= 5)
+                                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-brand-blue border border-brand-blue/20 rounded-xl hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <i class="fa-solid fa-link"></i>
+                                        Tambah Link
+                                    </button>
+                                </div>
+
+                                @if(count($supporting_document_links) > 0)
+                                    <div class="space-y-3">
+                                        @foreach($supporting_document_links as $index => $link)
+                                            <div class="flex items-start gap-3">
+                                                <div class="flex-1">
+                                                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                                                        Link Dokumen {{ $index + 1 }} (Pastikan Data Dapat Diakses Petugas)
+                                                    </label>
+                                                    <input
+                                                        type="url"
+                                                        wire:model.defer="supporting_document_links.{{ $index }}"
+                                                        placeholder="https://drive.google.com/... atau https://1drv.ms/..."
+                                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-blue focus:ring-2 focus:ring-blue-100 outline-none transition-all placeholder:text-slate-300"
+                                                    >
+                                                    @error("supporting_document_links.{$index}") <p class="text-red-500 text-xs mt-2">{{ $message }}</p> @enderror
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    wire:click="removeSupportingDocumentLink({{ $index }})"
+                                                    class="mt-7 inline-flex items-center justify-center w-11 h-11 rounded-xl border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors"
+                                                    title="Hapus link"
+                                                >
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-400">
+                                        Belum ada link dokumen yang ditambahkan.
+                                    </div>
+                                @endif
+
+                                @error('supporting_document_links') <p class="text-red-500 text-xs mt-2">{{ $message }}</p> @enderror
                             </div>
 
                             <!-- Coordinate File Upload -->

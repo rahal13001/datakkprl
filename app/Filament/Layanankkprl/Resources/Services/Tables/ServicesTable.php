@@ -26,6 +26,9 @@ class ServicesTable
                     ->label('Deskripsi')
                     ->limit(50)
                     ->wrap(),
+                IconColumn::make('requires_documents')
+                    ->label('Dokumen Wajib')
+                    ->boolean(),
                 \Filament\Tables\Columns\ToggleColumn::make('is_active')
                     ->label('Status Aktif'),
                 TextColumn::make('created_at')

@@ -34,6 +34,7 @@ class Client extends Model
         'consultation_location_id',
         'activity_type',
         'supporting_documents',
+        'supporting_document_links',
         'coordinate_file',
     ];
 
@@ -47,6 +48,7 @@ class Client extends Model
         'metadata' => 'array',
         'access_token' => 'string', // It's a uuid string
         'supporting_documents' => 'array',
+        'supporting_document_links' => 'array',
     ];
 
     /**
