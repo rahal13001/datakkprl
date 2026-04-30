@@ -130,6 +130,21 @@
         </div>
     </section>
 
+    <section id="activity-chart" class="py-24">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="mb-12 max-w-3xl">
+                <!-- <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-200 bg-white/80 backdrop-blur-sm mb-6">
+                    <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan"></span>
+                    <span class="text-xs font-mono font-semibold text-slate-500 uppercase tracking-widest">Data Publik</span>
+                </div> -->
+                <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight mb-4">Grafik Distribusi Pemohon</h2>
+                <p class="text-slate-500 text-lg">Grafik publik untuk melihat distribusi pemohon berdasarkan sifat kegiatan.</p>
+            </div>
+
+            <livewire:public-dashboard-charts />
+        </div>
+    </section>
+
     <!-- Services Section -->
     <section id="services" class="py-28 relative overflow-hidden">
         <!-- Background Decoration -->

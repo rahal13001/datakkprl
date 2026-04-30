@@ -467,7 +467,7 @@
 
                     <div class="bg-blue-50/50 p-6 rounded-2xl border border-blue-100">
                         <h4 class="text-sm font-semibold text-slate-700 mb-4"><i
-                                class="fa-solid fa-calendar-plus mr-2 text-brand-blue"></i> Tambah Jadwal</h4>
+                                class="fa-solid fa-calendar-plus mr-2 text-brand-blue"></i> Tambah Jadwal (Zona Waktu WIT)</h4>
 
                         <div class="flex flex-col md:flex-row gap-4 items-end">
                             <!-- Date Picker -->
@@ -480,7 +480,7 @@
                             <!-- Slot Selection -->
                             @if($date && $availableSlots > 0)
                                 <div class="w-full">
-                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Pilih Jam</label>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Pilih Jam (Zona Waktu WIT)</label>
                                     <select wire:model="time_slot"
                                         class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-blue outline-none text-slate-700 font-medium">
                                         <option value="">-- Pilih Jam --</option>
