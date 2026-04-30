@@ -38,11 +38,13 @@ class SatisfactionSurveyResource extends Resource
                     
                 Forms\Components\Textarea::make('criticism')
                     ->label('Kritik')
+                    ->required()
                     ->rows(3)
                     ->columnSpanFull(),
                     
                 Forms\Components\Textarea::make('suggestion')
                     ->label('Saran')
+                    ->required()
                     ->rows(3)
                     ->columnSpanFull(),
             ]);

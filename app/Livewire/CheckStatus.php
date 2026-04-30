@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Client;
 use App\Models\SatisfactionSurvey;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
 
 class CheckStatus extends Component
 {
@@ -59,8 +60,8 @@ class CheckStatus extends Component
     public function submitFeedback()
     {
         $rules = [
-            'criticism' => 'nullable|string',
-            'suggestion' => 'nullable|string',
+            'criticism' => 'required|string',
+            'suggestion' => 'required|string',
         ];
 
         if ($this->client->assignments->isNotEmpty()) {
@@ -68,29 +69,38 @@ class CheckStatus extends Component
             $rules['ratings.*'] = 'required|integer|min:1|max:5';
         }
 
-        $this->validate($rules);
+        $this->validate($rules, [
+            'criticism.required' => 'Kritik / umpan balik wajib diisi.',
+            'suggestion.required' => 'Saran wajib diisi.',
+            'ratings.required' => 'Mohon beri penilaian untuk petugas layanan.',
+            'ratings.*.required' => 'Setiap petugas wajib diberi penilaian.',
+            'ratings.*.integer' => 'Nilai bintang tidak valid.',
+            'ratings.*.min' => 'Minimal penilaian adalah 1 bintang.',
+            'ratings.*.max' => 'Maksimal penilaian adalah 5 bintang.',
+        ]);
 
         if (! $this->client) return;
 
-        // 1. Update Staff Rating (Assignments)
-        // Score: 1 star = 2, 5 stars = 10.
-        
-        foreach ($this->client->assignments as $assignment) {
-            if (isset($this->ratings[$assignment->id])) {
-                $score = $this->ratings[$assignment->id] * 2;
-                $assignment->update(['score' => $score]);
+        DB::transaction(function () {
+            // 1. Update Staff Rating (Assignments)
+            // Score: 1 star = 2, 5 stars = 10.
+            foreach ($this->client->assignments as $assignment) {
+                if (isset($this->ratings[$assignment->id])) {
+                    $score = $this->ratings[$assignment->id] * 2;
+                    $assignment->update(['score' => $score]);
+                }
             }
-        }
 
-        // 2. Create Satisfaction Survey (Criticism/Suggestion)
-        // Check if already exists to prevent duplicates
-        $survey = SatisfactionSurvey::firstOrCreate(
-            ['client_id' => $this->client->id],
-            [
-                'criticism' => $this->criticism,
-                'suggestion' => $this->suggestion,
-            ]
-        );
+            // 2. Create Satisfaction Survey (Criticism/Suggestion)
+            // Check if already exists to prevent duplicates
+            SatisfactionSurvey::firstOrCreate(
+                ['client_id' => $this->client->id],
+                [
+                    'criticism' => $this->criticism,
+                    'suggestion' => $this->suggestion,
+                ]
+            );
+        });
 
         // Refresh client relationship
         $this->client->refresh();
