@@ -42,7 +42,7 @@ class CheckStatus extends Component
 
         $this->client = Client::where('ticket_number', $this->ticket_number)
             ->where('access_token', $this->access_token)
-            ->with(['service', 'schedules', 'assignments.user', 'latestConsultationReport'])
+            ->with(['service', 'schedules', 'assignments.user', 'latestConsultationReport', 'beritaAcara'])
             ->first();
 
         if (! $this->client) {
@@ -105,11 +105,7 @@ class CheckStatus extends Component
     {
         if (! $this->client) return false;
         
-        // Check if assignments have score or survey exists
-        $hasScore = $this->client->assignments->whereNotNull('score')->isNotEmpty();
-        $hasSurvey = SatisfactionSurvey::where('client_id', $this->client->id)->exists();
-
-        return $hasScore || $hasSurvey;
+        return $this->client->hasSatisfactionFeedback();
     }
 
     public function render()

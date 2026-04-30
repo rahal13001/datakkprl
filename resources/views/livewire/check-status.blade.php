@@ -107,7 +107,7 @@
 
                             <!-- Step 3: Finished -->
                             <div class="relative">
-                                @php $isFinished = $client->status === 'completed'; @endphp
+                                @php $isFinished = $client->status === 'completed' || $client->beritaAcara?->status === 'completed'; @endphp
                                 <span class="absolute -left-[41px] w-6 h-6 rounded-full border-2 border-white shadow-sm flex items-center justify-center z-10
                                     {{ $isFinished ? 'bg-green-500 text-white' : 'bg-slate-200 text-slate-400' }}">
                                     @if($isFinished) <i class="fa-solid fa-check"></i> @else 3 @endif
@@ -120,7 +120,7 @@
 
                     <!-- Actions / Survey -->
                     <div>
-                        @if($client->status === 'completed')
+                        @if($client->status === 'completed' || $client->beritaAcara?->status === 'completed')
                             @if($this->hasFeedback)
                                 <div class="h-full flex flex-col items-center justify-center text-center p-8 bg-green-50/50 rounded-2xl border border-green-100">
                                     <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4 text-2xl">
@@ -135,6 +135,13 @@
                                             Unduh Laporan Konsultasi
                                         </a>
                                     @endif
+
+                                    @if($client->beritaAcara?->status === 'completed')
+                                        <a href="{{ route('client.berita-acara.download', ['client' => $client->ticket_number, 'token' => $client->access_token]) }}" target="_blank" class="mt-3 inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 border border-blue-200 rounded-xl font-bold hover:bg-blue-50 transition-colors shadow-sm cursor-pointer">
+                                            <i class="fa-solid fa-file-signature"></i>
+                                            Unduh Berita Acara
+                                        </a>
+                                    @endif
                                 </div>
                             @else
                                 <div class="bg-indigo-50/50 rounded-2xl border border-indigo-100 p-6">
@@ -145,7 +152,7 @@
                                     
                                     <div class="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-xl flex gap-3 text-blue-700 text-sm">
                                         <i class="fa-solid fa-circle-info mt-0.5"></i>
-                                        <p>Mohon luangkan waktu sejenak untuk menilai layanan kami. <strong>Laporan Hasil Konsultasi</strong> dapat diunduh setelah Anda mengisi survei ini.</p>
+                                        <p>Mohon luangkan waktu sejenak untuk menilai layanan kami. <strong>Dokumen layanan yang telah selesai</strong> dapat diunduh setelah Anda mengisi survei ini.</p>
                                     </div>
                                     
                                     <form wire:submit="submitFeedback">

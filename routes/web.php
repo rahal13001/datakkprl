@@ -106,3 +106,41 @@ Route::get('/clients/{client}/report/download', function (\Illuminate\Http\Reque
     
     return $pdf->stream('Laporan-Konsultasi-' . $client->ticket_number . '.pdf');
 })->name('client.report.download');
+
+Route::get('/clients/{client}/berita-acara/download', function (\Illuminate\Http\Request $request, \App\Models\Client $client) {
+    if ($request->query('token') !== $client->access_token && ! auth()->check()) {
+        abort(403, 'Unauthorized');
+    }
+
+    $beritaAcara = $client->beritaAcara()->with('attendees')->first();
+
+    if (! $beritaAcara) {
+        abort(404, 'Belum ada berita acara.');
+    }
+
+    if (! auth()->check() && $beritaAcara->status !== 'completed') {
+        abort(404, 'Berita acara belum selesai.');
+    }
+
+    if (! auth()->check() && ! $client->hasSatisfactionFeedback()) {
+        return redirect()->route('check-status', [
+            'ticket' => $client->ticket_number,
+            'token' => $client->access_token,
+        ]);
+    }
+
+    $signatureService = app(\App\Services\SignatureService::class);
+
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.berita-acara', [
+        'beritaAcara' => $beritaAcara,
+        'client' => $client->load(['service', 'schedules.assignments.user', 'consultationLocation']),
+        'signatureService' => $signatureService,
+    ]);
+
+    $pdf->setPaper('a4');
+
+    $filename = 'Berita-Acara-' . ($beritaAcara->nomor_berita_acara ?: $client->ticket_number) . '.pdf';
+    $filename = str_replace(['/', '\\'], '-', $filename);
+
+    return $pdf->stream($filename);
+})->name('client.berita-acara.download');

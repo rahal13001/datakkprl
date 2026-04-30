@@ -25,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Client::observe(\App\Observers\ClientObserver::class);
         \App\Models\Assignment::observe(\App\Observers\AssignmentObserver::class);
         \App\Models\ConsultationReport::observe(\App\Observers\ConsultationReportObserver::class);
+        \App\Models\BeritaAcara::observe(\App\Observers\BeritaAcaraObserver::class);
 
         \Filament\Support\Facades\FilamentView::registerRenderHook(
             \Filament\View\PanelsRenderHook::PAGE_START,

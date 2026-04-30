@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne as HasOneSurvey;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
@@ -122,6 +121,17 @@ class Client extends Model
     public function beritaAcara(): HasOne
     {
         return $this->hasOne(BeritaAcara::class);
+    }
+
+    public function satisfactionSurvey(): HasOne
+    {
+        return $this->hasOne(SatisfactionSurvey::class);
+    }
+
+    public function hasSatisfactionFeedback(): bool
+    {
+        return $this->assignments()->whereNotNull('score')->exists()
+            || $this->satisfactionSurvey()->exists();
     }
 
     /*
