@@ -319,6 +319,92 @@
         </div>
     </section>
 
+    <!-- Public Links Section -->
+    <section id="public-links" class="py-24 border-t border-slate-100 bg-white/70">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="max-w-3xl mb-14">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-200 bg-white/80 backdrop-blur-sm mb-6">
+                    <span class="w-1.5 h-1.5 rounded-full bg-brand-blue"></span>
+                    <span class="text-xs font-mono font-semibold text-slate-500 uppercase tracking-widest">Informasi Publik</span>
+                </div>
+                <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight mb-4">Tautan Resmi Terkait</h2>
+                <p class="text-slate-500 text-lg">Akses kanal informasi layanan publik, pengaduan masyarakat, dan website organisasi terkait untuk mendapatkan informasi tambahan yang terpercaya.</p>
+            </div>
+
+            @php
+                $publicLinks = [
+                    [
+                        'title' => 'SIPPN',
+                        'description' => 'Informasi pelayanan publik nasional dan standar layanan instansi pemerintah di Indonesia.',
+                        'url' => 'https://sippn.menpan.go.id/',
+                        'icon' => 'fa-solid fa-building-columns',
+                        'accent' => 'blue',
+                    ],
+                    [
+                        'title' => 'LAPOR!',
+                        'description' => 'Kanal pengaduan masyarakat resmi pemerintah Indonesia untuk aspirasi dan pelaporan publik.',
+                        'url' => 'https://www.lapor.go.id/',
+                        'icon' => 'fa-solid fa-bullhorn',
+                        'accent' => 'emerald',
+                    ],
+                    [
+                        'title' => 'Timur Bersinar',
+                        'description' => 'Website LPRL Sorong untuk informasi profil, kegiatan, dan publikasi lainnya.',
+                        'url' => 'https://timurbersinar.com/',
+                        'icon' => 'fa-solid fa-globe',
+                        'accent' => 'amber',
+                    ],
+                ];
+
+                $publicLinkAccentClasses = [
+                    'blue' => [
+                        'icon' => 'bg-blue-50 text-blue-600',
+                        'ring' => 'group-hover:border-blue-200',
+                        'title' => 'group-hover:text-blue-700',
+                        'arrow' => 'group-hover:bg-blue-600 group-hover:border-blue-600',
+                    ],
+                    'emerald' => [
+                        'icon' => 'bg-emerald-50 text-emerald-600',
+                        'ring' => 'group-hover:border-emerald-200',
+                        'title' => 'group-hover:text-emerald-700',
+                        'arrow' => 'group-hover:bg-emerald-600 group-hover:border-emerald-600',
+                    ],
+                    'amber' => [
+                        'icon' => 'bg-amber-50 text-amber-600',
+                        'ring' => 'group-hover:border-amber-200',
+                        'title' => 'group-hover:text-amber-700',
+                        'arrow' => 'group-hover:bg-amber-500 group-hover:border-amber-500',
+                    ],
+                ];
+            @endphp
+
+            <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                @foreach($publicLinks as $link)
+                    @php $accent = $publicLinkAccentClasses[$link['accent']]; @endphp
+                    <a href="{{ $link['url'] }}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="group block h-full rounded-3xl border border-slate-100 bg-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl {{ $accent['ring'] }}">
+                        <div class="flex items-start justify-between gap-4 mb-6">
+                            <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-xl {{ $accent['icon'] }}">
+                                <i class="{{ $link['icon'] }}"></i>
+                            </div>
+                            <div class="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 transition-all {{ $accent['arrow'] }} group-hover:text-white">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-sm"></i>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <h3 class="text-2xl font-bold text-slate-900 transition-colors {{ $accent['title'] }}">{{ $link['title'] }}</h3>
+                            <p class="text-sm leading-relaxed text-slate-500">{{ $link['description'] }}</p>
+                            <p class="text-sm font-semibold text-slate-700 break-all">{{ parse_url($link['url'], PHP_URL_HOST) }}</p>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
     <!-- Booking Section -->
     <section id="booking" class="py-24 bg-brand-surface border-t border-slate-200">
         <div class="max-w-4xl mx-auto px-6 lg:px-8">
