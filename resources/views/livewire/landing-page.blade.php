@@ -334,6 +334,13 @@
             @php
                 $publicLinks = [
                     [
+                        'title' => 'e-Sea',
+                        'description' => 'Sistem elektronik KKP untuk pengajuan KKPRL bagi kegiatan non-berusaha melalui portal berbasis web.',
+                        'url' => 'https://e-sea.kkp.go.id/',
+                        'icon' => 'fa-solid fa-water',
+                        'accent' => 'cyan',
+                    ],
+                    [
                         'title' => 'SIPPN',
                         'description' => 'Informasi pelayanan publik nasional dan standar layanan instansi pemerintah di Indonesia.',
                         'url' => 'https://sippn.menpan.go.id/',
@@ -357,6 +364,12 @@
                 ];
 
                 $publicLinkAccentClasses = [
+                    'cyan' => [
+                        'icon' => 'bg-cyan-50 text-cyan-600',
+                        'ring' => 'group-hover:border-cyan-200',
+                        'title' => 'group-hover:text-cyan-700',
+                        'arrow' => 'group-hover:bg-cyan-600 group-hover:border-cyan-600',
+                    ],
                     'blue' => [
                         'icon' => 'bg-blue-50 text-blue-600',
                         'ring' => 'group-hover:border-blue-200',
