@@ -33,6 +33,41 @@
         .service-card-glow {
             background: radial-gradient(circle, color-mix(in srgb, var(--accent-from) 10%, transparent), transparent 70%);
         }
+        .public-link-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .public-link-card:hover {
+            border-color: color-mix(in srgb, var(--link-accent) 26%, #e2e8f0);
+        }
+        .public-link-icon {
+            background-color: #f8fafc;
+            color: #64748b;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+        }
+        .public-link-card:hover .public-link-icon {
+            background-color: color-mix(in srgb, var(--link-accent) 14%, white);
+            color: var(--link-accent);
+            transform: scale(1.05);
+        }
+        .public-link-title {
+            transition: color 0.3s ease;
+        }
+        .public-link-card:hover .public-link-title {
+            color: var(--link-accent);
+        }
+        .public-link-arrow {
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+        }
+        .public-link-card:hover .public-link-arrow {
+            background-color: var(--link-accent);
+            border-color: var(--link-accent);
+            color: white;
+            transform: translateY(-1px);
+        }
+        .public-link-content {
+            padding-inline: 0.35rem;
+            padding-bottom: 0.2rem;
+        }
     </style>
     <!-- Navbar (Minimalist Sticky) -->
     <nav x-data="{ scrolled: false, mobileOpen: false }" 
@@ -338,77 +373,50 @@
                         'description' => 'Sistem elektronik KKP untuk pengajuan KKPRL bagi kegiatan non-berusaha melalui portal berbasis web.',
                         'url' => 'https://e-sea.kkp.go.id/',
                         'icon' => 'fa-solid fa-water',
-                        'accent' => 'cyan',
+                        'accent' => '#0891b2',
                     ],
                     [
                         'title' => 'SIPPN',
                         'description' => 'Informasi pelayanan publik nasional dan standar layanan instansi pemerintah di Indonesia.',
                         'url' => 'https://sippn.menpan.go.id/',
                         'icon' => 'fa-solid fa-building-columns',
-                        'accent' => 'blue',
+                        'accent' => '#2563eb',
                     ],
                     [
                         'title' => 'LAPOR!',
                         'description' => 'Kanal pengaduan masyarakat resmi pemerintah Indonesia untuk aspirasi dan pelaporan publik.',
                         'url' => 'https://www.lapor.go.id/',
                         'icon' => 'fa-solid fa-bullhorn',
-                        'accent' => 'emerald',
+                        'accent' => '#059669',
                     ],
                     [
                         'title' => 'Timur Bersinar',
                         'description' => 'Website LPRL Sorong untuk informasi profil, kegiatan, dan publikasi lainnya.',
                         'url' => 'https://timurbersinar.com/',
                         'icon' => 'fa-solid fa-globe',
-                        'accent' => 'amber',
-                    ],
-                ];
-
-                $publicLinkAccentClasses = [
-                    'cyan' => [
-                        'icon' => 'bg-cyan-50 text-cyan-600',
-                        'ring' => 'group-hover:border-cyan-200',
-                        'title' => 'group-hover:text-cyan-700',
-                        'arrow' => 'group-hover:bg-cyan-600 group-hover:border-cyan-600',
-                    ],
-                    'blue' => [
-                        'icon' => 'bg-blue-50 text-blue-600',
-                        'ring' => 'group-hover:border-blue-200',
-                        'title' => 'group-hover:text-blue-700',
-                        'arrow' => 'group-hover:bg-blue-600 group-hover:border-blue-600',
-                    ],
-                    'emerald' => [
-                        'icon' => 'bg-emerald-50 text-emerald-600',
-                        'ring' => 'group-hover:border-emerald-200',
-                        'title' => 'group-hover:text-emerald-700',
-                        'arrow' => 'group-hover:bg-emerald-600 group-hover:border-emerald-600',
-                    ],
-                    'amber' => [
-                        'icon' => 'bg-amber-50 text-amber-600',
-                        'ring' => 'group-hover:border-amber-200',
-                        'title' => 'group-hover:text-amber-700',
-                        'arrow' => 'group-hover:bg-amber-500 group-hover:border-amber-500',
+                        'accent' => '#d97706',
                     ],
                 ];
             @endphp
 
             <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 @foreach($publicLinks as $link)
-                    @php $accent = $publicLinkAccentClasses[$link['accent']]; @endphp
                     <a href="{{ $link['url'] }}"
                        target="_blank"
                        rel="noopener noreferrer"
-                       class="group block h-full rounded-3xl border border-slate-100 bg-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl {{ $accent['ring'] }}">
-                        <div class="flex items-start justify-between gap-4 mb-6">
-                            <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-xl {{ $accent['icon'] }}">
+                       class="public-link-card group block h-full rounded-3xl border border-slate-100 bg-white p-8 md:p-9 shadow-sm hover:-translate-y-1 hover:shadow-xl"
+                       style="--link-accent: {{ $link['accent'] }};">
+                        <div class="flex items-start justify-between gap-4 mb-8">
+                            <div class="public-link-icon w-14 h-14 rounded-2xl flex items-center justify-center text-xl">
                                 <i class="{{ $link['icon'] }}"></i>
                             </div>
-                            <div class="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 transition-all {{ $accent['arrow'] }} group-hover:text-white">
+                            <div class="public-link-arrow w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-400">
                                 <i class="fa-solid fa-arrow-up-right-from-square text-sm"></i>
                             </div>
                         </div>
 
-                        <div class="space-y-3">
-                            <h3 class="text-2xl font-bold text-slate-900 transition-colors {{ $accent['title'] }}">{{ $link['title'] }}</h3>
+                        <div class="public-link-content space-y-4">
+                            <h3 class="public-link-title text-2xl font-bold text-slate-900">{{ $link['title'] }}</h3>
                             <p class="text-sm leading-relaxed text-slate-500">{{ $link['description'] }}</p>
                             <p class="text-sm font-semibold text-slate-700 break-all">{{ parse_url($link['url'], PHP_URL_HOST) }}</p>
                         </div>
