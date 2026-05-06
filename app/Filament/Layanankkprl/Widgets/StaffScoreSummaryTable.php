@@ -27,9 +27,9 @@ class StaffScoreSummaryTable extends BaseWidget
     {
         return $table
             ->heading('Rekap Skor Petugas')
-            ->description('Diurutkan berdasarkan rata-rata skor tertinggi pada rentang tanggal terpilih. Arahkan kursor atau klik jumlah layanan untuk melihat rinciannya.')
+            ->description('Diurutkan berdasarkan jumlah pelayanan terbanyak pada rentang tanggal terpilih. Arahkan kursor atau klik jumlah layanan untuk melihat rinciannya.')
             ->query($this->getTableQuery())
-            ->defaultSort('average_score', 'desc')
+            ->defaultSort('service_activities_count', 'desc')
             ->filters([
                 Filter::make('service_date')
                     ->label('Tanggal Layanan')
@@ -179,11 +179,7 @@ class StaffScoreSummaryTable extends BaseWidget
             ->selectSub(
                 (clone $ratedAssignmentsQuery)->selectRaw('COALESCE(MAX(assignments.score), 0)'),
                 'highest_score',
-            )
-            ->orderByDesc('average_score')
-            ->orderByDesc('rated_sessions')
-            ->orderByDesc('service_activities_count')
-            ->orderBy('users.name');
+            );
     }
 
     protected function applyDateRange(Builder $query): Builder
@@ -204,7 +200,8 @@ class StaffScoreSummaryTable extends BaseWidget
 
     protected function getDateFilterValue(string $key): ?string
     {
-        $value = $this->getTableFilterState('service_date')[$key] ?? null;
+        $filterState = $this->getResolvedServiceDateFilterState();
+        $value = $filterState[$key] ?? null;
 
         if (blank($value)) {
             return null;
@@ -225,8 +222,9 @@ class StaffScoreSummaryTable extends BaseWidget
 
     protected function getSelectedPeriodLabel(): string
     {
-        $from = $this->getTableFilterState('service_date')['from'] ?? null;
-        $until = $this->getTableFilterState('service_date')['until'] ?? null;
+        $filterState = $this->getResolvedServiceDateFilterState();
+        $from = $filterState['from'] ?? null;
+        $until = $filterState['until'] ?? null;
 
         if (filled($from) && filled($until)) {
             return 'Periode layanan: ' . Carbon::parse($from)->translatedFormat('j M Y') . ' - ' . Carbon::parse($until)->translatedFormat('j M Y');
@@ -241,6 +239,20 @@ class StaffScoreSummaryTable extends BaseWidget
         }
 
         return 'Semua periode layanan';
+    }
+
+    protected function getResolvedServiceDateFilterState(): array
+    {
+        $filterState = $this->getTableFilterState('service_date');
+
+        if (is_array($filterState)) {
+            return $filterState;
+        }
+
+        return [
+            'from' => now()->startOfYear()->toDateString(),
+            'until' => now()->endOfYear()->toDateString(),
+        ];
     }
 
     protected function getServiceBreakdown(User $user): Collection
