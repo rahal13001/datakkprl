@@ -2,14 +2,20 @@
 
 namespace App\Filament\Layanankkprl\Widgets;
 
+use App\Models\Assignment;
+use App\Models\Client;
+use App\Models\Service;
 use App\Models\User;
 use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
+use Illuminate\View\View;
 
 class StaffScoreSummaryTable extends BaseWidget
 {
@@ -21,7 +27,7 @@ class StaffScoreSummaryTable extends BaseWidget
     {
         return $table
             ->heading('Rekap Skor Petugas')
-            ->description('Diurutkan berdasarkan rata-rata skor tertinggi pada rentang tanggal terpilih.')
+            ->description('Diurutkan berdasarkan rata-rata skor tertinggi pada rentang tanggal terpilih. Arahkan kursor atau klik jumlah layanan untuk melihat rinciannya.')
             ->query($this->getTableQuery())
             ->defaultSort('average_score', 'desc')
             ->filters([
@@ -37,24 +43,6 @@ class StaffScoreSummaryTable extends BaseWidget
                             ->default(now()->endOfYear()->toDateString())
                             ->native(false),
                     ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        $from = filled($data['from'] ?? null)
-                            ? Carbon::parse($data['from'])->startOfDay()->toDateString()
-                            : null;
-                        $until = filled($data['until'] ?? null)
-                            ? Carbon::parse($data['until'])->endOfDay()->toDateString()
-                            : null;
-
-                        return $query
-                            ->when(
-                                $from,
-                                fn (Builder $query) => $query->whereDate('schedules.date', '>=', $from),
-                            )
-                            ->when(
-                                $until,
-                                fn (Builder $query) => $query->whereDate('schedules.date', '<=', $until),
-                            );
-                    })
                     ->indicateUsing(function (array $data): ?string {
                         $from = $data['from'] ?? null;
                         $until = $data['until'] ?? null;
@@ -93,6 +81,33 @@ class StaffScoreSummaryTable extends BaseWidget
                     ->label('Jumlah Penilaian')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('service_activities_count')
+                    ->label('Aktivitas Layanan')
+                    ->numeric()
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->tooltip(fn (User $record): string => $this->getServiceBreakdownTooltip($record))
+                    ->action(
+                        Action::make('viewServiceBreakdown')
+                            ->label('Rincian Aktivitas Layanan')
+                            ->modalHeading(fn (User $record): string => 'Rincian Aktivitas Layanan: ' . $record->name)
+                            ->modalDescription(fn (): string => $this->getSelectedPeriodLabel())
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('Tutup')
+                            ->modalWidth('lg')
+                            ->modalContent(fn (User $record): View => view(
+                                'filament.layanankkprl.widgets.staff-service-breakdown',
+                                [
+                                    'staff' => $record,
+                                    'breakdown' => $this->getServiceBreakdown($record),
+                                    'totalServiceActivities' => (int) ($record->service_activities_count ?? 0),
+                                ],
+                            )),
+                    )
+                    ->extraAttributes([
+                        'class' => 'cursor-pointer',
+                    ]),
                 TextColumn::make('total_score')
                     ->label('Total Skor')
                     ->numeric(decimalPlaces: 0)
@@ -115,20 +130,156 @@ class StaffScoreSummaryTable extends BaseWidget
 
     protected function getTableQuery(): Builder
     {
+        $ratedAssignmentsQuery = $this->applyDateRange(
+            Assignment::query()
+                ->join('schedules', 'schedules.id', '=', 'assignments.schedule_id')
+                ->whereColumn('assignments.user_id', 'users.id')
+                ->whereNull('assignments.deleted_at')
+                ->whereNull('schedules.deleted_at')
+                ->whereNotNull('assignments.score')
+        );
+
+        $serviceActivitiesQuery = $this->applyDateRange(
+            Client::query()
+                ->join('schedules', 'schedules.client_id', '=', 'clients.id')
+                ->join('assignments', 'assignments.schedule_id', '=', 'schedules.id')
+                ->whereColumn('assignments.user_id', 'users.id')
+                ->whereNull('clients.deleted_at')
+                ->whereNull('schedules.deleted_at')
+                ->whereNull('assignments.deleted_at')
+        );
+
         return User::query()
             ->select('users.id', 'users.name', 'users.jabatan')
-            ->join('assignments', 'assignments.user_id', '=', 'users.id')
-            ->join('schedules', 'schedules.id', '=', 'assignments.schedule_id')
-            ->whereNull('assignments.deleted_at')
-            ->whereNull('schedules.deleted_at')
-            ->whereNotNull('assignments.score')
-            ->groupBy('users.id', 'users.name', 'users.jabatan')
-            ->selectRaw('COUNT(assignments.id) as rated_sessions')
-            ->selectRaw('SUM(assignments.score) as total_score')
-            ->selectRaw('ROUND(AVG(assignments.score), 2) as average_score')
-            ->selectRaw('ROUND(AVG(assignments.score) / 2, 2) as average_stars')
-            ->selectRaw('MAX(assignments.score) as highest_score')
+            ->where(function (Builder $query): void {
+                $query
+                    ->whereHas('roles', fn (Builder $roleQuery) => $roleQuery->where('name', 'Pegawai'))
+                    ->orWhereHas('assignments', fn (Builder $assignmentQuery) => $assignmentQuery->whereNull('assignments.deleted_at'));
+            })
+            ->selectSub(
+                (clone $ratedAssignmentsQuery)->selectRaw('COUNT(assignments.id)'),
+                'rated_sessions',
+            )
+            ->selectSub(
+                (clone $serviceActivitiesQuery)->selectRaw('COUNT(DISTINCT clients.id)'),
+                'service_activities_count',
+            )
+            ->selectSub(
+                (clone $ratedAssignmentsQuery)->selectRaw('COALESCE(SUM(assignments.score), 0)'),
+                'total_score',
+            )
+            ->selectSub(
+                (clone $ratedAssignmentsQuery)->selectRaw('COALESCE(ROUND(AVG(assignments.score), 2), 0)'),
+                'average_score',
+            )
+            ->selectSub(
+                (clone $ratedAssignmentsQuery)->selectRaw('COALESCE(ROUND(AVG(assignments.score) / 2, 2), 0)'),
+                'average_stars',
+            )
+            ->selectSub(
+                (clone $ratedAssignmentsQuery)->selectRaw('COALESCE(MAX(assignments.score), 0)'),
+                'highest_score',
+            )
             ->orderByDesc('average_score')
-            ->orderByDesc('rated_sessions');
+            ->orderByDesc('rated_sessions')
+            ->orderByDesc('service_activities_count')
+            ->orderBy('users.name');
+    }
+
+    protected function applyDateRange(Builder $query): Builder
+    {
+        $from = $this->getDateFilterValue('from');
+        $until = $this->getDateFilterValue('until');
+
+        return $query
+            ->when(
+                $from,
+                fn (Builder $query) => $query->whereDate('schedules.date', '>=', $from),
+            )
+            ->when(
+                $until,
+                fn (Builder $query) => $query->whereDate('schedules.date', '<=', $until),
+            );
+    }
+
+    protected function getDateFilterValue(string $key): ?string
+    {
+        $value = $this->getTableFilterState('service_date')[$key] ?? null;
+
+        if (blank($value)) {
+            return null;
+        }
+
+        $date = Carbon::parse($value);
+
+        if ($key === 'from') {
+            $date->startOfDay();
+        }
+
+        if ($key === 'until') {
+            $date->endOfDay();
+        }
+
+        return $date->toDateString();
+    }
+
+    protected function getSelectedPeriodLabel(): string
+    {
+        $from = $this->getTableFilterState('service_date')['from'] ?? null;
+        $until = $this->getTableFilterState('service_date')['until'] ?? null;
+
+        if (filled($from) && filled($until)) {
+            return 'Periode layanan: ' . Carbon::parse($from)->translatedFormat('j M Y') . ' - ' . Carbon::parse($until)->translatedFormat('j M Y');
+        }
+
+        if (filled($from)) {
+            return 'Periode layanan dari ' . Carbon::parse($from)->translatedFormat('j M Y');
+        }
+
+        if (filled($until)) {
+            return 'Periode layanan sampai ' . Carbon::parse($until)->translatedFormat('j M Y');
+        }
+
+        return 'Semua periode layanan';
+    }
+
+    protected function getServiceBreakdown(User $user): Collection
+    {
+        $countsByService = $this->applyDateRange(
+            Client::query()
+                ->join('schedules', 'schedules.client_id', '=', 'clients.id')
+                ->join('assignments', 'assignments.schedule_id', '=', 'schedules.id')
+                ->where('assignments.user_id', $user->id)
+                ->whereNull('clients.deleted_at')
+                ->whereNull('schedules.deleted_at')
+                ->whereNull('assignments.deleted_at')
+        )
+            ->selectRaw('clients.service_id, COUNT(DISTINCT clients.id) as total')
+            ->groupBy('clients.service_id')
+            ->pluck('total', 'clients.service_id');
+
+        return Service::query()
+            ->whereNull('deleted_at')
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn (Service $service): array => [
+                'name' => $service->name,
+                'count' => (int) ($countsByService[$service->id] ?? 0),
+            ]);
+    }
+
+    protected function getServiceBreakdownTooltip(User $user): string
+    {
+        $breakdown = $this->getServiceBreakdown($user);
+
+        $nonZeroBreakdown = $breakdown
+            ->filter(fn (array $item): bool => $item['count'] > 0)
+            ->map(fn (array $item): string => "{$item['name']}: {$item['count']}");
+
+        if ($nonZeroBreakdown->isEmpty()) {
+            return 'Belum ada aktivitas layanan pada periode ini.';
+        }
+
+        return $nonZeroBreakdown->implode(' | ') . ' | Klik untuk detail';
     }
 }
