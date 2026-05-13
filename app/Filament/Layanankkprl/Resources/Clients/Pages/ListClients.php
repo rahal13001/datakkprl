@@ -26,23 +26,17 @@ class ListClients extends ListRecords
             'my_clients' => \Filament\Schemas\Components\Tabs\Tab::make('Klien Saya')
                 ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->whereHas('assignments', fn ($q) => $q->where('user_id', auth()->id())))
                 ->badge(\App\Models\Client::whereHas('assignments', fn ($q) => $q->where('user_id', auth()->id()))->count()),
-            'pending' => \Filament\Schemas\Components\Tabs\Tab::make('Menunggu')
-                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('status', 'pending'))
-                ->badge(\App\Models\Client::where('status', 'pending')->count()),
+            'waiting' => \Filament\Schemas\Components\Tabs\Tab::make('Menunggu')
+                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('status', 'waiting'))
+                ->badge(\App\Models\Client::where('status', 'waiting')->count()),
             'scheduled' => \Filament\Schemas\Components\Tabs\Tab::make('Dijadwalkan')
                 ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('status', 'scheduled'))
                 ->badge(\App\Models\Client::where('status', 'scheduled')->count())
                 ->badgeColor('warning'),
-            'in_progress' => \Filament\Schemas\Components\Tabs\Tab::make('Dalam Proses')
-                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('status', 'in_progress'))
-                ->badge(\App\Models\Client::where('status', 'in_progress')->count())
-                ->badgeColor('info'),
-            'finished' => \Filament\Schemas\Components\Tabs\Tab::make('Selesai')
-                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('status', 'finished'))
+            'completed' => \Filament\Schemas\Components\Tabs\Tab::make('Selesai')
+                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('status', 'completed'))
+                ->badge(\App\Models\Client::where('status', 'completed')->count())
                 ->badgeColor('success'),
-            'canceled' => \Filament\Schemas\Components\Tabs\Tab::make('Dibatalkan')
-                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('status', 'canceled'))
-                ->badgeColor('danger'),
         ];
     }
     protected function getHeaderWidgets(): array

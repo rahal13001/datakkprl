@@ -6,8 +6,10 @@ use App\Models\BeritaAcara;
 use App\Models\BeritaAcaraAttendee;
 use App\Services\SignatureService;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Illuminate\Support\Str;
 
+#[Layout('components.layouts.app')]
 class PublicAttendance extends Component
 {
     public BeritaAcara $beritaAcara;
@@ -26,7 +28,15 @@ class PublicAttendance extends Component
 
     public function mount(string $token)
     {
-        $this->beritaAcara = BeritaAcara::where('attendance_url_token', $token)
+        $tokenHash = app(\App\Services\DataHashService::class)->token($token);
+
+        $this->beritaAcara = BeritaAcara::where(function ($query) use ($token, $tokenHash) {
+                $query->where('attendance_url_token_hash', $tokenHash)
+                    ->orWhere(function ($legacyQuery) use ($token) {
+                        $legacyQuery->whereNull('attendance_url_token_hash')
+                            ->where('attendance_url_token', $token);
+                    });
+            })
             ->with('client.service', 'client.consultationLocation')
             ->firstOrFail();
 
@@ -86,6 +96,6 @@ class PublicAttendance extends Component
     {
         return view('livewire.public-attendance', [
             'client' => $this->beritaAcara->client,
-        ])->layout('components.layouts.app');
+        ]);
     }
 }

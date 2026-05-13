@@ -9,6 +9,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         // Add 'scheduled' to assignments status
         DB::statement("ALTER TABLE assignments MODIFY COLUMN status ENUM('scheduled', 'hadir', 'izin_mendadak') NOT NULL DEFAULT 'scheduled'");
         
@@ -18,6 +22,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         // Revert assignments
         // Warning: This will fail if 'scheduled' values exist.
         DB::statement("ALTER TABLE assignments MODIFY COLUMN status ENUM('hadir', 'izin_mendadak') NOT NULL DEFAULT 'hadir'");

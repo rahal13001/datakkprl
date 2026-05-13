@@ -25,33 +25,3 @@ class ActivityLog extends Model
         return $this->belongsTo(User::class);
     }
 }
-
-class NotificationLog extends Model
-{
-    use HasFactory;
-
-    protected $fillable = [
-        'client_id',
-        'channel',
-        'destination',
-        'message_body',
-        'status',
-    ];
-
-    public function client()
-    {
-        return $this->belongsTo(Client::class);
-    }
-}
-
-class AiChatLog extends Model
-{
-    use HasFactory;
-
-    protected $fillable = [
-        'session_id',
-        'question',
-        'response',
-        'ip_address',
-    ];
-}

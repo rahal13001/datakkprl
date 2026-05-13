@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Str;
 
 class BeritaAcaraAttendee extends Model
@@ -31,6 +32,13 @@ class BeritaAcaraAttendee extends Model
         'is_officer' => 'boolean',
         'is_signatory' => 'boolean',
         'confirmed_at' => 'datetime',
+        'token_encrypted' => 'encrypted',
+        'nama_encrypted' => 'encrypted',
+        'jabatan_encrypted' => 'encrypted',
+        'instansi_encrypted' => 'encrypted',
+        'email_encrypted' => 'encrypted',
+        'no_hp_encrypted' => 'encrypted',
+        'tanda_tangan_encrypted' => 'encrypted',
     ];
 
     /**
@@ -44,7 +52,70 @@ class BeritaAcaraAttendee extends Model
             if (empty($model->token)) {
                 $model->token = (string) Str::uuid();
             }
+
+            static::populateProtectionHashes($model);
         });
+
+        static::saving(function (self $model) {
+            static::populateProtectionHashes($model);
+        });
+    }
+
+    protected static function populateProtectionHashes(self $model): void
+    {
+        $hash = app(\App\Services\DataHashService::class);
+        $model->token_hash = $hash->token($model->token);
+        $model->email_hash = $hash->email($model->email);
+    }
+
+    protected function token(): Attribute
+    {
+        return $this->protectedAttribute('token', 'token_encrypted');
+    }
+
+    protected function nama(): Attribute
+    {
+        return $this->protectedAttribute('nama', 'nama_encrypted');
+    }
+
+    protected function jabatan(): Attribute
+    {
+        return $this->protectedAttribute('jabatan', 'jabatan_encrypted');
+    }
+
+    protected function instansi(): Attribute
+    {
+        return $this->protectedAttribute('instansi', 'instansi_encrypted');
+    }
+
+    protected function email(): Attribute
+    {
+        return $this->protectedAttribute('email', 'email_encrypted');
+    }
+
+    protected function noHp(): Attribute
+    {
+        return $this->protectedAttribute('no_hp', 'no_hp_encrypted');
+    }
+
+    protected function tandaTangan(): Attribute
+    {
+        return $this->protectedAttribute('tanda_tangan', 'tanda_tangan_encrypted');
+    }
+
+    protected function protectedAttribute(string $legacyColumn, string $encryptedColumn)
+    {
+        return Attribute::make(
+            get: fn ($value) => filled($this->attributes[$encryptedColumn] ?? null)
+                ? $this->getAttributeValue($encryptedColumn)
+                : $value,
+            set: fn ($value) => [
+                $legacyColumn => null,
+                $encryptedColumn => $value === null
+                    ? null
+                    : static::currentEncrypter()->encrypt($value, false),
+            ],
+        );
     }
 
     /**

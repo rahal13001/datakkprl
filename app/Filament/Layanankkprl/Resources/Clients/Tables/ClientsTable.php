@@ -163,7 +163,7 @@ class ClientsTable
                                     ->required(),
                                 \Filament\Forms\Components\FileUpload::make('documentation')
                                     ->label('Dokumentasi')
-                                    ->disk('public')
+                                    ->disk('local')
                                     ->image()
                                     ->multiple()
                                     ->minFiles(1)

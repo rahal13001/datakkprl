@@ -33,9 +33,16 @@ class BeritaAcaraObserver
 
         try {
             Mail::to($client->email)->send(new BeritaAcaraCompletedMail($client, $beritaAcara));
-            Log::info("BeritaAcaraCompletedMail sent to {$client->email} for Berita Acara ID {$beritaAcara->id}");
+            Log::info('BeritaAcaraCompletedMail sent.', [
+                'client_id' => $client->id,
+                'berita_acara_id' => $beritaAcara->id,
+            ]);
         } catch (\Throwable $e) {
-            Log::error('Failed to send BeritaAcaraCompletedMail: ' . $e->getMessage());
+            Log::error('Failed to send BeritaAcaraCompletedMail.', [
+                'client_id' => $client->id,
+                'berita_acara_id' => $beritaAcara->id,
+                'exception' => get_class($e),
+            ]);
         }
     }
 }

@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Services\BookingAvailabilityService;
 use App\Services\NotificationService;
+use App\Services\SignatureService;
 use App\Models\Service;
 use App\Models\Client;
 use App\Models\ConsultationLocation;
@@ -306,7 +307,7 @@ class BookingWizard extends Component
                 if ($this->selectedService?->requires_documents && !empty($this->supporting_documents)) {
                     $folder = 'client-documents/' . $client->ticket_number;
                     foreach ($this->supporting_documents as $doc) {
-                        $path = $doc->store($folder, 'public');
+                        $path = $doc->store($folder, 'local');
                         $documentPaths[] = $path;
                     }
                 }
@@ -320,7 +321,7 @@ class BookingWizard extends Component
                 $coordinatePath = null;
                 if ($this->coordinate_file) {
                     $folder = 'client-documents/' . $client->ticket_number;
-                    $coordinatePath = $this->coordinate_file->store($folder, 'public');
+                    $coordinatePath = $this->coordinate_file->store($folder, 'local');
                 }
 
                 // 4. Update client with file paths
@@ -350,11 +351,13 @@ class BookingWizard extends Component
                 $firstScheduleDate = count($this->schedules_list) > 0 ? $this->schedules_list[0]['date'] : null;
                 $locationName = $this->selectedLocation ? $this->selectedLocation->name : null;
                 
+                $applicantSignaturePath = app(SignatureService::class)->store($this->tanda_tangan);
+
                 \App\Models\BeritaAcara::create([
                     'client_id' => $client->id,
                     'tanggal_pelaksanaan' => $firstScheduleDate, // as requested
                     'lokasi_permohonan' => $locationName,
-                    'tanda_tangan_pemohon' => $this->tanda_tangan,
+                    'tanda_tangan_pemohon' => $applicantSignaturePath,
                     'status' => 'draft',
                     'attendance_is_open' => false,
                 ]);

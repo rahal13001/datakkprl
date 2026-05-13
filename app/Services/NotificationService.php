@@ -22,7 +22,7 @@ class NotificationService
             Mail::to($client->email)->send(new BookingCreatedMail($client));
             $this->log($client, 'BookingCreatedMail', 'sent');
         } catch (Exception $e) {
-            $this->log($client, 'BookingCreatedMail', 'failed: ' . $e->getMessage());
+            $this->log($client, 'BookingCreatedMail', 'failed');
         }
     }
 
@@ -35,7 +35,7 @@ class NotificationService
             Mail::to($client->email)->send(new ClientUpdated($client));
             $this->log($client, 'ClientUpdated', 'sent');
         } catch (Exception $e) {
-            $this->log($client, 'ClientUpdated', 'failed: ' . $e->getMessage());
+            $this->log($client, 'ClientUpdated', 'failed');
         }
     }
 
@@ -48,7 +48,7 @@ class NotificationService
             Mail::to($client->email)->send(new RescheduleProposalMail($client, $newDate, $newTime));
             $this->log($client, 'RescheduleProposalMail', 'sent');
         } catch (Exception $e) {
-            $this->log($client, 'RescheduleProposalMail', 'failed: ' . $e->getMessage());
+            $this->log($client, 'RescheduleProposalMail', 'failed');
         }
     }
 
@@ -61,7 +61,7 @@ class NotificationService
             Mail::to($client->email)->send(new BookingFinishedMail($client));
             $this->log($client, 'BookingFinishedMail', 'sent');
         } catch (Exception $e) {
-            $this->log($client, 'BookingFinishedMail', 'failed: ' . $e->getMessage());
+            $this->log($client, 'BookingFinishedMail', 'failed');
         }
     }
 

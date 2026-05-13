@@ -5,107 +5,13 @@ namespace App\Filament\Layanankkprl\Resources\Clients\Widgets;
 use App\Models\Client;
 use App\Models\Schedule;
 use App\Models\Service;
-use Filament\Tables\Contracts\HasTable;
+use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
-use Illuminate\Contracts\Pagination\Paginator;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
-use Livewire\Attributes\Locked;
-use Livewire\Attributes\Reactive;
-use LogicException;
-
-use function Livewire\trigger;
 
 class ClientStatsOverview extends BaseWidget
 {
-    // --- Inlined from InteractsWithPageTable to fix property typing ---
-
-    /** @var array<string, int> */
-    #[Reactive]
-    public $paginators = [];
-
-    /**
-     * @var array<string, string | array<string, string | null> | null>
-     */
-    #[Reactive]
-    public $tableColumnSearches = [];
-
-    #[Reactive]
-    public $tableGrouping = null;
-
-    /**
-     * @var array<string, mixed> | null
-     */
-    #[Reactive]
-    public $tableFilters = null;
-
-    #[Reactive]
-    public $tableRecordsPerPage = null;
-
-    /**
-     * @var ?string
-     */
-    #[Reactive]
-    public $tableSearch = '';
-
-    #[Reactive]
-    public $tableSort = null;
-
-    #[Reactive]
-    public $activeTab = null;
-
-    #[Reactive] #[Locked]
-    public $parentRecord = null;
-
-    protected HasTable $tablePage;
-
-    protected function getTablePageMountParameters(): array
-    {
-        return [];
-    }
-
-    protected function getTablePageInstance(): HasTable
-    {
-        if (! isset($this->tablePage)) {
-            $this->tablePage = app('livewire')->new($this->getTablePage());
-            trigger('mount', $this->tablePage, [], null, null);
-        }
-
-        $page = $this->tablePage;
-
-        foreach ([
-            'activeTab' => $this->activeTab,
-            'paginators' => $this->paginators,
-            'parentRecord' => $this->parentRecord,
-            'tableColumnSearches' => $this->tableColumnSearches ?? [],
-            'tableFilters' => $this->tableFilters ?? [],
-            'tableGrouping' => $this->tableGrouping,
-            'tableRecordsPerPage' => $this->tableRecordsPerPage,
-            'tableSearch' => $this->tableSearch,
-            'tableSort' => $this->tableSort,
-            ...$this->getTablePageMountParameters(),
-        ] as $property => $value) {
-            $page->{$property} = $value;
-        }
-
-        $page->bootedInteractsWithTable();
-
-        return $page;
-    }
-
-    protected function getPageTableQuery(): Builder
-    {
-        return $this->getTablePageInstance()->getFilteredSortedTableQuery();
-    }
-
-    protected function getPageTableRecords(): Collection | Paginator
-    {
-        return $this->getTablePageInstance()->getTableRecords();
-    }
-
-    // --- End Inlined Logic ---
+    use InteractsWithPageTable;
 
     protected function getTablePage(): string
     {

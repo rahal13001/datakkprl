@@ -29,7 +29,9 @@ return new class extends Migration
         });
 
         // Add FULLTEXT index for MySQL
-        DB::statement('ALTER TABLE regulation_chunks ADD FULLTEXT ft_chunk_text (chunk_text)');
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE regulation_chunks ADD FULLTEXT ft_chunk_text (chunk_text)');
+        }
     }
 
     public function down(): void

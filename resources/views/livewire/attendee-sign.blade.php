@@ -61,7 +61,8 @@
             {{-- Hasil Pendampingan (Minutes content) --}}
             @if(!empty($beritaAcara->hasil_pendampingan) && trim(strip_tags($beritaAcara->hasil_pendampingan)) !== '')
             <style>
-                .ba-rich-content { color: #334155; font-size: 0.9rem; line-height: 1.7; }
+                .ba-rich-content { color: #334155; font-size: 0.9rem; line-height: 1.7; background-color: #ffffff; }
+                .ba-rich-content * { background-color: transparent !important; }
                 .ba-rich-content p { margin-bottom: 1em; }
                 .ba-rich-content p:last-child { margin-bottom: 0; }
                 .ba-rich-content strong, .ba-rich-content b { font-weight: 600; color: #0f172a; }
@@ -76,9 +77,9 @@
                 .ba-rich-content th { background-color: #f8fafc; font-weight: 600; color: #1e293b; }
                 .ba-rich-content h1, .ba-rich-content h2, .ba-rich-content h3 { font-weight: 600; color: #0f172a; margin-top: 1.5em; margin-bottom: 0.75em; }
             </style>
-            <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700">
+            <div class="mt-8 pt-6 border-t border-slate-100">
                 <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest block mb-4">Isi Berita Acara</span>
-                <div class="ba-rich-content bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm inner-shadow">
+                <div class="ba-rich-content p-6 rounded-xl border border-slate-100 shadow-sm">
                     {!! $beritaAcara->hasil_pendampingan !!}
                 </div>
             </div>

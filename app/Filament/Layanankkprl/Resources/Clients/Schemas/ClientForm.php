@@ -146,7 +146,7 @@ class ClientForm
                                     return 'Tidak ada dokumen.';
                                 }
                                 $links = collect($record->supporting_documents)->map(function ($path) {
-                                    $url = \Storage::disk('public')->url($path);
+                                    $url = route('private-files.admin', ['path' => $path]);
                                     $name = basename($path);
                                     return "<a href='{$url}' target='_blank' class='text-primary-600 hover:underline'>{$name}</a>";
                                 })->join('<br>');
@@ -173,7 +173,7 @@ class ClientForm
                                 if (!$record || empty($record->coordinate_file)) {
                                     return 'Tidak ada file koordinat.';
                                 }
-                                $url = \Storage::disk('public')->url($record->coordinate_file);
+                                $url = route('private-files.admin', ['path' => $record->coordinate_file]);
                                 $name = basename($record->coordinate_file);
                                 return new \Illuminate\Support\HtmlString("<a href='{$url}' target='_blank' class='text-primary-600 hover:underline'>{$name}</a>");
                             })

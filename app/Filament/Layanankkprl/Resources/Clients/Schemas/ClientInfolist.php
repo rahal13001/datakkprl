@@ -132,7 +132,7 @@ class ClientInfolist
                                 $html = '<div class="flex flex-wrap gap-2">';
                                 foreach ($record->supporting_documents as $index => $file) {
                                     $num = $index + 1;
-                                    $url = asset('storage/' . $file);
+                                    $url = route('private-files.admin', ['path' => $file]);
                                     $ext = strtoupper(pathinfo($file, PATHINFO_EXTENSION));
                                     $html .= "<a href=\"{$url}\" target=\"_blank\" class=\"inline-flex items-center gap-2 px-3 py-2 bg-primary-50 text-primary-700 rounded-lg hover:bg-primary-100 transition-colors border border-primary-200\">
                                         <svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z\"></path></svg>
@@ -169,7 +169,7 @@ class ClientInfolist
                                 if (empty($record->coordinate_file)) {
                                     return '<span class="text-gray-400 italic">Tidak ada file koordinat</span>';
                                 }
-                                $url = asset('storage/' . $record->coordinate_file);
+                                $url = route('private-files.admin', ['path' => $record->coordinate_file]);
                                 $ext = strtoupper(pathinfo($record->coordinate_file, PATHINFO_EXTENSION));
                                 return "<a href=\"{$url}\" target=\"_blank\" class=\"inline-flex items-center gap-2 px-3 py-2 bg-success-50 text-success-700 rounded-lg hover:bg-success-100 transition-colors border border-success-200\">
                                     <svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7\"></path></svg>

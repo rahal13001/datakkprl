@@ -43,10 +43,17 @@ class ConsultationReportObserver
                 try {
                     if ($client->email) {
                         Mail::to($client->email)->send(new StatusCompletedMail($client));
-                        Log::info("StatusCompletedMail sent to {$client->email}");
+                        Log::info('StatusCompletedMail sent.', [
+                            'client_id' => $client->id,
+                            'report_id' => $report->id,
+                        ]);
                     }
                 } catch (\Exception $e) {
-                    Log::error("Failed to send StatusCompletedMail: " . $e->getMessage());
+                    Log::error('Failed to send StatusCompletedMail.', [
+                        'client_id' => $client->id,
+                        'report_id' => $report->id,
+                        'exception' => get_class($e),
+                    ]);
                 }
             }
         }

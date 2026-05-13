@@ -5,8 +5,10 @@ namespace App\Livewire;
 use App\Models\BeritaAcaraAttendee;
 use App\Services\SignatureService;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Carbon\Carbon;
 
+#[Layout('components.layouts.app')]
 class AttendeeSign extends Component
 {
     public BeritaAcaraAttendee $attendee;
@@ -26,7 +28,15 @@ class AttendeeSign extends Component
 
     public function mount(string $token)
     {
-        $this->attendee = BeritaAcaraAttendee::where('token', $token)
+        $tokenHash = app(\App\Services\DataHashService::class)->token($token);
+
+        $this->attendee = BeritaAcaraAttendee::where(function ($query) use ($token, $tokenHash) {
+                $query->where('token_hash', $tokenHash)
+                    ->orWhere(function ($legacyQuery) use ($token) {
+                        $legacyQuery->whereNull('token_hash')
+                            ->where('token', $token);
+                    });
+            })
             ->with('beritaAcara.client.service')
             ->firstOrFail();
 

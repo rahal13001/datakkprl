@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Carbon\Carbon;
 
 class BeritaAcara extends Model
@@ -39,6 +40,13 @@ class BeritaAcara extends Model
         'lampiran_lainnya' => 'array',
         'signing_deadline' => 'datetime',
         'attendance_is_open' => 'boolean',
+        'attendance_url_token_encrypted' => 'encrypted',
+        'lokasi_permohonan_encrypted' => 'encrypted',
+        'hasil_pendampingan_encrypted' => 'encrypted',
+        'tanda_tangan_pemohon_encrypted' => 'encrypted',
+        'lampiran_peta_encrypted' => 'encrypted',
+        'lampiran_dokumentasi_encrypted' => 'encrypted:array',
+        'lampiran_lainnya_encrypted' => 'encrypted:array',
     ];
 
     protected static function boot()
@@ -49,7 +57,89 @@ class BeritaAcara extends Model
             if (empty($model->attendance_url_token)) {
                 $model->attendance_url_token = (string) \Illuminate\Support\Str::uuid();
             }
+
+            static::populateProtectionHashes($model);
         });
+
+        static::saving(function (self $model) {
+            static::populateProtectionHashes($model);
+        });
+    }
+
+    protected static function populateProtectionHashes(self $model): void
+    {
+        $model->attendance_url_token_hash = app(\App\Services\DataHashService::class)
+            ->token($model->attendance_url_token);
+    }
+
+    protected function attendanceUrlToken(): Attribute
+    {
+        return $this->protectedAttribute('attendance_url_token', 'attendance_url_token_encrypted');
+    }
+
+    protected function lokasiPermohonan(): Attribute
+    {
+        return $this->protectedAttribute('lokasi_permohonan', 'lokasi_permohonan_encrypted');
+    }
+
+    protected function hasilPendampingan(): Attribute
+    {
+        return $this->protectedAttribute('hasil_pendampingan', 'hasil_pendampingan_encrypted');
+    }
+
+    protected function tandaTanganPemohon(): Attribute
+    {
+        return $this->protectedAttribute('tanda_tangan_pemohon', 'tanda_tangan_pemohon_encrypted');
+    }
+
+    protected function lampiranPeta(): Attribute
+    {
+        return $this->protectedAttribute('lampiran_peta', 'lampiran_peta_encrypted');
+    }
+
+    protected function lampiranDokumentasi(): Attribute
+    {
+        return $this->protectedAttribute('lampiran_dokumentasi', 'lampiran_dokumentasi_encrypted', true);
+    }
+
+    protected function lampiranLainnya(): Attribute
+    {
+        return $this->protectedAttribute('lampiran_lainnya', 'lampiran_lainnya_encrypted', true);
+    }
+
+    protected function protectedAttribute(string $legacyColumn, string $encryptedColumn, bool $legacyIsJson = false)
+    {
+        return Attribute::make(
+            get: function ($value) use ($encryptedColumn, $legacyIsJson) {
+                if (filled($this->attributes[$encryptedColumn] ?? null)) {
+                    return $this->getAttributeValue($encryptedColumn);
+                }
+
+                if ($legacyIsJson && is_string($value)) {
+                    $decoded = json_decode($value, true);
+
+                    return is_array($decoded) ? $decoded : $value;
+                }
+
+                return $value;
+            },
+            set: fn ($value) => [
+                $legacyColumn => null,
+                $encryptedColumn => $this->encryptProtectedValue($value, $legacyIsJson),
+            ],
+        );
+    }
+
+    protected function encryptProtectedValue(mixed $value, bool $legacyIsJson = false): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return static::currentEncrypter()->encrypt(
+            $legacyIsJson && is_array($value) ? json_encode($value) : $value,
+            false,
+        );
     }
 
     /*

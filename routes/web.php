@@ -20,7 +20,7 @@ if (app()->isLocal()) {
 
 // In local, we allow access from any domain (localhost, ip, etc)
 // In production, we assume strict domain
-$routingConfig = app()->isLocal() ? [] : ['domain' => $domain];
+$routingConfig = app()->environment(['local', 'testing']) ? [] : ['domain' => $domain];
 
 Route::group($routingConfig, function () {
     Route::get('/', LandingPage::class)->name('landing');
@@ -65,8 +65,6 @@ Route::get('/clients/{client}/ticket/download', ...);
 // We'll keep them outside the domain group so they work on the admin domain too (datakkprl)
 
 Route::get('/regulation-preview/{path}', function ($path) {
-    \Illuminate\Support\Facades\Log::info("Preview requested for path: " . $path);
-    
     if (! \Illuminate\Support\Str::startsWith($path, 'regulations/')) {
         abort(403, 'Invalid Path');
     }
@@ -84,6 +82,23 @@ Route::get('/regulation-preview/{path}', function ($path) {
     );
 })->where('path', '.*')->name('regulation.preview');
 
+Route::get('/private-files/{path}', function (string $path) {
+    abort_unless(auth()->check(), 403);
+
+    return app(\App\Services\PrivateFileService::class)->response($path);
+})->where('path', '.*')->name('private-files.admin');
+
+Route::get('/clients/{client}/files/{path}', function (\Illuminate\Http\Request $request, \App\Models\Client $client, string $path) {
+    if (! $client->matchesAccessToken($request->query('token')) && ! auth()->check()) {
+        abort(403, 'Unauthorized');
+    }
+
+    $privateFiles = app(\App\Services\PrivateFileService::class);
+    abort_unless($privateFiles->clientOwnsPath($client, $path), 404);
+
+    return $privateFiles->response($path);
+})->where('path', '.*')->name('client.files.download');
+
 Route::get('/clients/{client}/ticket/download', function (\App\Models\Client $client) {
     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.ticket', compact('client'));
     $pdf->setPaper('a4', 'portrait');
@@ -92,7 +107,7 @@ Route::get('/clients/{client}/ticket/download', function (\App\Models\Client $cl
 })->name('client.ticket.download');
 
 Route::get('/clients/{client}/report/download', function (\Illuminate\Http\Request $request, \App\Models\Client $client) {
-    if ($request->query('token') !== $client->access_token && !auth()->check()) {
+    if (! $client->matchesAccessToken($request->query('token')) && !auth()->check()) {
         abort(403, 'Unauthorized');
     }
 
@@ -108,7 +123,7 @@ Route::get('/clients/{client}/report/download', function (\Illuminate\Http\Reque
 })->name('client.report.download');
 
 Route::get('/clients/{client}/berita-acara/download', function (\Illuminate\Http\Request $request, \App\Models\Client $client) {
-    if ($request->query('token') !== $client->access_token && ! auth()->check()) {
+    if (! $client->matchesAccessToken($request->query('token')) && ! auth()->check()) {
         abort(403, 'Unauthorized');
     }
 

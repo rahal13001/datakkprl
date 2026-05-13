@@ -288,6 +288,10 @@
     @endif --}}
 
     {{-- LAMPIRAN I: PETA HASIL PLOTTING --}}
+    @php
+        $privateFiles = app(\App\Services\PrivateFileService::class);
+    @endphp
+
     @if($beritaAcara->lampiran_peta)
     <div class="lampiran-section">
         <div class="lampiran-title">Lampiran I (Peta Hasil Plotting)</div>
@@ -296,8 +300,8 @@
             $ext = strtolower(pathinfo($petaPath, PATHINFO_EXTENSION));
         @endphp
         @if(in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']))
-            @if(\Illuminate\Support\Facades\Storage::disk('public')->exists($petaPath))
-                <img src="data:image/{{ $ext }};base64,{{ base64_encode(\Illuminate\Support\Facades\Storage::disk('public')->get($petaPath)) }}" class="lampiran-img">
+            @if($privateFiles->exists($petaPath))
+                <img src="data:image/{{ $ext }};base64,{{ base64_encode($privateFiles->get($petaPath)) }}" class="lampiran-img">
             @endif
         @else
             <p><em>Lampiran peta tersedia dalam format {{ strtoupper($ext) }}. Lihat file terlampir.</em></p>
@@ -310,9 +314,9 @@
     <div class="lampiran-section">
         <div class="lampiran-title">Lampiran II (Dokumentasi)</div>
         @foreach($beritaAcara->lampiran_dokumentasi as $doc)
-            @if(\Illuminate\Support\Facades\Storage::disk('public')->exists($doc))
+            @if($privateFiles->exists($doc))
                 <div style="margin-bottom: 10px; text-align: center;">
-                    <img src="data:image/jpeg;base64,{{ base64_encode(\Illuminate\Support\Facades\Storage::disk('public')->get($doc)) }}" class="lampiran-img">
+                    <img src="data:image/jpeg;base64,{{ base64_encode($privateFiles->get($doc)) }}" class="lampiran-img">
                 </div>
             @endif
         @endforeach
@@ -327,9 +331,9 @@
             @php
                 $fileExt = strtolower(pathinfo($file, PATHINFO_EXTENSION));
             @endphp
-            @if(in_array($fileExt, ['jpg', 'jpeg', 'png', 'gif', 'webp']) && \Illuminate\Support\Facades\Storage::disk('public')->exists($file))
+            @if(in_array($fileExt, ['jpg', 'jpeg', 'png', 'gif', 'webp']) && $privateFiles->exists($file))
                 <div style="margin-bottom: 10px; text-align: center;">
-                    <img src="data:image/{{ $fileExt }};base64,{{ base64_encode(\Illuminate\Support\Facades\Storage::disk('public')->get($file)) }}" class="lampiran-img">
+                    <img src="data:image/{{ $fileExt }};base64,{{ base64_encode($privateFiles->get($file)) }}" class="lampiran-img">
                 </div>
             @else
                 <p>File: {{ basename($file) }}</p>

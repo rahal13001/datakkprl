@@ -198,20 +198,20 @@ class BeritaAcaraRelationManager extends RelationManager
                     ->schema([
                         Forms\Components\FileUpload::make('lampiran_peta')
                             ->label('Lampiran I — Peta Hasil Plotting')
-                            ->disk('public')
+                            ->disk('local')
                             ->directory('berita-acara/peta')
                             ->acceptedFileTypes(['image/*', 'application/pdf'])
                             ->maxSize(10240),
                         Forms\Components\FileUpload::make('lampiran_dokumentasi')
                             ->label('Lampiran II — Dokumentasi')
-                            ->disk('public')
+                            ->disk('local')
                             ->directory('berita-acara/dokumentasi')
                             ->image()
                             ->multiple()
                             ->maxFiles(6),
                         Forms\Components\FileUpload::make('lampiran_lainnya')
                             ->label('Lampiran III — Hal Lainnya yang Berkembang')
-                            ->disk('public')
+                            ->disk('local')
                             ->directory('berita-acara/lainnya')
                             ->multiple()
                             ->maxFiles(5),

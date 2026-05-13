@@ -155,10 +155,13 @@
         @if($report->documentation && count($report->documentation) > 0)
         <div class="section-title">DOKUMENTASI</div>
         <div class="docs-grid">
+            @php
+                $privateFiles = app(\App\Services\PrivateFileService::class);
+            @endphp
             @foreach($report->documentation as $doc)
-                @if(\Illuminate\Support\Facades\Storage::disk('public')->exists($doc))
+                @if($privateFiles->exists($doc))
                 <div class="doc-item">
-                    <img src="data:image/jpeg;base64,{{ base64_encode(\Illuminate\Support\Facades\Storage::disk('public')->get($doc)) }}" class="doc-img">
+                    <img src="data:image/jpeg;base64,{{ base64_encode($privateFiles->get($doc)) }}" class="doc-img">
                 </div>
                 @endif
             @endforeach

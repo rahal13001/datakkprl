@@ -23,10 +23,16 @@ class AssignmentObserver
 
             if ($assignment->user && $assignment->user->email) {
                 Mail::to($assignment->user->email)->send(new StaffAssigned($assignment));
-                Log::info("StaffAssigned email sent to {$assignment->user->email} for Assignment ID {$assignment->id}");
+                Log::info('StaffAssigned email sent.', [
+                    'assignment_id' => $assignment->id,
+                    'user_id' => $assignment->user->id,
+                ]);
             }
         } catch (\Exception $e) {
-            Log::error("Failed to send StaffAssigned email: " . $e->getMessage());
+            Log::error('Failed to send StaffAssigned email.', [
+                'assignment_id' => $assignment->id,
+                'exception' => get_class($e),
+            ]);
         }
 
         // 2. Update Client Status to Scheduled
@@ -37,11 +43,17 @@ class AssignmentObserver
                 
                 if ($client->email) {
                     Mail::to($client->email)->send(new StatusScheduledMail($client));
-                    Log::info("StatusScheduledMail sent to {$client->email}");
+                    Log::info('StatusScheduledMail sent.', [
+                        'assignment_id' => $assignment->id,
+                        'client_id' => $client->id,
+                    ]);
                 }
             }
         } catch (\Exception $e) {
-            Log::error("Failed to update client status/email on assignment creation: " . $e->getMessage());
+            Log::error('Failed to update client status/email on assignment creation.', [
+                'assignment_id' => $assignment->id,
+                'exception' => get_class($e),
+            ]);
         }
     }
 
@@ -81,12 +93,18 @@ class AssignmentObserver
 
                     if ($client->email) {
                         Mail::to($client->email)->send(new StatusWaitingMail($client));
-                        Log::info("StatusWaitingMail sent to {$client->email}");
+                        Log::info('StatusWaitingMail sent.', [
+                            'assignment_id' => $assignment->id,
+                            'client_id' => $client->id,
+                        ]);
                     }
                 }
             }
         } catch (\Exception $e) {
-            Log::error("Failed to check revert status on assignment deletion: " . $e->getMessage());
+            Log::error('Failed to check revert status on assignment deletion.', [
+                'assignment_id' => $assignment->id,
+                'exception' => get_class($e),
+            ]);
         }
     }
 }

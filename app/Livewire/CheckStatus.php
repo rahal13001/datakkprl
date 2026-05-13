@@ -3,11 +3,13 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use App\Models\Client;
 use App\Models\SatisfactionSurvey;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 
+#[Layout('components.layouts.app')]
 class CheckStatus extends Component
 {
     public $ticket_number;
@@ -41,8 +43,16 @@ class CheckStatus extends Component
             'access_token' => 'required',
         ]);
 
+        $tokenHash = app(\App\Services\DataHashService::class)->token($this->access_token);
+
         $this->client = Client::where('ticket_number', $this->ticket_number)
-            ->where('access_token', $this->access_token)
+            ->where(function ($query) use ($tokenHash) {
+                $query->where('access_token_hash', $tokenHash)
+                    ->orWhere(function ($legacyQuery) {
+                        $legacyQuery->whereNull('access_token_hash')
+                            ->where('access_token', $this->access_token);
+                    });
+            })
             ->with(['service', 'schedules', 'assignments.user', 'latestConsultationReport', 'beritaAcara'])
             ->first();
 

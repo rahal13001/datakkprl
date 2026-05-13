@@ -14,12 +14,9 @@
         <p style="margin: 0 0 10px;"><strong>Layanan:</strong> {{ $client->service->name }}</p>
         <p style="margin: 0;"><strong>Status Terkini:</strong> 
             @switch($client->status)
-                @case('pending') Menunggu @break
+                @case('waiting') Menunggu @break
                 @case('scheduled') Dijadwalkan @break
-                @case('in_progress') Sedang Berlangsung @break
-                @case('waiting_approval') Menunggu Persetujuan @break
-                @case('finished') Selesai @break
-                @case('canceled') Dibatalkan @break
+                @case('completed') Selesai @break
                 @default {{ $client->status }}
             @endswitch
         </p>

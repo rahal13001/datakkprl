@@ -118,12 +118,9 @@
                 <td class="separator-col">:</td>
                 <td class="value-col">
                     {{ match($client->status) {
-                        'pending' => 'Menunggu',
+                        'waiting' => 'Menunggu',
                         'scheduled' => 'Dijadwalkan',
-                        'in_progress' => 'Sedang Berlangsung',
-                        'waiting_approval' => 'Menunggu Persetujuan',
-                        'finished' => 'Selesai',
-                        'canceled' => 'Dibatalkan',
+                        'completed' => 'Selesai',
                         default => $client->status
                     } }}
                 </td>

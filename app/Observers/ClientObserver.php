@@ -20,7 +20,10 @@ class ClientObserver
                 Mail::to($client->contact_details['email'])->send(new ClientCreated($client));
             }
         } catch (\Exception $e) {
-            Log::error('Failed to send ClientCreated email: ' . $e->getMessage());
+            Log::error('Failed to send ClientCreated email.', [
+                'client_id' => $client->id,
+                'exception' => get_class($e),
+            ]);
         }
     }
 
@@ -38,7 +41,10 @@ class ClientObserver
                 Mail::to($client->contact_details['email'])->send(new ClientUpdated($client));
             }
         } catch (\Exception $e) {
-            Log::error('Failed to send ClientUpdated email: ' . $e->getMessage());
+            Log::error('Failed to send ClientUpdated email.', [
+                'client_id' => $client->id,
+                'exception' => get_class($e),
+            ]);
         }
     }
 

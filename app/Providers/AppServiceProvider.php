@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use App\Support\WindowsSafeFilesystem;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\View\Compilers\BladeCompiler;
+use ReflectionProperty;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +15,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->forgetInstance('files');
+        $this->app->forgetInstance(Filesystem::class);
+
+        $this->app->singleton('files', fn (): WindowsSafeFilesystem => new WindowsSafeFilesystem);
+        $this->app->alias('files', Filesystem::class);
+
+        $this->app->afterResolving('blade.compiler', function (BladeCompiler $compiler): void {
+            $files = new ReflectionProperty($compiler, 'files');
+            $files->setAccessible(true);
+            $files->setValue($compiler, $this->app->make('files'));
+        });
     }
 
     /**

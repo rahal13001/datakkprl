@@ -300,10 +300,14 @@ class PublicDashboardCharts extends Component
             ->whereColumn('schedules.client_id', 'clients.id')
             ->orderBy('date', 'asc')
             ->limit(1);
+        $earliestDateSql = $earliestDateSubquery->toRawSql();
+        $monthExpression = DB::getDriverName() === 'sqlite'
+            ? "strftime('%Y-%m', ({$earliestDateSql}))"
+            : "DATE_FORMAT(({$earliestDateSql}), '%Y-%m')";
 
         $results = $query
             ->select(
-                DB::raw("DATE_FORMAT(({$earliestDateSubquery->toRawSql()}), '%Y-%m') as month"),
+                DB::raw("{$monthExpression} as month"),
                 DB::raw('COUNT(*) as total')
             )
             ->groupBy('month')

@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('ticket_number')->unique();
             $table->uuid('access_token');
             $table->json('contact_details'); // {name, email, wa, agency}
-            $table->enum('status', ['pending', 'scheduled', 'waiting_approval', 'finished', 'canceled'])->default('pending');
+            $table->enum('status', ['waiting', 'scheduled', 'completed'])->default('waiting');
             $table->json('metadata')->nullable();
             $table->foreignId('service_id')->constrained('services');
             $table->timestamps();
@@ -39,7 +39,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('schedule_id')->constrained('schedules')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users');
-            $table->enum('status', ['hadir', 'izin_mendadak'])->default('hadir');
+            $table->enum('status', ['scheduled', 'hadir', 'izin_mendadak'])->default('scheduled');
             $table->integer('score')->nullable();
             $table->timestamps();
             $table->softDeletes();
