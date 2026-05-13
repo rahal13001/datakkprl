@@ -31,7 +31,7 @@ class AiService
         $context = $this->searchContext($question);
 
         // 2. System Prompt with markdown formatting instruction
-        $systemPrompt = "Kamu adalah Kawan Ruang Laut AI, asisten virtual untuk layanan KKPRL (Kesesuaian Kegiatan Pemanfaatan Ruang Laut) di LPSPL Sorong, KKP Indonesia. " .
+        $systemPrompt = "Kamu adalah Kawan Ruang Laut AI, asisten virtual untuk layanan KKPRL (Kesesuaian Kegiatan Pemanfaatan Ruang Laut) di LPRL Sorong, KKP Indonesia. " .
                         "Jawab pertanyaan pengguna berdasarkan Context yang diberikan. " .
                         "Jika jawaban tidak ada di context, sarankan untuk booking konsultasi via website kami. " .
                         "Jangan membuat aturan sendiri. Gunakan bahasa Indonesia yang formal tapi ramah. " .

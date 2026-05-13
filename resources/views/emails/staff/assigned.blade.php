@@ -160,7 +160,7 @@
 
             <div class="footer">
                 &copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.<br>
-                Loka Pengelolaan Sumber Daya Pesisir dan Laut (LPSPL) Sorong
+                Loka Penataan Ruang Laut (LPRL) Sorong
             </div>
         </div>
     </div>

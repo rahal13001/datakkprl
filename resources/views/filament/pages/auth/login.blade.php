@@ -407,7 +407,7 @@
                 <div class="kkprl-auth__brand">
                     <img src="{{ asset('img/logokkp.jpg') }}" alt="KKP" class="kkprl-auth__logo">
                     <div>
-                        <div class="kkprl-auth__agency">LPSPL Sorong</div>
+                        <div class="kkprl-auth__agency">LPRL Sorong</div>
                         <div class="kkprl-auth__name">{{ $portalName }}</div>
                     </div>
                 </div>
