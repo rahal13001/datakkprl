@@ -76,12 +76,13 @@
          :class="{ 'glass py-3': scrolled, 'bg-transparent py-6': !scrolled }">
         <div class="max-w-7xl mx-auto px-6 lg:px-8 flex justify-between items-center">
             
-            <!-- Logo Modern -->
+            <!-- Logo KKP -->
             <div class="flex items-center gap-3 group cursor-pointer">
-                <!-- Simbol Minimalis -->
-                <div class="w-10 h-10 bg-brand-black text-white rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                    <i class="fa-solid fa-anchor text-sm"></i>
-                </div>
+                <img
+                    src="{{ asset('img/logokkp.png') }}"
+                    alt="Logo KKP"
+                    class="h-11 w-11 object-contain transition-transform group-hover:scale-105"
+                >
                 <div class="leading-tight">
                     <h1 class="font-mono font-bold text-lg text-slate-900 tracking-tight">LPRL SORONG</h1>
                     <p class="text-[10px] text-slate-500 font-medium tracking-widest uppercase">Official Platform V2</p>
@@ -395,6 +396,13 @@
                         'url' => 'https://timurbersinar.com/',
                         'icon' => 'fa-solid fa-globe',
                         'accent' => '#d97706',
+                    ],
+                    [
+                        'title' => 'SUSAN',
+                        'description' => 'Survei kepuasan masyarakat untuk menilai layanan pegawai LPRL Sorong kepada pengguna layanan.',
+                        'url' => 'https://ptsp.kkp.go.id/skm/s/3399//',
+                        'icon' => 'fa-solid fa-clipboard-check',
+                        'accent' => '#7c3aed',
                     ],
                 ];
             @endphp
