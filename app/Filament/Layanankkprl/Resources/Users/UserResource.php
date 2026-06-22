@@ -2,27 +2,34 @@
 
 namespace App\Filament\Layanankkprl\Resources\Users;
 
-use App\Filament\Layanankkprl\Resources\Users\Pages;
+use App\Filament\Layanankkprl\Resources\Clients\ClientResource\RelationManagers\BeritaAcaraRelationManager;
 use App\Models\User;
+use BackedEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
-use Filament\Schemas\Schema;
+use Filament\Pages\Page;
+use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Pages\Page;
-use Filament\Resources\Pages\CreateRecord;
-
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Models\Role;
 use UnitEnum;
-use BackedEnum;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
-    
+
     protected static string|UnitEnum|null $navigationGroup = 'Manajemen Pengguna';
 
     protected static ?string $modelLabel = 'Pengguna';
@@ -33,9 +40,9 @@ class UserResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Group::make()
+                Group::make()
                     ->schema([
-                        \Filament\Schemas\Components\Section::make('Informasi Akun')
+                        Section::make('Informasi Akun')
                             ->description('Detail profil pengguna sistem.')
                             ->icon('heroicon-o-user')
                             ->schema([
@@ -52,7 +59,7 @@ class UserResource extends Resource
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true)
                                     ->prefixIcon('heroicon-m-envelope')
-                                    ->disabled(fn (?User $record) => $record?->hasRole('super_admin') && !auth()->user()->hasRole('super_admin')),
+                                    ->disabled(fn (?User $record) => $record?->hasRole('super_admin') && ! auth()->user()->hasRole('super_admin')),
 
                                 Forms\Components\TextInput::make('jabatan')
                                     ->label('Jabatan')
@@ -61,13 +68,20 @@ class UserResource extends Resource
 
                                 Forms\Components\Select::make('instansi')
                                     ->label('Instansi')
-                                    ->options(\App\Filament\Layanankkprl\Resources\Clients\ClientResource\RelationManagers\BeritaAcaraRelationManager::getInstansiOptions())
+                                    ->options(BeritaAcaraRelationManager::getInstansiOptions())
                                     ->searchable()
                                     ->placeholder('Pilih Instansi'),
+
+                                Forms\Components\Toggle::make('status')
+                                    ->label('Pegawai Aktif')
+                                    ->helperText('Nonaktifkan agar pegawai tidak tampil pada rekap kinerja layanan.')
+                                    ->default(true)
+                                    ->inline(false)
+                                    ->required(),
                             ])
                             ->columns(2),
 
-                         \Filament\Schemas\Components\Section::make('Keamanan & Akses')
+                        Section::make('Keamanan & Akses')
                             ->description('Atur kata sandi dan hak akses pengguna.')
                             ->icon('heroicon-o-lock-closed')
                             ->schema([
@@ -79,7 +93,7 @@ class UserResource extends Resource
                                     ->confirmed()
                                     ->revealable()
                                     ->helperText('Biarkan kosong jika tidak ingin mengubah password.')
-                                    ->disabled(fn (?User $record) => $record?->hasRole('super_admin') && !auth()->user()->hasRole('super_admin')),
+                                    ->disabled(fn (?User $record) => $record?->hasRole('super_admin') && ! auth()->user()->hasRole('super_admin')),
 
                                 Forms\Components\TextInput::make('password_confirmation')
                                     ->label('Konfirmasi Password')
@@ -87,13 +101,13 @@ class UserResource extends Resource
                                     ->dehydrated(false)
                                     ->required(fn (Page $livewire) => $livewire instanceof CreateRecord)
                                     ->revealable()
-                                    ->disabled(fn (?User $record) => $record?->hasRole('super_admin') && !auth()->user()->hasRole('super_admin')),
+                                    ->disabled(fn (?User $record) => $record?->hasRole('super_admin') && ! auth()->user()->hasRole('super_admin')),
 
                                 Forms\Components\Select::make('roles')
                                     ->label('Peran (Role)')
                                     ->relationship('roles', 'name', function (Builder $query) {
                                         // Hide super_admin if current user is not super_admin
-                                        if (!auth()->user()->hasRole('super_admin')) {
+                                        if (! auth()->user()->hasRole('super_admin')) {
                                             $query->where('name', '!=', 'super_admin');
                                         }
                                     })
@@ -102,15 +116,15 @@ class UserResource extends Resource
                                     ->searchable()
                                     ->columnSpanFull()
                                     ->prefixIcon('heroicon-m-shield-check')
-                                    ->saveRelationshipsUsing(function (\Illuminate\Database\Eloquent\Model $record, $state) {
+                                    ->saveRelationshipsUsing(function (Model $record, $state) {
                                         // 1. Get filtered roles (what user selected)
-                                        $selectedRoleIds = collect($state)->map(fn($id) => (int)$id)->toArray();
+                                        $selectedRoleIds = collect($state)->map(fn ($id) => (int) $id)->toArray();
 
                                         // 2. Check if we need to preserve super_admin
                                         // If the record ALREADY has super_admin, and the current user is NOT super_admin
                                         // then the current user couldn't see it to select it. We must add it back.
-                                        if (!auth()->user()->hasRole('super_admin') && $record->hasRole('super_admin')) {
-                                            $superAdminRole = \Spatie\Permission\Models\Role::where('name', 'super_admin')->first();
+                                        if (! auth()->user()->hasRole('super_admin') && $record->hasRole('super_admin')) {
+                                            $superAdminRole = Role::where('name', 'super_admin')->first();
                                             if ($superAdminRole) {
                                                 $selectedRoleIds[] = $superAdminRole->id;
                                             }
@@ -134,7 +148,7 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama')
                     ->searchable(),
-                
+
                 Tables\Columns\TextColumn::make('email')
                     ->label('Email')
                     ->searchable(),
@@ -148,12 +162,15 @@ class UserResource extends Resource
                         $roles = $record->roles->pluck('name');
 
                         // Filter out super_admin if the current user is NOT a super_admin
-                        if (!auth()->user()->hasRole('super_admin')) {
+                        if (! auth()->user()->hasRole('super_admin')) {
                             $roles = $roles->reject(fn ($name) => $name === 'super_admin');
                         }
 
                         return $roles;
                     }),
+
+                Tables\Columns\ToggleColumn::make('status')
+                    ->label('Aktif'),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -161,24 +178,28 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\TernaryFilter::make('status')
+                    ->label('Status Pegawai')
+                    ->placeholder('Semua')
+                    ->trueLabel('Aktif')
+                    ->falseLabel('Tidak Aktif'),
             ])
             ->actions([
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make()
-                    ->hidden(fn (User $record) => $record->hasRole('super_admin') && !auth()->user()->hasRole('super_admin')),
+                EditAction::make(),
+                DeleteAction::make()
+                    ->hidden(fn (User $record) => $record->hasRole('super_admin') && ! auth()->user()->hasRole('super_admin')),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make()
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
-                             $records->each(function ($record) {
-                                 // Prevent checking if authorized
-                                 if ($record->hasRole('super_admin') && !auth()->user()->hasRole('super_admin')) {
-                                     return;
-                                 }
-                                 $record->delete();
-                             });
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                        ->action(function (Collection $records) {
+                            $records->each(function ($record) {
+                                // Prevent checking if authorized
+                                if ($record->hasRole('super_admin') && ! auth()->user()->hasRole('super_admin')) {
+                                    return;
+                                }
+                                $record->delete();
+                            });
                         }),
                 ]),
             ]);

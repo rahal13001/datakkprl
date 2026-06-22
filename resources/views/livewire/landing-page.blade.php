@@ -90,10 +90,36 @@
             </div>
 
             <!-- Menu (Clean Text) -->
-            <div class="hidden md:flex items-center gap-8">
+            <div class="hidden md:flex items-center gap-6 lg:gap-8">
                 <a href="#home" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Home</a>
                 <a href="#services" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Layanan</a>
                 <a href="#knowledge" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Regulasi</a>
+                <div x-data="{ resultsOpen: false }" class="relative">
+                    <button
+                        type="button"
+                        @click="resultsOpen = !resultsOpen"
+                        @click.outside="resultsOpen = false"
+                        class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-brand-black transition-colors"
+                    >
+                        <span>Hasil</span>
+                        <i class="fa-solid fa-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': resultsOpen }"></i>
+                    </button>
+
+                    <div
+                        x-show="resultsOpen"
+                        x-transition
+                        class="absolute left-0 top-full mt-4 w-56 rounded-2xl border border-slate-100 bg-white p-2 shadow-xl shadow-slate-200/70"
+                    >
+                        <a href="{{ route('satisfaction-survey-results') }}" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-brand-black">
+                            <i class="fa-solid fa-chart-simple w-4 text-slate-400"></i>
+                            <span>Hasil SKM</span>
+                        </a>
+                        <a href="{{ route('service-performance-results') }}" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-brand-black">
+                            <i class="fa-solid fa-ranking-star w-4 text-slate-400"></i>
+                            <span>Hasil Kinerja</span>
+                        </a>
+                    </div>
+                </div>
                 <a href="{{ route('check-status') }}" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Cek Status</a>
                 
                 <!-- Action Button -->
@@ -114,6 +140,11 @@
             <a href="#home" class="block text-sm font-medium text-slate-600">Home</a>
             <a href="#services" class="block text-sm font-medium text-slate-600">Layanan</a>
             <a href="#knowledge" class="block text-sm font-medium text-slate-600">Regulasi</a>
+            <div class="space-y-3">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Hasil</p>
+                <a href="{{ route('satisfaction-survey-results') }}" class="block pl-3 text-sm font-medium text-slate-600">Hasil SKM</a>
+                <a href="{{ route('service-performance-results') }}" class="block pl-3 text-sm font-medium text-slate-600">Hasil Kinerja</a>
+            </div>
             <a href="{{ route('check-status') }}" class="block text-sm font-medium text-slate-600">Cek Status</a>
             <a href="#booking" class="block w-full text-center px-6 py-3 bg-brand-black text-white text-sm font-medium rounded-xl">Reservasi</a>
         </div>
@@ -370,6 +401,22 @@
             @php
                 $publicLinks = [
                     [
+                        'title' => 'Hasil SKM',
+                        'description' => 'Publikasi hasil survei kepuasan masyarakat LPRL Sorong per triwulan dan tahun.',
+                        'url' => route('satisfaction-survey-results'),
+                        'icon' => 'fa-solid fa-chart-simple',
+                        'accent' => '#4f46e5',
+                        'external' => false,
+                    ],
+                    [
+                        'title' => 'Hasil Kinerja',
+                        'description' => 'Informasi kinerja layanan per triwulan dengan rekap petugas yang ditampilkan sebagai inisial.',
+                        'url' => route('service-performance-results'),
+                        'icon' => 'fa-solid fa-ranking-star',
+                        'accent' => '#0f766e',
+                        'external' => false,
+                    ],
+                    [
                         'title' => 'e-Sea',
                         'description' => 'Sistem elektronik KKP untuk pengajuan KKPRL bagi kegiatan non-berusaha melalui portal berbasis web.',
                         'url' => 'https://e-sea.kkp.go.id/',
@@ -410,8 +457,7 @@
             <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 @foreach($publicLinks as $link)
                     <a href="{{ $link['url'] }}"
-                       target="_blank"
-                       rel="noopener noreferrer"
+                       @if($link['external'] ?? true) target="_blank" rel="noopener noreferrer" @endif
                        class="public-link-card group block h-full rounded-3xl border border-slate-100 bg-white p-8 md:p-9 shadow-sm hover:-translate-y-1 hover:shadow-xl"
                        style="--link-accent: {{ $link['accent'] }};">
                         <div class="flex items-start justify-between gap-4 mb-8">

@@ -1,8 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Livewire\LandingPage;
+use App\Livewire\ServicePerformanceResults;
+use App\Livewire\SatisfactionSurveyResults;
 use App\Http\Controllers\RegulationController; // Assuming we might need this or use closure
+use Illuminate\Support\Facades\Route;
 
 // Admin Panel fallback or specific domain if needed (Laravel Filament usually handles its own routes via panel provider)
 // But for our Custom Frontend:
@@ -24,6 +26,8 @@ $routingConfig = app()->environment(['local', 'testing']) ? [] : ['domain' => $d
 
 Route::group($routingConfig, function () {
     Route::get('/', LandingPage::class)->name('landing');
+    Route::get('/hasil-survei-kepuasan', SatisfactionSurveyResults::class)->name('satisfaction-survey-results');
+    Route::get('/hasil-kinerja-layanan', ServicePerformanceResults::class)->name('service-performance-results');
     Route::get('/cek-status', \App\Livewire\CheckStatus::class)->name('check-status');
     
     // Regulation Preview/Download (Public)
