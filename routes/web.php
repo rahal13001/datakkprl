@@ -1,6 +1,9 @@
 <?php
 
 use App\Livewire\LandingPage;
+use App\Livewire\BelajarKkprl;
+use App\Livewire\BelajarKkprlGroup;
+use App\Http\Controllers\LearningMaterialController;
 use App\Livewire\ServicePerformanceResults;
 use App\Livewire\SatisfactionSurveyResults;
 use App\Http\Controllers\RegulationController; // Assuming we might need this or use closure
@@ -29,6 +32,10 @@ Route::group($routingConfig, function () {
     Route::get('/hasil-survei-kepuasan', SatisfactionSurveyResults::class)->name('satisfaction-survey-results');
     Route::get('/hasil-kinerja-layanan', ServicePerformanceResults::class)->name('service-performance-results');
     Route::get('/cek-status', \App\Livewire\CheckStatus::class)->name('check-status');
+    Route::get('/belajar-kkprl', BelajarKkprl::class)->name('belajar-kkprl');
+    Route::get('/belajar-kkprl/materi/{material:slug}/pdf', [LearningMaterialController::class, 'pdf'])->name('belajar-kkprl.material.pdf');
+    Route::get('/belajar-kkprl/materi/{material:slug}/download', [LearningMaterialController::class, 'download'])->name('belajar-kkprl.material.download');
+    Route::get('/belajar-kkprl/{group:slug}', BelajarKkprlGroup::class)->name('belajar-kkprl.group');
     
     // Regulation Preview/Download (Public)
     Route::get('/regulasi/{slug}', function ($slug) {

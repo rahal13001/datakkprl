@@ -37,6 +37,11 @@ class SatisfactionSurveyPolicy
         return $authUser->can('Delete:SatisfactionSurvey');
     }
 
+    public function deleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('DeleteAny:SatisfactionSurvey');
+    }
+
     public function restore(AuthUser $authUser, SatisfactionSurvey $satisfactionSurvey): bool
     {
         return $authUser->can('Restore:SatisfactionSurvey');

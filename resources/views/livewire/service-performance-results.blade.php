@@ -14,10 +14,11 @@
                 </div>
             </a>
 
-            <div class="hidden md:flex items-center gap-6 lg:gap-8">
+            <div class="hidden md:flex items-center gap-5 lg:gap-6">
                 <a href="{{ route('landing') }}#home" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Home</a>
                 <a href="{{ route('landing') }}#services" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Layanan</a>
                 <a href="{{ route('landing') }}#knowledge" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Regulasi</a>
+                <a href="{{ route('belajar-kkprl') }}" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Belajar KKPRL</a>
                 <div x-data="{ resultsOpen: false }" class="relative">
                     <button
                         type="button"
@@ -61,6 +62,7 @@
             <a href="{{ route('landing') }}#home" class="block text-sm font-medium text-slate-600">Home</a>
             <a href="{{ route('landing') }}#services" class="block text-sm font-medium text-slate-600">Layanan</a>
             <a href="{{ route('landing') }}#knowledge" class="block text-sm font-medium text-slate-600">Regulasi</a>
+            <a href="{{ route('belajar-kkprl') }}" class="block text-sm font-medium text-slate-600">Belajar KKPRL</a>
             <div class="space-y-3">
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Hasil</p>
                 <a href="{{ route('satisfaction-survey-results') }}" class="block pl-3 text-sm font-medium text-slate-600">Hasil SKM</a>

@@ -3,10 +3,16 @@
 namespace App\Filament\Layanankkprl\Resources;
 
 use App\Filament\Layanankkprl\Resources\SatisfactionSurveyResource\Pages;
+use App\Models\Client;
 use App\Models\SatisfactionSurvey;
+use Closure;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
-use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,9 +38,36 @@ class SatisfactionSurveyResource extends Resource
         return $schema
             ->components([
                 Forms\Components\Select::make('client_id')
-                    ->relationship('client', 'name')
                     ->label('Pemohon')
-                    ->disabled(),
+                    ->options(fn (?SatisfactionSurvey $record): array => static::getAvailableClientsQuery($record)
+                        ->get(['id', 'name', 'ticket_number'])
+                        ->mapWithKeys(fn (Client $client): array => [
+                            $client->getKey() => static::getClientOptionLabel($client),
+                        ])
+                        ->all())
+                    ->getOptionLabelUsing(fn ($value): ?string => static::getClientOptionLabel(Client::find($value)))
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->disabledOn('edit')
+                    ->helperText('Hanya klien yang belum memiliki survei kepuasan yang dapat dipilih.')
+                    ->rules([
+                        fn (?SatisfactionSurvey $record): Closure => function (string $attribute, mixed $value, Closure $fail) use ($record): void {
+                            if (blank($value)) {
+                                return;
+                            }
+
+                            $alreadyExists = SatisfactionSurvey::query()
+                                ->where('client_id', $value)
+                                ->when($record, fn (Builder $query) => $query->whereKeyNot($record->getKey()))
+                                ->exists();
+
+                            if ($alreadyExists) {
+                                $fail('Klien ini sudah memiliki survei kepuasan.');
+                            }
+                        },
+                    ])
+                    ->columnSpanFull(),
                     
                 Forms\Components\Textarea::make('criticism')
                     ->label('Kritik')
@@ -59,10 +92,18 @@ class SatisfactionSurveyResource extends Resource
                     ->dateTime('d M Y, H:i')
                     ->sortable(),
                     
-                Tables\Columns\TextColumn::make('client.name')
+                Tables\Columns\TextColumn::make('client.ticket_number')
                     ->label('Pemohon')
-                    ->searchable()
-                    ->sortable(),
+                    ->formatStateUsing(fn ($state, SatisfactionSurvey $record): string => static::getClientOptionLabel($record->client))
+                    ->description(fn (SatisfactionSurvey $record): ?string => $record->client?->instance)
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('client', function (Builder $clientQuery) use ($search): void {
+                            $clientQuery
+                                ->where('ticket_number', 'like', "%{$search}%")
+                                ->orWhere('name', 'like', "%{$search}%")
+                                ->orWhere('instance', 'like', "%{$search}%");
+                        });
+                    }),
 
                 Tables\Columns\TextColumn::make('criticism')
                     ->label('Kritik')
@@ -81,12 +122,12 @@ class SatisfactionSurveyResource extends Resource
                 //
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\DeleteAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -95,11 +136,32 @@ class SatisfactionSurveyResource extends Resource
     {
         return [
             'index' => Pages\ListSatisfactionSurveys::route('/'),
+            'create' => Pages\CreateSatisfactionSurvey::route('/create'),
+            'edit' => Pages\EditSatisfactionSurvey::route('/{record}/edit'),
         ];
     }
-    
-    public static function canCreate(): bool
+
+    public static function getEloquentQuery(): Builder
     {
-        return false;
+        return parent::getEloquentQuery()->with('client');
+    }
+
+    protected static function getAvailableClientsQuery(?SatisfactionSurvey $record = null): Builder
+    {
+        return Client::query()
+            ->whereDoesntHave('satisfactionSurvey', fn (Builder $query) => $query
+                ->when($record, fn (Builder $query) => $query->whereKeyNot($record->getKey())))
+            ->orderBy('ticket_number');
+    }
+
+    protected static function getClientOptionLabel(?Client $client): string
+    {
+        if (! $client) {
+            return '-';
+        }
+
+        return $client->name
+            ? "{$client->name} ({$client->ticket_number})"
+            : "Pemohon tidak diketahui ({$client->ticket_number})";
     }
 }

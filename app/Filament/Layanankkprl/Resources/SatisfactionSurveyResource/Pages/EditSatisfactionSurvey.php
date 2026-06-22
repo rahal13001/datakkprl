@@ -3,17 +3,17 @@
 namespace App\Filament\Layanankkprl\Resources\SatisfactionSurveyResource\Pages;
 
 use App\Filament\Layanankkprl\Resources\SatisfactionSurveyResource;
-use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Actions\DeleteAction;
+use Filament\Resources\Pages\EditRecord;
 
-class ListSatisfactionSurveys extends ListRecords
+class EditSatisfactionSurvey extends EditRecord
 {
     protected static string $resource = SatisfactionSurveyResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            DeleteAction::make(),
         ];
     }
 }

@@ -68,6 +68,41 @@
             padding-inline: 0.35rem;
             padding-bottom: 0.2rem;
         }
+        .landing-hero {
+            padding-bottom: 6rem;
+        }
+        @media (min-width: 1024px) {
+            .landing-hero {
+                padding-bottom: 7rem;
+            }
+        }
+        .hero-action {
+            min-height: 4rem;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+        .hero-action:hover {
+            transform: translateY(-2px);
+        }
+        .hero-secondary-action {
+            min-height: 3.25rem;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+        .hero-secondary-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.07);
+        }
+        .learn-quick-band {
+            background: rgba(255, 255, 255, 0.82);
+            border-block: 1px solid #e2e8f0;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.05);
+        }
+        .learn-quick-item {
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .learn-quick-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 35px rgba(15, 23, 42, 0.08);
+        }
     </style>
     <!-- Navbar (Minimalist Sticky) -->
     <nav x-data="{ scrolled: false, mobileOpen: false }" 
@@ -90,7 +125,7 @@
             </div>
 
             <!-- Menu (Clean Text) -->
-            <div class="hidden md:flex items-center gap-6 lg:gap-8">
+            <div class="hidden md:flex items-center gap-5 lg:gap-6">
                 <a href="#home" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Home</a>
                 <a href="#services" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Layanan</a>
                 <a href="#knowledge" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Regulasi</a>
@@ -122,11 +157,16 @@
                 </div>
                 <a href="{{ route('check-status') }}" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Cek Status</a>
                 
-                <!-- Action Button -->
-                <a href="#booking" class="px-6 py-2.5 bg-brand-black text-white text-sm font-medium rounded-full hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 hover:shadow-2xl hover:-translate-y-0.5 flex items-center gap-2">
-                    <span>Reservasi</span>
-                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </a>
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('belajar-kkprl') }}" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-full hover:border-brand-blue hover:text-brand-blue transition-all shadow-sm flex items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap text-[12px]"></i>
+                        <span>Belajar</span>
+                    </a>
+                    <a href="#booking" class="px-6 py-2.5 bg-brand-black text-white text-sm font-medium rounded-full hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 hover:shadow-2xl hover:-translate-y-0.5 flex items-center gap-2">
+                        <span>Reservasi</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                </div>
             </div>
 
             <!-- Mobile Trigger -->
@@ -146,12 +186,13 @@
                 <a href="{{ route('service-performance-results') }}" class="block pl-3 text-sm font-medium text-slate-600">Hasil Kinerja</a>
             </div>
             <a href="{{ route('check-status') }}" class="block text-sm font-medium text-slate-600">Cek Status</a>
+            <a href="{{ route('belajar-kkprl') }}" class="block w-full text-center px-6 py-3 border border-slate-200 bg-white text-slate-800 text-sm font-semibold rounded-xl">Belajar KKPRL</a>
             <a href="#booking" class="block w-full text-center px-6 py-3 bg-brand-black text-white text-sm font-medium rounded-xl">Reservasi</a>
         </div>
     </nav>
 
     <!-- Hero Section (Swiss Style Layout) -->
-    <section id="home" class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+    <section id="home" class="landing-hero relative pt-32 lg:pt-40 overflow-hidden">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <div class="grid lg:grid-cols-12 gap-12 items-end">
                 
@@ -172,13 +213,18 @@
                         Transparan dan presisi.
                     </p>
 
-                    <div class="flex flex-wrap gap-4">
-                        <a href="#booking" class="px-8 py-4 bg-brand-blue text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all flex items-center gap-3">
-                            Buat Janji Temu
+                    <div class="grid gap-4 sm:grid-cols-2 max-w-2xl">
+                        <a href="#booking" class="hero-action px-7 py-4 bg-brand-blue text-white rounded-xl font-semibold shadow-lg shadow-blue-500/30 hover:bg-blue-700 hover:shadow-xl flex items-center justify-center gap-3">
+                            <i class="fa-solid fa-calendar-check text-sm"></i>
+                            <span>Buat Janji Temu</span>
                         </a>
-                        <a href="#knowledge" class="px-8 py-4 bg-white border border-slate-200 text-slate-700 rounded-xl font-medium hover:border-slate-300 transition-all flex items-center gap-3">
+                        <a href="{{ route('belajar-kkprl') }}" class="hero-action px-7 py-4 bg-brand-black text-white rounded-xl font-semibold shadow-lg shadow-slate-300 hover:bg-slate-800 hover:shadow-xl flex items-center justify-center gap-3">
+                            <i class="fa-solid fa-graduation-cap text-sm"></i>
+                            <span>Belajar KKPRL</span>
+                        </a>
+                        <a href="#knowledge" class="hero-secondary-action sm:col-span-2 w-full sm:w-fit px-6 py-3 bg-white/80 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:border-brand-blue hover:text-brand-blue transition-all flex items-center justify-center gap-3 shadow-sm">
                             <i class="fa-solid fa-book-open text-slate-400"></i>
-                            Arsip Regulasi
+                            <span>Arsip Regulasi</span>
                         </a>
                     </div>
                 </div>
@@ -193,6 +239,44 @@
                               class="w-full h-auto drop-shadow-2xl animate-float">
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="belajar-highlight" class="learn-quick-band py-10">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="grid gap-5 lg:grid-cols-2">
+                <a href="#booking" class="learn-quick-item rounded-lg border border-slate-200 bg-white p-6 md:p-7 flex items-center justify-between gap-5">
+                    <div class="flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-blue-50 text-brand-blue flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Layanan</p>
+                            <h2 class="mt-1 text-2xl font-bold text-slate-950">Buat Janji Temu</h2>
+                            <p class="mt-1 text-sm leading-relaxed text-slate-500">Reservasi konsultasi layanan KKPRL dengan petugas.</p>
+                        </div>
+                    </div>
+                    <div class="hidden sm:flex w-10 h-10 rounded-full bg-brand-blue text-white items-center justify-center">
+                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </div>
+                </a>
+
+                <a href="{{ route('belajar-kkprl') }}" class="learn-quick-item rounded-lg border border-blue-100 bg-white p-6 md:p-7 flex items-center justify-between gap-5">
+                    <div class="flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-widest text-brand-blue">Referensi Publik</p>
+                            <h2 class="mt-1 text-2xl font-bold text-slate-950">Belajar KKPRL</h2>
+                            <p class="mt-1 text-sm leading-relaxed text-slate-500">Akses materi PDF dan video resmi tanpa login.</p>
+                        </div>
+                    </div>
+                    <div class="hidden sm:flex w-10 h-10 rounded-full bg-slate-900 text-white items-center justify-center">
+                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </div>
+                </a>
             </div>
         </div>
     </section>
@@ -400,6 +484,14 @@
 
             @php
                 $publicLinks = [
+                    [
+                        'title' => 'Belajar KKPRL',
+                        'description' => 'Referensi pembelajaran publik tentang KKPRL dalam bentuk PDF dan video eksternal yang dikelompokkan per topik.',
+                        'url' => route('belajar-kkprl'),
+                        'icon' => 'fa-solid fa-graduation-cap',
+                        'accent' => '#0057ff',
+                        'external' => false,
+                    ],
                     [
                         'title' => 'Hasil SKM',
                         'description' => 'Publikasi hasil survei kepuasan masyarakat LPRL Sorong per triwulan dan tahun.',
