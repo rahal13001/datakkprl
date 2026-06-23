@@ -270,7 +270,7 @@
                         <div>
                             <p class="text-xs font-bold uppercase tracking-widest text-brand-blue">Referensi Publik</p>
                             <h2 class="mt-1 text-2xl font-bold text-slate-950">Belajar KKPRL</h2>
-                            <p class="mt-1 text-sm leading-relaxed text-slate-500">Akses materi PDF dan video resmi tanpa login.</p>
+                            <p class="mt-1 text-sm leading-relaxed text-slate-500">Akses materi PDF dan video mengenai KKPRL.</p>
                         </div>
                     </div>
                     <div class="hidden sm:flex w-10 h-10 rounded-full bg-slate-900 text-white items-center justify-center">
@@ -539,7 +539,7 @@
                     [
                         'title' => 'SUSAN',
                         'description' => 'Survei kepuasan masyarakat untuk menilai layanan pegawai LPRL Sorong kepada pengguna layanan.',
-                        'url' => 'https://ptsp.kkp.go.id/skm/s/3399//',
+                        'url' => 'https://ptsp.kkp.go.id/skm/s/u/227',
                         'icon' => 'fa-solid fa-clipboard-check',
                         'accent' => '#7c3aed',
                     ],
