@@ -120,6 +120,20 @@
 
                     <!-- Actions / Survey -->
                     <div>
+                        <div class="mb-6 rounded-2xl border border-blue-100 bg-blue-50/60 p-5">
+                            <div class="flex items-start justify-between gap-4">
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-widest text-blue-500">Kanal Masukan Publik</p>
+                                    <h4 class="mt-2 text-lg font-bold text-slate-900">Silahkan Beri Masukan</h4>
+                                    <p class="mt-2 text-sm leading-relaxed text-slate-600">Jika Anda memiliki masukan atau saran tentang layanan konsultasi yang telah diberikan, silakan beri masukan melalui kanal ini.</p>
+                                </div>
+                                <a href="{{ route('public-feedback') }}" class="inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-blue-600 shadow-sm transition hover:bg-blue-600 hover:text-white">
+                                    <span>Buka Kanal</span>
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                </a>
+                            </div>
+                        </div>
+
                         @if($client->status === 'completed' || $client->beritaAcara?->status === 'completed')
                             @if($this->hasFeedback)
                                 <div class="h-full flex flex-col items-center justify-center text-center p-8 bg-green-50/50 rounded-2xl border border-green-100">

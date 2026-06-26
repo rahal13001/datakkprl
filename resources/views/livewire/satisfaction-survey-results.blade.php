@@ -33,7 +33,7 @@
                     <div
                         x-show="resultsOpen"
                         x-transition
-                        class="absolute left-0 top-full mt-4 w-56 rounded-2xl border border-slate-100 bg-white p-2 shadow-xl shadow-slate-200/70"
+                        class="absolute left-0 top-full mt-4 w-64 rounded-2xl border border-slate-100 bg-white p-2 shadow-xl shadow-slate-200/70"
                     >
                         <a href="{{ route('satisfaction-survey-results') }}" class="flex items-center gap-3 rounded-xl bg-slate-50 px-4 py-3 text-sm font-semibold text-brand-black">
                             <i class="fa-solid fa-chart-simple w-4 text-slate-500"></i>
@@ -43,9 +43,14 @@
                             <i class="fa-solid fa-ranking-star w-4 text-slate-400"></i>
                             <span>Hasil Kinerja</span>
                         </a>
+                        <a href="{{ route('public-feedback') }}" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-brand-black">
+                            <i class="fa-solid fa-message w-4 text-slate-400"></i>
+                            <span>Masukan Publik</span>
+                        </a>
                     </div>
                 </div>
                 <a href="{{ route('check-status') }}" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Cek Status</a>
+                <a href="{{ route('public-feedback') }}" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Masukan Publik</a>
 
                 <a href="{{ route('landing') }}#booking" class="px-6 py-2.5 bg-brand-black text-white text-sm font-medium rounded-full hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 hover:shadow-2xl hover:-translate-y-0.5 flex items-center gap-2">
                     <span>Reservasi</span>
@@ -67,8 +72,10 @@
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Hasil</p>
                 <a href="{{ route('satisfaction-survey-results') }}" class="block pl-3 text-sm font-semibold text-slate-900">Hasil SKM</a>
                 <a href="{{ route('service-performance-results') }}" class="block pl-3 text-sm font-medium text-slate-600">Hasil Kinerja</a>
+                <a href="{{ route('public-feedback') }}" class="block pl-3 text-sm font-medium text-slate-600">Masukan Publik</a>
             </div>
             <a href="{{ route('check-status') }}" class="block text-sm font-medium text-slate-600">Cek Status</a>
+            <a href="{{ route('public-feedback') }}" class="block text-sm font-medium text-slate-600">Masukan Publik</a>
             <a href="{{ route('landing') }}#booking" class="block w-full text-center px-6 py-3 bg-brand-black text-white text-sm font-medium rounded-xl">Reservasi</a>
         </div>
     </nav>
@@ -107,6 +114,29 @@
                             @endforelse
                         </select>
                     </label>
+                </div>
+
+                <div class="mt-8 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Punya Masukan Langsung?</p>
+                           <h2 class="mt-3 text-2xl font-bold text-slate-950">Kanal pendamping evaluasi layanan</h2>
+                                <p class="mt-3 text-sm leading-relaxed text-slate-500">
+                                    Sampaikan masukan publik terkait layanan LPRL Sorong melalui kanal ini. Masukan yang disampaikan akan menjadi bahan evaluasi untuk perbaikan layanan.
+                                </p>
+                        </div>
+
+                        <div class="flex flex-col gap-3 sm:flex-row lg:flex-col">
+                            <a href="{{ route('public-feedback') }}" class="inline-flex items-center justify-center gap-2 rounded-full bg-brand-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+                                <span>Kirim Masukan Publik</span>
+                                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </a>
+                            <a href="{{ route('service-performance-results') }}" class="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950">
+                                <span>Lihat Hasil Kinerja</span>
+                                <i class="fa-solid fa-ranking-star text-[10px]"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
                 @if($results->isNotEmpty())

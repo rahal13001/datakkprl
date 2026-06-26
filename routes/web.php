@@ -4,6 +4,7 @@ use App\Livewire\LandingPage;
 use App\Livewire\BelajarKkprl;
 use App\Livewire\BelajarKkprlGroup;
 use App\Http\Controllers\LearningMaterialController;
+use App\Livewire\PublicFeedbackPage;
 use App\Livewire\ServicePerformanceResults;
 use App\Livewire\SatisfactionSurveyResults;
 use App\Http\Controllers\RegulationController; // Assuming we might need this or use closure
@@ -31,6 +32,7 @@ Route::group($routingConfig, function () {
     Route::get('/', LandingPage::class)->name('landing');
     Route::get('/hasil-survei-kepuasan', SatisfactionSurveyResults::class)->name('satisfaction-survey-results');
     Route::get('/hasil-kinerja-layanan', ServicePerformanceResults::class)->name('service-performance-results');
+    Route::get('/masukan-publik', PublicFeedbackPage::class)->name('public-feedback');
     Route::get('/cek-status', \App\Livewire\CheckStatus::class)->name('check-status');
     Route::get('/belajar-kkprl', BelajarKkprl::class)->name('belajar-kkprl');
     Route::get('/belajar-kkprl/materi/{material:slug}/pdf', [LearningMaterialController::class, 'pdf'])->name('belajar-kkprl.material.pdf');

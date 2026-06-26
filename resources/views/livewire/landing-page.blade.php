@@ -156,6 +156,7 @@
                     </div>
                 </div>
                 <a href="{{ route('check-status') }}" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Cek Status</a>
+                <a href="{{ route('public-feedback') }}" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Masukan Publik</a>
                 
                 <div class="flex items-center gap-3">
                     <a href="{{ route('belajar-kkprl') }}" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-full hover:border-brand-blue hover:text-brand-blue transition-all shadow-sm flex items-center gap-2">
@@ -186,6 +187,7 @@
                 <a href="{{ route('service-performance-results') }}" class="block pl-3 text-sm font-medium text-slate-600">Hasil Kinerja</a>
             </div>
             <a href="{{ route('check-status') }}" class="block text-sm font-medium text-slate-600">Cek Status</a>
+            <a href="{{ route('public-feedback') }}" class="block text-sm font-medium text-slate-600">Masukan Publik</a>
             <a href="{{ route('belajar-kkprl') }}" class="block w-full text-center px-6 py-3 border border-slate-200 bg-white text-slate-800 text-sm font-semibold rounded-xl">Belajar KKPRL</a>
             <a href="#booking" class="block w-full text-center px-6 py-3 bg-brand-black text-white text-sm font-medium rounded-xl">Reservasi</a>
         </div>
@@ -505,6 +507,14 @@
                         'description' => 'Informasi kinerja layanan per triwulan dengan rekap petugas yang ditampilkan sebagai inisial.',
                         'url' => route('service-performance-results'),
                         'icon' => 'fa-solid fa-ranking-star',
+                        'accent' => '#0f766e',
+                        'external' => false,
+                    ],
+                    [
+                        'title' => 'Masukan Publik',
+                        'description' => 'Kanal saran dan umpan balik publik yang dapat dikirim secara anonim, dengan pilihan petugas satu, banyak, atau umum.',
+                        'url' => route('public-feedback'),
+                        'icon' => 'fa-solid fa-message',
                         'accent' => '#0f766e',
                         'external' => false,
                     ],

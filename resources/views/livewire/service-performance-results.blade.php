@@ -33,7 +33,7 @@
                     <div
                         x-show="resultsOpen"
                         x-transition
-                        class="absolute left-0 top-full mt-4 w-56 rounded-2xl border border-slate-100 bg-white p-2 shadow-xl shadow-slate-200/70"
+                        class="absolute left-0 top-full mt-4 w-64 rounded-2xl border border-slate-100 bg-white p-2 shadow-xl shadow-slate-200/70"
                     >
                         <a href="{{ route('satisfaction-survey-results') }}" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-brand-black">
                             <i class="fa-solid fa-chart-simple w-4 text-slate-400"></i>
@@ -43,9 +43,14 @@
                             <i class="fa-solid fa-ranking-star w-4 text-slate-500"></i>
                             <span>Hasil Kinerja</span>
                         </a>
+                        <a href="{{ route('public-feedback') }}" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-brand-black">
+                            <i class="fa-solid fa-message w-4 text-slate-400"></i>
+                            <span>Masukan Publik</span>
+                        </a>
                     </div>
                 </div>
                 <a href="{{ route('check-status') }}" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Cek Status</a>
+                <a href="{{ route('public-feedback') }}" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Masukan Publik</a>
 
                 <a href="{{ route('landing') }}#booking" class="px-6 py-2.5 bg-brand-black text-white text-sm font-medium rounded-full hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 hover:shadow-2xl hover:-translate-y-0.5 flex items-center gap-2">
                     <span>Reservasi</span>
@@ -67,8 +72,10 @@
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Hasil</p>
                 <a href="{{ route('satisfaction-survey-results') }}" class="block pl-3 text-sm font-medium text-slate-600">Hasil SKM</a>
                 <a href="{{ route('service-performance-results') }}" class="block pl-3 text-sm font-semibold text-slate-900">Hasil Kinerja</a>
+                <a href="{{ route('public-feedback') }}" class="block pl-3 text-sm font-medium text-slate-600">Masukan Publik</a>
             </div>
             <a href="{{ route('check-status') }}" class="block text-sm font-medium text-slate-600">Cek Status</a>
+            <a href="{{ route('public-feedback') }}" class="block text-sm font-medium text-slate-600">Masukan Publik</a>
             <a href="{{ route('landing') }}#booking" class="block w-full text-center px-6 py-3 bg-brand-black text-white text-sm font-medium rounded-xl">Reservasi</a>
         </div>
     </nav>
@@ -146,6 +153,23 @@
                     </section>
 
                     <section>
+                        <div class="mb-8 grid gap-6 xl:grid-cols-[minmax(280px,0.8fr)_minmax(0,1.2fr)]">
+                            <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+                                <p class="text-sm font-semibold uppercase tracking-widest text-slate-400">Masukan Publik</p>
+                                <h2 class="mt-3 text-2xl font-bold text-slate-950">Kanal pendamping evaluasi layanan</h2>
+                                <p class="mt-3 text-sm leading-relaxed text-slate-500">
+                                    Sampaikan masukan publik terkait layanan LPRL Sorong melalui kanal ini. Masukan yang disampaikan akan menjadi bahan evaluasi untuk perbaikan layanan.
+                                </p>
+                
+                                <a href="{{ route('public-feedback') }}" class="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+                                    <span>Kirim Masukan Publik</span>
+                                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                </a>
+                            </div>
+
+                
+                        </div>
+
                         <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
                             <div class="border-b border-slate-200 px-6 py-5">
                                 <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
@@ -186,13 +210,14 @@
                                 <table class="w-full min-w-[920px] table-fixed divide-y divide-slate-200 text-sm">
                                     <thead class="bg-slate-50">
                                         <tr>
-                                            <th class="w-[18%] px-6 py-4 text-left font-semibold text-slate-700">Petugas</th>
-                                            <th class="w-[13%] px-5 py-4 text-right font-semibold text-slate-700">Penilaian</th>
-                                            <th class="w-[13%] px-5 py-4 text-right font-semibold text-slate-700">Aktivitas</th>
-                                            <th class="w-[14%] px-5 py-4 text-right font-semibold text-slate-700">Total Skor</th>
-                                            <th class="w-[14%] px-5 py-4 text-right font-semibold text-slate-700">Rata-rata</th>
-                                            <th class="w-[14%] px-5 py-4 text-right font-semibold text-slate-700">Bintang</th>
-                                            <th class="w-[14%] px-6 py-4 text-right font-semibold text-slate-700">Tertinggi</th>
+                                            <th class="w-[16%] px-6 py-4 text-left font-semibold text-slate-700">Petugas</th>
+                                            <th class="w-[11%] px-5 py-4 text-right font-semibold text-slate-700">Penilaian</th>
+                                            <th class="w-[11%] px-5 py-4 text-right font-semibold text-slate-700">Aktivitas</th>
+                                            <th class="w-[11%] px-5 py-4 text-right font-semibold text-slate-700">Masukan Publik</th>
+                                            <th class="w-[13%] px-5 py-4 text-right font-semibold text-slate-700">Total Skor</th>
+                                            <th class="w-[13%] px-5 py-4 text-right font-semibold text-slate-700">Rata-rata</th>
+                                            <th class="w-[12%] px-5 py-4 text-right font-semibold text-slate-700">Bintang</th>
+                                            <th class="w-[13%] px-6 py-4 text-right font-semibold text-slate-700">Tertinggi</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100 bg-white">
@@ -205,6 +230,7 @@
                                                 </td>
                                                 <td class="px-5 py-4 text-right font-medium text-slate-700">{{ number_format((int) $row->rated_sessions) }}</td>
                                                 <td class="px-5 py-4 text-right font-medium text-slate-700">{{ number_format((int) $row->service_activities_count) }}</td>
+                                                <td class="px-5 py-4 text-right font-medium text-slate-700">{{ number_format((int) $row->public_feedback_mentions_count) }}</td>
                                                 <td class="px-5 py-4 text-right text-slate-700">{{ number_format((int) $row->total_score) }}</td>
                                                 <td class="px-5 py-4 text-right font-semibold text-slate-900">{{ number_format((float) $row->average_score, 2) }}</td>
                                                 <td class="px-5 py-4 text-right text-slate-700">{{ number_format((float) $row->average_stars, 2) }} / 5</td>
@@ -212,7 +238,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="7" class="px-5 py-12 text-center text-slate-500">
+                                                <td colspan="8" class="px-5 py-12 text-center text-slate-500">
                                                     Belum ada data kinerja layanan pada periode ini.
                                                 </td>
                                             </tr>

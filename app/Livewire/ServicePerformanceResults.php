@@ -2,9 +2,11 @@
 
 namespace App\Livewire;
 
+use App\Models\PublicFeedback;
 use App\Models\ServicePerformanceResult;
 use App\Services\StaffPerformanceService;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
@@ -180,11 +182,44 @@ class ServicePerformanceResults extends Component
             ->where('quarter', $this->selectedQuarter)
             ->first();
 
+        $publicFeedbackMentionCounts = DB::table('public_feedback')
+            ->join('public_feedback_user', 'public_feedback_user.public_feedback_id', '=', 'public_feedback.id')
+            ->when(
+                $tableFrom,
+                fn ($query) => $query->whereDate('public_feedback.created_at', '>=', $tableFrom),
+            )
+            ->when(
+                $tableUntil,
+                fn ($query) => $query->whereDate('public_feedback.created_at', '<=', $tableUntil),
+            )
+            ->selectRaw('public_feedback_user.user_id, COUNT(DISTINCT public_feedback.id) as total')
+            ->groupBy('public_feedback_user.user_id')
+            ->pluck('total', 'public_feedback_user.user_id');
+
+        $publicFeedbackBaseQuery = $this->publicFeedbackQuery($tableFrom, $tableUntil);
+
         $staffRows = $performanceService->summaryQuery($tableFrom, $tableUntil)
             ->orderByDesc('service_activities_count')
             ->get()
-            ->filter(fn ($row): bool => (int) $row->service_activities_count > 0 || (int) $row->rated_sessions > 0)
+            ->map(function ($row) use ($publicFeedbackMentionCounts) {
+                $row->public_feedback_mentions_count = (int) ($publicFeedbackMentionCounts[$row->id] ?? 0);
+
+                return $row;
+            })
+            ->filter(fn ($row): bool => (int) $row->service_activities_count > 0
+                || (int) $row->rated_sessions > 0
+                || (int) $row->public_feedback_mentions_count > 0)
             ->values();
+
+        $publicFeedbackTotalCount = (clone $publicFeedbackBaseQuery)->count();
+        $publicFeedbackGeneralCount = (clone $publicFeedbackBaseQuery)
+            ->doesntHave('users')
+            ->count();
+        $recentPublicFeedbacks = (clone $publicFeedbackBaseQuery)
+            ->with('users:id,name')
+            ->latest()
+            ->take(6)
+            ->get();
 
         return view('livewire.service-performance-results', [
             'availableYears' => $availableYears,
@@ -196,6 +231,9 @@ class ServicePerformanceResults extends Component
             'periodLabel' => $this->periodLabel(),
             'tablePeriodLabel' => $this->tablePeriodLabel(),
             'performanceService' => $performanceService,
+            'publicFeedbackTotalCount' => $publicFeedbackTotalCount,
+            'publicFeedbackGeneralCount' => $publicFeedbackGeneralCount,
+            'recentPublicFeedbacks' => $recentPublicFeedbacks,
         ]);
     }
 
@@ -244,5 +282,18 @@ class ServicePerformanceResults extends Component
         $quarter = ServicePerformanceResult::QUARTERS[$this->tableQuarter] ?? 'Triwulan '.$this->tableQuarter;
 
         return "{$quarter} {$this->tableYear}";
+    }
+
+    protected function publicFeedbackQuery(?string $from, ?string $until): Builder
+    {
+        return PublicFeedback::query()
+            ->when(
+                $from,
+                fn (Builder $query) => $query->whereDate('created_at', '>=', $from),
+            )
+            ->when(
+                $until,
+                fn (Builder $query) => $query->whereDate('created_at', '<=', $until),
+            );
     }
 }
