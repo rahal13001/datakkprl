@@ -313,45 +313,15 @@
                                         @endif
                                     </div>
 
-                                    @if($material->isPdf())
+                                    @if($material->isPdf() || $material->safeVideoUrl())
                                         <div class="belajar-material-actions">
                                             <a
-                                                href="{{ route('belajar-kkprl.material.pdf', $material) }}"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
+                                                href="{{ route('belajar-kkprl.material.show', $material) }}"
                                                 class="belajar-material-button belajar-material-button-primary"
                                             >
-                                                <i class="fa-solid fa-file-pdf text-xs"></i>
-                                                <span>Buka PDF</span>
+                                                <i class="fa-solid {{ $material->isPdf() ? 'fa-file-pdf' : 'fa-circle-play' }} text-xs"></i>
+                                                <span>{{ $material->isPdf() ? 'Buka Materi' : 'Tonton Video' }}</span>
                                             </a>
-                                            <a
-                                                href="{{ route('belajar-kkprl.material.download', $material) }}"
-                                                class="belajar-material-button belajar-material-button-secondary"
-                                            >
-                                                <i class="fa-solid fa-download text-xs"></i>
-                                                <span>Unduh PDF</span>
-                                            </a>
-                                        </div>
-                                    @elseif($material->safeVideoUrl())
-                                        <div class="belajar-material-actions">
-                                            @if($material->videoEmbedUrl())
-                                                <button
-                                                    type="button"
-                                                    wire:click="showVideo('{{ $material->slug }}')"
-                                                    class="belajar-material-button belajar-material-button-primary"
-                                                >
-                                                    <i class="fa-solid fa-circle-play text-xs"></i>
-                                                    <span>{{ $activeVideoSlug === $material->slug ? 'Putar Ulang' : 'Tonton Video' }}</span>
-                                                </button>
-                                            @endif
-                                            <button
-                                                type="button"
-                                                wire:click="openVideo('{{ $material->slug }}')"
-                                                class="belajar-material-button belajar-material-button-secondary"
-                                            >
-                                                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                                                <span>Buka Sumber</span>
-                                            </button>
                                         </div>
                                     @else
                                         <div class="mt-6 rounded-lg bg-slate-50 px-4 py-3 text-sm font-medium text-slate-500">

@@ -1,14 +1,27 @@
 <?php
 
-use App\Livewire\LandingPage;
+use App\Http\Controllers\LearningMaterialController;
+use App\Http\Controllers\LearningTrackingController;
+use App\Livewire\AttendeeSign;
 use App\Livewire\BelajarKkprl;
 use App\Livewire\BelajarKkprlGroup;
-use App\Http\Controllers\LearningMaterialController;
+use App\Livewire\CheckStatus;
+use App\Livewire\LandingPage;
+use App\Livewire\PublicAttendance;
+// Assuming we might need this or use closure
 use App\Livewire\PublicFeedbackPage;
-use App\Livewire\ServicePerformanceResults;
 use App\Livewire\SatisfactionSurveyResults;
-use App\Http\Controllers\RegulationController; // Assuming we might need this or use closure
+use App\Livewire\ServicePerformanceResults;
+use App\Models\Client;
+use App\Models\Regulation;
+use App\Services\ContentDeliveryService;
+use App\Services\PrivateFileService;
+use App\Services\SignatureService;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 // Admin Panel fallback or specific domain if needed (Laravel Filament usually handles its own routes via panel provider)
 // But for our Custom Frontend:
@@ -18,7 +31,7 @@ $domain = 'kawanruanglaut.timurbersinar.com';
 // Local dev fallback
 if (app()->isLocal()) {
     // For local testing, we might want to just map everything or use a specific prefix if domain routing is hard
-    // But user asked for domain routing. 
+    // But user asked for domain routing.
     // We can use a pattern that matches the domain or is the default if accessed via IP/localhost for now?
     // Let's stick to the request: domain routing.
     // NOTE: User must set up host file for this to work locally.
@@ -33,39 +46,45 @@ Route::group($routingConfig, function () {
     Route::get('/hasil-survei-kepuasan', SatisfactionSurveyResults::class)->name('satisfaction-survey-results');
     Route::get('/hasil-kinerja-layanan', ServicePerformanceResults::class)->name('service-performance-results');
     Route::get('/masukan-publik', PublicFeedbackPage::class)->name('public-feedback');
-    Route::get('/cek-status', \App\Livewire\CheckStatus::class)->name('check-status');
+    Route::get('/cek-status', CheckStatus::class)->name('check-status');
     Route::get('/belajar-kkprl', BelajarKkprl::class)->name('belajar-kkprl');
+    Route::get('/belajar-kkprl/materi/{material:slug}', [LearningMaterialController::class, 'show'])->name('belajar-kkprl.material.show');
     Route::get('/belajar-kkprl/materi/{material:slug}/pdf', [LearningMaterialController::class, 'pdf'])->name('belajar-kkprl.material.pdf');
     Route::get('/belajar-kkprl/materi/{material:slug}/download', [LearningMaterialController::class, 'download'])->name('belajar-kkprl.material.download');
+    Route::post('/learning/material-access', [LearningTrackingController::class, 'storeAccess'])->middleware('throttle:10,1')->name('learning.access.store');
+    Route::get('/learning/material-access/me', [LearningTrackingController::class, 'me'])->middleware('throttle:60,1')->name('learning.access.me');
+    Route::post('/learning/session/start', [LearningTrackingController::class, 'startSession'])->middleware('throttle:30,1')->name('learning.session.start');
+    Route::post('/learning/session/end', [LearningTrackingController::class, 'endSession'])->middleware('throttle:60,1')->name('learning.session.end');
+    Route::post('/learning/activity', [LearningTrackingController::class, 'activity'])->middleware('throttle:120,1')->name('learning.activity.store');
     Route::get('/belajar-kkprl/{group:slug}', BelajarKkprlGroup::class)->name('belajar-kkprl.group');
-    
+
     // Regulation Preview/Download (Public)
     Route::get('/regulasi/{slug}', function ($slug) {
-        $regulation = \App\Models\Regulation::where('slug', $slug)->firstOrFail();
-        
-        // Increment download count
-        app(\App\Services\ContentDeliveryService::class)->incrementDownloadCount($regulation->id);
+        $regulation = Regulation::where('slug', $slug)->firstOrFail();
 
-        if (! \Illuminate\Support\Facades\Storage::disk('public')->exists($regulation->file_path)) {
+        // Increment download count
+        app(ContentDeliveryService::class)->incrementDownloadCount($regulation->id);
+
+        if (! Storage::disk('public')->exists($regulation->file_path)) {
             abort(404, 'File not found');
         }
 
         return response()->file(
-            \Illuminate\Support\Facades\Storage::disk('public')->path($regulation->file_path),
+            Storage::disk('public')->path($regulation->file_path),
             [
                 'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'inline; filename="' . basename($regulation->file_path) . '"',
+                'Content-Disposition' => 'inline; filename="'.basename($regulation->file_path).'"',
             ]
         );
     })->name('regulation.download');
 });
 
 // Public Attendee Signing Page (Berita Acara - Individual)
-Route::get('/berita-acara/sign/{token}', \App\Livewire\AttendeeSign::class)
+Route::get('/berita-acara/sign/{token}', AttendeeSign::class)
     ->name('berita-acara.sign');
 
 // Public Attendance List (Daftar Hadir - Master Link for Meeting)
-Route::get('/berita-acara/attendance/{token}', \App\Livewire\PublicAttendance::class)
+Route::get('/berita-acara/attendance/{token}', PublicAttendance::class)
     ->name('berita-acara.attendance');
 
 // Fallback or Admin Routes (Filament usually registers its own, but we keep the existing closures for safety)
@@ -78,19 +97,19 @@ Route::get('/clients/{client}/ticket/download', ...);
 // We'll keep them outside the domain group so they work on the admin domain too (datakkprl)
 
 Route::get('/regulation-preview/{path}', function ($path) {
-    if (! \Illuminate\Support\Str::startsWith($path, 'regulations/')) {
+    if (! Str::startsWith($path, 'regulations/')) {
         abort(403, 'Invalid Path');
     }
 
-    if (! \Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+    if (! Storage::disk('public')->exists($path)) {
         abort(404);
     }
 
     return response()->file(
-        \Illuminate\Support\Facades\Storage::disk('public')->path($path),
+        Storage::disk('public')->path($path),
         [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
+            'Content-Disposition' => 'inline; filename="'.basename($path).'"',
         ]
     );
 })->where('path', '.*')->name('regulation.preview');
@@ -98,44 +117,44 @@ Route::get('/regulation-preview/{path}', function ($path) {
 Route::get('/private-files/{path}', function (string $path) {
     abort_unless(auth()->check(), 403);
 
-    return app(\App\Services\PrivateFileService::class)->response($path);
+    return app(PrivateFileService::class)->response($path);
 })->where('path', '.*')->name('private-files.admin');
 
-Route::get('/clients/{client}/files/{path}', function (\Illuminate\Http\Request $request, \App\Models\Client $client, string $path) {
+Route::get('/clients/{client}/files/{path}', function (Request $request, Client $client, string $path) {
     if (! $client->matchesAccessToken($request->query('token')) && ! auth()->check()) {
         abort(403, 'Unauthorized');
     }
 
-    $privateFiles = app(\App\Services\PrivateFileService::class);
+    $privateFiles = app(PrivateFileService::class);
     abort_unless($privateFiles->clientOwnsPath($client, $path), 404);
 
     return $privateFiles->response($path);
 })->where('path', '.*')->name('client.files.download');
 
-Route::get('/clients/{client}/ticket/download', function (\App\Models\Client $client) {
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.ticket', compact('client'));
+Route::get('/clients/{client}/ticket/download', function (Client $client) {
+    $pdf = Pdf::loadView('pdf.ticket', compact('client'));
     $pdf->setPaper('a4', 'portrait');
-    
-    return $pdf->stream('Ticket-' . $client->ticket_number . '.pdf');
+
+    return $pdf->stream('Ticket-'.$client->ticket_number.'.pdf');
 })->name('client.ticket.download');
 
-Route::get('/clients/{client}/report/download', function (\Illuminate\Http\Request $request, \App\Models\Client $client) {
-    if (! $client->matchesAccessToken($request->query('token')) && !auth()->check()) {
+Route::get('/clients/{client}/report/download', function (Request $request, Client $client) {
+    if (! $client->matchesAccessToken($request->query('token')) && ! auth()->check()) {
         abort(403, 'Unauthorized');
     }
 
     $report = $client->latestConsultationReport;
     if (! $report) {
-         abort(404, 'Belum ada laporan konsultasi.');
+        abort(404, 'Belum ada laporan konsultasi.');
     }
 
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.consultation-report', compact('client', 'report'));
+    $pdf = Pdf::loadView('pdf.consultation-report', compact('client', 'report'));
     $pdf->setPaper('a4', 'portrait');
-    
-    return $pdf->stream('Laporan-Konsultasi-' . $client->ticket_number . '.pdf');
+
+    return $pdf->stream('Laporan-Konsultasi-'.$client->ticket_number.'.pdf');
 })->name('client.report.download');
 
-Route::get('/clients/{client}/berita-acara/download', function (\Illuminate\Http\Request $request, \App\Models\Client $client) {
+Route::get('/clients/{client}/berita-acara/download', function (Request $request, Client $client) {
     if (! $client->matchesAccessToken($request->query('token')) && ! auth()->check()) {
         abort(403, 'Unauthorized');
     }
@@ -157,9 +176,9 @@ Route::get('/clients/{client}/berita-acara/download', function (\Illuminate\Http
         ]);
     }
 
-    $signatureService = app(\App\Services\SignatureService::class);
+    $signatureService = app(SignatureService::class);
 
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.berita-acara', [
+    $pdf = Pdf::loadView('pdf.berita-acara', [
         'beritaAcara' => $beritaAcara,
         'client' => $client->load(['service', 'schedules.assignments.user', 'consultationLocation']),
         'signatureService' => $signatureService,
@@ -167,7 +186,7 @@ Route::get('/clients/{client}/berita-acara/download', function (\Illuminate\Http
 
     $pdf->setPaper('a4');
 
-    $filename = 'Berita-Acara-' . ($beritaAcara->nomor_berita_acara ?: $client->ticket_number) . '.pdf';
+    $filename = 'Berita-Acara-'.($beritaAcara->nomor_berita_acara ?: $client->ticket_number).'.pdf';
     $filename = str_replace(['/', '\\'], '-', $filename);
 
     return $pdf->stream($filename);
