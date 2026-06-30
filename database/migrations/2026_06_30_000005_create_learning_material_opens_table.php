@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('material_type', 100)->nullable();
             $table->string('material_key');
             $table->string('material_title');
-            $table->timestamp('first_opened_at');
-            $table->timestamp('last_opened_at');
+            // DATETIME avoids legacy MySQL's implicit TIMESTAMP default rules.
+            $table->dateTime('first_opened_at');
+            $table->dateTime('last_opened_at');
             $table->unsignedInteger('open_count')->default(1);
             $table->timestamps();
 
