@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -51,11 +50,6 @@ class LearningMaterial extends Model
     public function group(): BelongsTo
     {
         return $this->belongsTo(LearningGroup::class, 'learning_group_id');
-    }
-
-    public function accesses(): HasMany
-    {
-        return $this->hasMany(LearningMaterialAccess::class, 'material_id');
     }
 
     public function accessKey(): string

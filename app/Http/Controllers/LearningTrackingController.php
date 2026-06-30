@@ -22,8 +22,8 @@ class LearningTrackingController extends Controller
     public function storeAccess(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'material_id' => ['required', 'integer'],
-            'material_key' => ['required', 'string', 'max:255'],
+            'learning_group_id' => ['required', 'integer'],
+            'group_key' => ['required', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:150'],
             'institution' => ['required', 'string', 'max:200'],
             'access_purpose' => ['required', 'string', 'max:255'],
@@ -34,11 +34,11 @@ class LearningTrackingController extends Controller
 
         return response()->json([
             'access_uuid' => $access->access_uuid,
-            'session_id' => $session->getKey(),
+            'session_id' => $session?->getKey(),
             'name' => $access->name,
             'institution' => $access->institution,
-            'material_key' => $access->material_key,
-            'material_title' => $access->material_title,
+            'group_key' => $access->group_key,
+            'group_title' => $access->group_title,
         ], 201);
     }
 
@@ -46,17 +46,23 @@ class LearningTrackingController extends Controller
     {
         $data = $request->validate([
             'access_uuid' => ['required', 'uuid'],
-            'material_key' => ['required', 'string', 'max:255'],
+            'group_key' => ['required', 'string', 'max:255'],
         ]);
-        $access = $this->tracking->access($data['access_uuid'], $data['material_key']);
+        $access = $this->tracking->access($data['access_uuid'], $data['group_key']);
 
-        return response()->json($access->only('access_uuid', 'name', 'institution', 'material_key', 'material_title'));
+        if (! config('learning.detailed_tracking_enabled')) {
+            $this->tracking->recordAccessVisit($access);
+        }
+
+        return response()->json($access->only('access_uuid', 'name', 'institution', 'group_key', 'group_title'));
     }
 
     public function startSession(Request $request): JsonResponse
     {
+        $this->abortUnlessDetailedTrackingEnabled();
+
         $data = $this->validateAccess($request);
-        $access = $this->tracking->access($data['access_uuid'], $data['material_key']);
+        $access = $this->tracking->access($data['access_uuid'], $data['group_key']);
         $session = $this->tracking->startSession($access, $request);
 
         return response()->json(['session_id' => $session->getKey()]);
@@ -64,12 +70,14 @@ class LearningTrackingController extends Controller
 
     public function endSession(Request $request): JsonResponse
     {
+        $this->abortUnlessDetailedTrackingEnabled();
+
         $data = $request->validate([
             'access_uuid' => ['required', 'uuid'],
-            'material_key' => ['required', 'string', 'max:255'],
+            'group_key' => ['required', 'string', 'max:255'],
             'session_id' => ['required', 'integer'],
         ]);
-        $access = $this->tracking->access($data['access_uuid'], $data['material_key']);
+        $access = $this->tracking->access($data['access_uuid'], $data['group_key']);
         $session = $access->sessions()->find($data['session_id']);
 
         throw_unless($session, ValidationException::withMessages(['session_id' => 'Sesi tidak valid.']));
@@ -87,16 +95,20 @@ class LearningTrackingController extends Controller
 
     public function activity(Request $request): JsonResponse
     {
+        $this->abortUnlessDetailedTrackingEnabled();
+
         $data = $request->validate([
             'access_uuid' => ['required', 'uuid'],
             'session_id' => ['nullable', 'integer'],
-            'material_key' => ['required', 'string', 'max:255'],
+            'group_key' => ['required', 'string', 'max:255'],
+            'material_id' => ['required', 'integer'],
             'page_url' => ['nullable', 'string', 'max:2048'],
             'activity_type' => ['required', Rule::in(self::ACTIVITY_TYPES)],
             'progress_percent' => ['nullable', 'integer', 'between:0,100'],
             'metadata' => ['nullable', 'array', 'max:10'],
         ]);
-        $access = $this->tracking->access($data['access_uuid'], $data['material_key']);
+        $access = $this->tracking->access($data['access_uuid'], $data['group_key']);
+        $material = $this->tracking->materialForAccess($access, (int) $data['material_id']);
         $sessionId = null;
 
         if (! empty($data['session_id'])) {
@@ -107,10 +119,10 @@ class LearningTrackingController extends Controller
         $activity = LearningActivityLog::create([
             'learning_material_access_id' => $access->getKey(),
             'learning_session_id' => $sessionId,
-            'material_type' => $access->material_type,
-            'material_id' => $access->material_id,
-            'material_key' => $access->material_key,
-            'material_title' => $access->material_title,
+            'material_type' => $material->type,
+            'material_id' => $material->getKey(),
+            'material_key' => $material->accessKey(),
+            'material_title' => $material->title,
             'page_url' => $data['page_url'] ?? null,
             'activity_type' => $data['activity_type'],
             'progress_percent' => $data['progress_percent'] ?? null,
@@ -125,7 +137,12 @@ class LearningTrackingController extends Controller
     {
         return $request->validate([
             'access_uuid' => ['required', 'uuid'],
-            'material_key' => ['required', 'string', 'max:255'],
+            'group_key' => ['required', 'string', 'max:255'],
         ]);
+    }
+
+    private function abortUnlessDetailedTrackingEnabled(): void
+    {
+        abort_unless(config('learning.detailed_tracking_enabled'), 404);
     }
 }

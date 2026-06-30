@@ -14,6 +14,7 @@ use App\Models\LearningActivityLog;
 use App\Models\LearningCategory;
 use App\Models\LearningGroup;
 use App\Models\LearningMaterial;
+use App\Models\LearningMaterialAccess;
 use App\Models\LearningSession;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -197,8 +198,8 @@ class BelajarKkprlTest extends TestCase
         ]);
 
         $access = $this->postJson(route('learning.access.store'), [
-            'material_id' => $pdf->id,
-            'material_key' => $pdf->accessKey(),
+            'learning_group_id' => $group->id,
+            'group_key' => $group->accessKey(),
             'name' => 'Junex',
             'institution' => 'Example Institution',
             'access_purpose' => 'Belajar mandiri',
@@ -223,8 +224,10 @@ class BelajarKkprlTest extends TestCase
     }
 
     #[Test]
-    public function visitor_access_is_scoped_to_one_material_and_creates_sessions_and_activity(): void
+    public function visitor_access_is_scoped_to_one_group_while_activities_track_each_material(): void
     {
+        config(['learning.detailed_tracking_enabled' => true]);
+
         Storage::fake('public');
         Storage::disk('public')->put('learning-materials/one.pdf', 'one');
         Storage::disk('public')->put('learning-materials/two.pdf', 'two');
@@ -232,57 +235,151 @@ class BelajarKkprlTest extends TestCase
         [, $group] = $this->createPublishedGroup();
         $first = $this->createMaterial($group, 'Materi Satu', attributes: ['pdf_path' => 'learning-materials/one.pdf']);
         $second = $this->createMaterial($group, 'Materi Dua', attributes: ['pdf_path' => 'learning-materials/two.pdf']);
+        [, $otherGroup] = $this->createPublishedGroup('Dasar KKPRL', 'Pelatihan Dasar KKPRL');
+        $otherMaterial = $this->createMaterial($otherGroup, 'Materi Grup Lain', attributes: ['pdf_path' => 'learning-materials/two.pdf']);
 
         $response = $this->postJson(route('learning.access.store'), [
-            'material_id' => $first->id,
-            'material_key' => $first->accessKey(),
+            'learning_group_id' => $group->id,
+            'group_key' => $group->accessKey(),
             'name' => 'Junex',
             'institution' => 'Example Institution',
             'access_purpose' => 'Referensi kerja',
             'browser_uuid' => '39b38e5a-235f-47fd-b726-30ad0478746d',
-        ])->assertCreated()->assertJsonPath('material_key', $first->accessKey());
+        ])->assertCreated()->assertJsonPath('group_key', $group->accessKey());
 
         $uuid = $response->json('access_uuid');
         $sessionId = $response->json('session_id');
 
         $this->assertDatabaseCount('learning_material_accesses', 1);
         $this->assertDatabaseCount('learning_sessions', 1);
-        $this->getJson(route('learning.access.me', ['access_uuid' => $uuid, 'material_key' => $first->accessKey()]))->assertOk();
-        $this->getJson(route('learning.access.me', ['access_uuid' => $uuid, 'material_key' => $second->accessKey()]))->assertUnprocessable();
-        $this->get(route('belajar-kkprl.material.pdf', [$second, 'access_uuid' => $uuid]))->assertForbidden();
+        $this->getJson(route('learning.access.me', ['access_uuid' => $uuid, 'group_key' => $group->accessKey()]))->assertOk();
+        $this->getJson(route('learning.access.me', ['access_uuid' => $uuid, 'group_key' => $otherGroup->accessKey()]))->assertUnprocessable();
+        $this->get(route('belajar-kkprl.material.pdf', [$second, 'access_uuid' => $uuid]))->assertOk();
+        $this->get(route('belajar-kkprl.material.pdf', [$otherMaterial, 'access_uuid' => $uuid]))->assertForbidden();
 
         $this->postJson(route('learning.activity.store'), [
             'access_uuid' => $uuid,
             'session_id' => $sessionId,
-            'material_key' => $first->accessKey(),
+            'group_key' => $group->accessKey(),
+            'material_id' => $first->id,
             'activity_type' => 'scroll_50',
             'progress_percent' => 50,
+        ])->assertCreated();
+
+        $this->postJson(route('learning.activity.store'), [
+            'access_uuid' => $uuid,
+            'session_id' => $sessionId,
+            'group_key' => $group->accessKey(),
+            'material_id' => $first->id,
+            'activity_type' => 'open_material',
+        ])->assertCreated();
+
+        $this->postJson(route('learning.activity.store'), [
+            'access_uuid' => $uuid,
+            'session_id' => $sessionId,
+            'group_key' => $group->accessKey(),
+            'material_id' => $second->id,
+            'activity_type' => 'open_material',
         ])->assertCreated();
 
         $this->postJson(route('learning.session.end'), [
             'access_uuid' => $uuid,
             'session_id' => $sessionId,
-            'material_key' => $first->accessKey(),
+            'group_key' => $group->accessKey(),
         ])->assertOk();
 
         $this->assertSame(50, LearningActivityLog::first()->progress_percent);
+        $this->assertEqualsCanonicalizing([$first->id, $second->id], LearningActivityLog::pluck('material_id')->unique()->values()->all());
         $this->assertNotNull(LearningSession::first()->ended_at);
     }
 
     #[Test]
-    public function material_page_contains_material_scoped_storage_and_only_requested_fields(): void
+    public function detailed_tracking_is_disabled_without_collecting_sessions_or_activities(): void
+    {
+        config(['learning.detailed_tracking_enabled' => false]);
+
+        [, $group] = $this->createPublishedGroup();
+        $material = $this->createMaterial($group, 'Materi Ringan');
+
+        $response = $this->postJson(route('learning.access.store'), [
+            'learning_group_id' => $group->id,
+            'group_key' => $group->accessKey(),
+            'name' => 'Junex',
+            'institution' => 'Example Institution',
+            'access_purpose' => 'Belajar mandiri',
+        ])->assertCreated()->assertJsonPath('session_id', null);
+
+        $uuid = $response->json('access_uuid');
+
+        $this->assertDatabaseCount('learning_material_accesses', 1);
+        $this->assertDatabaseCount('learning_sessions', 0);
+        $this->assertDatabaseCount('learning_activity_logs', 0);
+
+        $this->postJson(route('learning.session.start'), [
+            'access_uuid' => $uuid,
+            'group_key' => $group->accessKey(),
+        ])->assertNotFound();
+
+        $this->postJson(route('learning.activity.store'), [
+            'access_uuid' => $uuid,
+            'group_key' => $group->accessKey(),
+            'material_id' => $material->id,
+            'activity_type' => 'open_material',
+        ])->assertNotFound();
+
+        $this->get(route('belajar-kkprl.material.show', [$material, 'access_uuid' => $uuid]))
+            ->assertOk()
+            ->assertDontSee(route('learning.activity.store'), false)
+            ->assertDontSee('heartbeat');
+
+        $this->get(route('belajar-kkprl.material.show', [$material, 'access_uuid' => $uuid]))->assertOk();
+
+        $this->assertDatabaseCount('learning_material_opens', 1);
+        $this->assertDatabaseHas('learning_material_opens', [
+            'learning_material_access_id' => LearningMaterialAccess::first()->id,
+            'material_id' => $material->id,
+            'material_title' => 'Materi Ringan',
+            'open_count' => 2,
+        ]);
+        $this->assertSame(
+            ['Materi Ringan'],
+            LearningAccessResource::openedMaterials(LearningMaterialAccess::first())->pluck('material_title')->all(),
+        );
+
+        $this->assertFalse(LearningSessionResource::shouldRegisterNavigation());
+        $this->assertFalse(LearningActivityResource::shouldRegisterNavigation());
+    }
+
+    #[Test]
+    public function group_page_contains_group_scoped_form_and_material_page_never_repeats_it(): void
     {
         [, $group] = $this->createPublishedGroup();
         $material = $this->createMaterial($group, 'Materi Pesisir');
 
-        $this->get(route('belajar-kkprl.material.show', $material))
+        $this->get(route('belajar-kkprl.group', $group))
             ->assertOk()
-            ->assertSee('Data Pengunjung Materi')
+            ->assertSee('Data Pengunjung Grup Pembelajaran')
             ->assertSee('Tujuan Mengakses Materi')
-            ->assertSee('krl_lms_access_${materialKey}', false)
+            ->assertSee('krl_lms_group_access_${groupKey}', false)
             ->assertDontSee('name="email"', false)
             ->assertDontSee('name="phone"', false)
             ->assertDontSee('name="password"', false);
+
+        $this->get(route('belajar-kkprl.material.show', $material))
+            ->assertRedirect(route('belajar-kkprl.group', $group));
+
+        $access = $this->postJson(route('learning.access.store'), [
+            'learning_group_id' => $group->id,
+            'group_key' => $group->accessKey(),
+            'name' => 'Junex',
+            'institution' => 'Example Institution',
+            'access_purpose' => 'Belajar mandiri',
+        ])->assertCreated();
+
+        $this->get(route('belajar-kkprl.material.show', [$material, 'access_uuid' => $access->json('access_uuid')]))
+            ->assertOk()
+            ->assertSee('Semua materi dalam grup ini dapat dibuka tanpa mengisi formulir lagi')
+            ->assertDontSee('Data Pengunjung Grup Pembelajaran');
     }
 
     #[Test]
@@ -337,6 +434,9 @@ class BelajarKkprlTest extends TestCase
             $this->assertSame('Monitoring Belajar KKPRL', $resource::getNavigationGroup());
         }
 
+        $this->assertFalse(LearningSessionResource::shouldRegisterNavigation());
+        $this->assertFalse(LearningActivityResource::shouldRegisterNavigation());
+
         $this->assertStringContainsString(
             '/layananruanglaut/learning-categories',
             route('filament.layanankkprl.resources.learning-categories.index')
@@ -382,7 +482,7 @@ class BelajarKkprlTest extends TestCase
             ->assertOk()
             ->assertSee('Materi Pembelajaran');
 
-        foreach (['learning-accesses' => 'Akses Materi', 'learning-sessions' => 'Sesi Belajar', 'learning-activities' => 'Aktivitas Belajar'] as $path => $label) {
+        foreach (['learning-accesses' => 'Akses Grup'] as $path => $label) {
             $this->actingAs($user)
                 ->get("http://kawanruanglaut.timurbersinar.com/layananruanglaut/{$path}")
                 ->assertOk()

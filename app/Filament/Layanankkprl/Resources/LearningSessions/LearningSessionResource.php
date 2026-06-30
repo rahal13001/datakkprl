@@ -45,12 +45,22 @@ class LearningSessionResource extends Resource
         return false;
     }
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return (bool) config('learning.detailed_tracking_enabled');
+    }
+
+    public static function canViewAny(): bool
+    {
+        return config('learning.detailed_tracking_enabled') && parent::canViewAny();
+    }
+
     public static function table(Table $table): Table
     {
         return $table->modifyQueryUsing(fn (Builder $query) => $query->withCount('activities'))->defaultSort('started_at', 'desc')->columns([
             TextColumn::make('access.name')->label('Nama')->searchable()->sortable(),
             TextColumn::make('access.institution')->label('Instansi')->searchable()->sortable(),
-            TextColumn::make('access.material_title')->label('Materi')->searchable()->sortable()->wrap(),
+            TextColumn::make('access.group_title')->label('Grup Pembelajaran')->searchable()->sortable()->wrap(),
             TextColumn::make('started_at')->label('Mulai')->dateTime('d M Y H:i:s')->sortable(),
             TextColumn::make('ended_at')->label('Selesai')->dateTime('d M Y H:i:s')->placeholder('Aktif / tidak tercatat')->sortable(),
             TextColumn::make('duration_seconds')->label('Durasi')->formatStateUsing(fn (?int $state) => $state === null ? '-' : gmdate('H:i:s', $state))->sortable(),
@@ -58,8 +68,8 @@ class LearningSessionResource extends Resource
         ])->filters([
             Filter::make('started_at')->label('Rentang Tanggal')->schema([DatePicker::make('from')->label('Dari'), DatePicker::make('until')->label('Sampai')])
                 ->query(fn (Builder $query, array $data) => $query->when($data['from'] ?? null, fn ($q, $date) => $q->whereDate('started_at', '>=', $date))->when($data['until'] ?? null, fn ($q, $date) => $q->whereDate('started_at', '<=', $date))),
-            SelectFilter::make('material')->label('Materi')->options(fn () => LearningMaterialAccess::query()->distinct()->orderBy('material_title')->pluck('material_title', 'material_key')->all())
-                ->query(fn (Builder $query, array $data) => $query->when($data['value'] ?? null, fn ($q, $key) => $q->whereHas('access', fn ($a) => $a->where('material_key', $key)))),
+            SelectFilter::make('group')->label('Grup')->options(fn () => LearningMaterialAccess::query()->whereNotNull('group_key')->distinct()->orderBy('group_title')->pluck('group_title', 'group_key')->all())
+                ->query(fn (Builder $query, array $data) => $query->when($data['value'] ?? null, fn ($q, $key) => $q->whereHas('access', fn ($a) => $a->where('group_key', $key)))),
             SelectFilter::make('institution')->label('Instansi')->options(fn () => LearningMaterialAccess::query()->distinct()->orderBy('institution')->pluck('institution', 'institution')->all())
                 ->query(fn (Builder $query, array $data) => $query->when($data['value'] ?? null, fn ($q, $value) => $q->whereHas('access', fn ($a) => $a->where('institution', $value)))),
         ]);

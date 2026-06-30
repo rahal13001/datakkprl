@@ -46,6 +46,16 @@ class LearningGroup extends Model
         return $this->hasMany(LearningMaterial::class);
     }
 
+    public function accesses(): HasMany
+    {
+        return $this->hasMany(LearningMaterialAccess::class, 'learning_group_id');
+    }
+
+    public function accessKey(): string
+    {
+        return 'learning-group:'.$this->getKey();
+    }
+
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('is_published', true);
@@ -68,7 +78,7 @@ class LearningGroup extends Model
                 $count = 1;
 
                 while (static::where('slug', $slug)->where('id', '!=', $model->id)->exists()) {
-                    $slug = $originalSlug . '-' . $count++;
+                    $slug = $originalSlug.'-'.$count++;
                 }
 
                 $model->slug = $slug;

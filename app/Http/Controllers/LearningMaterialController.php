@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\LearningMaterial;
+use App\Models\LearningMaterialAccess;
 use App\Services\LearningTrackingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -11,17 +12,28 @@ class LearningMaterialController extends Controller
 {
     public function __construct(private readonly LearningTrackingService $tracking) {}
 
-    public function show(LearningMaterial $material)
+    public function show(Request $request, LearningMaterial $material)
     {
         $this->abortUnlessPublic($material);
+        $access = $this->resolveAccess($request, $material);
 
-        return view('learning.material', compact('material'));
+        if (! $access) {
+            return redirect()->route('belajar-kkprl.group', $material->group);
+        }
+
+        $this->tracking->recordMaterialOpen($access, $material);
+
+        if ($material->isVideo()) {
+            LearningMaterial::whereKey($material->getKey())->increment('view_count');
+        }
+
+        return view('learning.material', compact('material', 'access'));
     }
 
     public function pdf(Request $request, LearningMaterial $material)
     {
         $this->abortUnlessPublicPdf($material);
-        $this->authorizeAccess($request, $material);
+        abort_unless($this->resolveAccess($request, $material), 403);
 
         LearningMaterial::whereKey($material->getKey())->increment('view_count');
 
@@ -37,7 +49,7 @@ class LearningMaterialController extends Controller
     public function download(Request $request, LearningMaterial $material)
     {
         $this->abortUnlessPublicPdf($material);
-        $this->authorizeAccess($request, $material);
+        abort_unless($this->resolveAccess($request, $material), 403);
 
         LearningMaterial::whereKey($material->getKey())->increment('download_count');
 
@@ -65,15 +77,17 @@ class LearningMaterialController extends Controller
         abort_unless($material->group?->category?->is_active, 404);
     }
 
-    protected function authorizeAccess(Request $request, LearningMaterial $material): void
+    protected function resolveAccess(Request $request, LearningMaterial $material): ?LearningMaterialAccess
     {
         $uuid = (string) $request->query('access_uuid');
-        abort_if($uuid === '', 403);
+        if ($uuid === '') {
+            return null;
+        }
 
         try {
-            $this->tracking->access($uuid, $material->accessKey());
+            return $this->tracking->access($uuid, $material->group->accessKey());
         } catch (\Throwable) {
-            abort(403);
+            return null;
         }
     }
 

@@ -1,4 +1,4 @@
-<div class="min-h-screen belajar-group-page">
+<div id="learning-group-app" class="min-h-screen belajar-group-page" data-group-id="{{ $group->id }}" data-group-key="{{ $group->accessKey() }}">
     <style>
         .belajar-group-hero {
             padding: 7.5rem 0 3rem;
@@ -269,6 +269,11 @@
 
         <section class="pb-24">
             <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <div id="group-welcome" hidden class="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                    <span id="group-welcome-text"></span>
+                    <button id="change-group-visitor" type="button" class="font-bold underline">Bukan Anda? Ubah data pengunjung</button>
+                </div>
+
                 <div class="belajar-material-header mb-8">
                     <div>
                         <p class="text-sm font-semibold uppercase tracking-widest text-slate-400">Materi Grup</p>
@@ -317,6 +322,7 @@
                                         <div class="belajar-material-actions">
                                             <a
                                                 href="{{ route('belajar-kkprl.material.show', $material) }}"
+                                                data-learning-material-link
                                                 class="belajar-material-button belajar-material-button-primary"
                                             >
                                                 <i class="fa-solid {{ $material->isPdf() ? 'fa-file-pdf' : 'fa-circle-play' }} text-xs"></i>
@@ -346,4 +352,122 @@
             </div>
         </section>
     </main>
+
+    <style>
+        #learning-group-app [hidden] { display: none !important; }
+        .group-visitor-overlay { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; overflow-y: auto; padding: 1.5rem; background: rgba(15, 23, 42, .7); backdrop-filter: blur(8px); }
+        .group-visitor-modal { width: min(100%, 580px); border-radius: 1rem; background: white; padding: 2rem; box-shadow: 0 28px 70px rgba(0,0,0,.25); }
+        .group-visitor-input { width: 100%; border: 1px solid #cbd5e1; border-radius: .75rem; padding: .8rem 1rem; color: #0f172a; outline: none; }
+        .group-visitor-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+        .group-visitor-label { display: block; margin-bottom: .45rem; font-size: .875rem; font-weight: 700; color: #334155; }
+        .group-visitor-submit { width: 100%; border-radius: .75rem; background: #0369a1; padding: .9rem 1rem; font-weight: 800; color: white; }
+        .group-visitor-submit:disabled { cursor: wait; opacity: .65; }
+    </style>
+
+    <div id="group-visitor-overlay" class="group-visitor-overlay" hidden>
+        <div class="group-visitor-modal" role="dialog" aria-modal="true" aria-labelledby="group-visitor-title">
+            <h2 id="group-visitor-title" class="text-2xl font-bold text-slate-950">Data Pengunjung Grup Pembelajaran</h2>
+            <p class="mt-3 text-sm leading-relaxed text-slate-600">Sebelum mengakses grup pembelajaran ini, mohon isi data singkat berikut. Anda cukup mengisi formulir satu kali untuk seluruh materi di dalam grup ini.</p>
+            <form id="group-visitor-form" class="mt-7 grid gap-5">
+                <div><label class="group-visitor-label" for="group-visitor-name">Nama</label><input class="group-visitor-input" id="group-visitor-name" name="name" required maxlength="150" placeholder="Masukkan nama Anda"></div>
+                <div><label class="group-visitor-label" for="group-visitor-institution">Asal Instansi</label><input class="group-visitor-input" id="group-visitor-institution" name="institution" required maxlength="200" placeholder="Contoh: Dinas Kelautan dan Perikanan, Universitas, Sekolah, Umum"></div>
+                <div><label class="group-visitor-label" for="group-visitor-purpose">Tujuan Mengakses Materi</label><textarea class="group-visitor-input" id="group-visitor-purpose" name="access_purpose" required maxlength="255" rows="3" placeholder="Contoh: Belajar mandiri, referensi kerja, pelatihan, tugas sekolah/kuliah"></textarea></div>
+                <p id="group-visitor-error" hidden class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"></p>
+                <button id="group-visitor-submit" class="group-visitor-submit" type="submit">Mulai Belajar</button>
+            </form>
+        </div>
+    </div>
+
+    @php
+        $detailedTrackingEnabled = (bool) config('learning.detailed_tracking_enabled');
+        $groupTrackingEndpoints = [
+            'store' => route('learning.access.store'),
+            'me' => route('learning.access.me'),
+            'start' => $detailedTrackingEnabled ? route('learning.session.start') : null,
+            'end' => $detailedTrackingEnabled ? route('learning.session.end') : null,
+        ];
+    @endphp
+    <script>
+        (() => {
+            const app = document.getElementById('learning-group-app');
+            if (!app || app.dataset.trackingReady) return;
+            app.dataset.trackingReady = 'true';
+
+            const groupId = Number(app.dataset.groupId);
+            const groupKey = app.dataset.groupKey;
+            const storageKey = `krl_lms_group_access_${groupKey}`;
+            const browserKey = 'krl_lms_browser_uuid';
+            const csrf = document.querySelector('meta[name="csrf-token"]').content;
+            const endpoints = {{ Illuminate\Support\Js::from($groupTrackingEndpoints) }};
+            const detailedTrackingEnabled = {{ Illuminate\Support\Js::from($detailedTrackingEnabled) }};
+            const overlay = document.getElementById('group-visitor-overlay');
+            const welcome = document.getElementById('group-welcome');
+            const error = document.getElementById('group-visitor-error');
+            let access = null;
+            let sessionId = null;
+            let ending = false;
+
+            const uuid = () => crypto.randomUUID ? crypto.randomUUID() : '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+            const browserUuid = localStorage.getItem(browserKey) || uuid();
+            localStorage.setItem(browserKey, browserUuid);
+            const request = async (url, options = {}) => {
+                const response = await fetch(url, { headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf }, ...options });
+                if (!response.ok) throw new Error((await response.json().catch(() => ({}))).message || 'Permintaan tidak dapat diproses.');
+                return response.json();
+            };
+            const updateLinks = visitor => document.querySelectorAll('[data-learning-material-link]').forEach(link => {
+                const url = new URL(link.href, location.origin);
+                url.searchParams.set('access_uuid', visitor.access_uuid);
+                link.href = url.toString();
+            });
+            const unlock = visitor => {
+                ending = false; access = visitor; overlay.hidden = true; welcome.hidden = false;
+                document.getElementById('group-welcome-text').textContent = `Selamat datang kembali, ${visitor.name}. Anda dapat mengakses seluruh materi dalam grup ini.`;
+                updateLinks(visitor);
+            };
+            const endSession = () => {
+                if (!detailedTrackingEnabled || !access || !sessionId || ending) return;
+                ending = true;
+                const form = new FormData();
+                form.set('_token', csrf); form.set('access_uuid', access.access_uuid); form.set('group_key', groupKey); form.set('session_id', sessionId);
+                navigator.sendBeacon(endpoints.end, form);
+            };
+
+            document.getElementById('group-visitor-form').addEventListener('submit', async event => {
+                event.preventDefault(); error.hidden = true;
+                const button = document.getElementById('group-visitor-submit'); button.disabled = true;
+                try {
+                    const fields = Object.fromEntries(new FormData(event.currentTarget));
+                    const visitor = await request(endpoints.store, { method: 'POST', body: JSON.stringify({ ...fields, learning_group_id: groupId, group_key: groupKey, browser_uuid: browserUuid }) });
+                    localStorage.setItem(storageKey, JSON.stringify({ access_uuid: visitor.access_uuid, name: visitor.name }));
+                    sessionId = detailedTrackingEnabled ? visitor.session_id : null; unlock(visitor);
+                } catch (exception) {
+                    error.textContent = exception.message; error.hidden = false;
+                } finally { button.disabled = false; }
+            });
+
+            document.getElementById('change-group-visitor').addEventListener('click', () => {
+                endSession(); localStorage.removeItem(storageKey);
+                access = null; sessionId = null; welcome.hidden = true; overlay.hidden = false;
+            });
+            if (detailedTrackingEnabled) addEventListener('pagehide', endSession);
+
+            (async () => {
+                let saved = null;
+                try { saved = JSON.parse(localStorage.getItem(storageKey)); } catch (_) { localStorage.removeItem(storageKey); }
+                if (!saved?.access_uuid) { overlay.hidden = false; return; }
+                try {
+                    const visitor = await request(`${endpoints.me}?${new URLSearchParams({ access_uuid: saved.access_uuid, group_key: groupKey })}`);
+                    access = visitor;
+                    if (detailedTrackingEnabled) {
+                        const session = await request(endpoints.start, { method: 'POST', body: JSON.stringify({ access_uuid: access.access_uuid, group_key: groupKey }) });
+                        sessionId = session.session_id;
+                    }
+                    unlock(visitor);
+                } catch (_) {
+                    localStorage.removeItem(storageKey); access = null; overlay.hidden = false;
+                }
+            })();
+        })();
+    </script>
 </div>
