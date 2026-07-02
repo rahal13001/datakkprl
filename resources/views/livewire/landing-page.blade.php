@@ -91,6 +91,61 @@
             transform: translateY(-1px);
             box-shadow: 0 14px 30px rgba(15, 23, 42, 0.07);
         }
+        .hero-poster-shell {
+            isolation: isolate;
+            max-width: 28rem;
+            padding: 0.7rem;
+            border: 1px solid rgba(226, 232, 240, 0.78);
+            border-radius: 2.35rem;
+            background: rgba(255, 255, 255, 0.66);
+            box-shadow: 0 24px 64px -38px rgba(15, 23, 42, 0.32);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+        .hero-poster-shell::before {
+            content: '';
+            position: absolute;
+            inset: 5% -10% -4% 12%;
+            z-index: -1;
+            border-radius: 40% 60% 52% 48% / 45% 42% 58% 55%;
+            background:
+                radial-gradient(circle at 24% 24%, rgba(0, 87, 255, 0.14), transparent 48%),
+                radial-gradient(circle at 78% 76%, rgba(148, 163, 184, 0.13), transparent 46%),
+                rgba(241, 245, 249, 0.78);
+            filter: blur(22px);
+        }
+        .hero-poster-frame {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.72);
+            border-radius: 1.75rem;
+            background: #f8fafc;
+            box-shadow: 0 14px 32px -24px rgba(15, 23, 42, 0.38);
+        }
+        .hero-poster-frame::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            border-radius: inherit;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 18%, transparent 78%, rgba(248, 250, 252, 0.1)),
+                linear-gradient(135deg, rgba(219, 234, 254, 0.08), transparent 42%);
+        }
+        .hero-poster-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            opacity: 0.96;
+            filter: saturate(0.88) contrast(0.94) brightness(1.03);
+        }
+        @media (max-width: 1023px) {
+            .hero-poster-shell {
+                max-width: 23rem;
+                margin-inline: auto;
+            }
+        }
         .learn-quick-band {
             background: rgba(255, 255, 255, 0.82);
             border-block: 1px solid #e2e8f0;
@@ -231,14 +286,16 @@
                     </div>
                 </div>
 
-                <!-- Abstract Visual (Right) -->
+                <!-- Promotional Visual (Right) -->
                 <div class="lg:col-span-6 relative h-full min-h-[300px] flex items-end justify-end lg:justify-center">
-                    <!-- Modern Card Stack -->
-                    <!-- Anti Gratifikasi Image -->
-                    <div class="relative w-full transition-transform hover:scale-105 duration-500 ease-out">
-                         <img src="{{ asset('img/anti_gratifikasi.svg') }}" 
-                              alt="Anti Gratifikasi" 
-                              class="w-full h-auto drop-shadow-2xl animate-float">
+                    <div class="hero-poster-shell relative w-full transition-transform hover:-translate-y-1 duration-500 ease-out">
+                        <div class="hero-poster-frame">
+                            <img src="{{ asset('img/newphoto.jpg') }}"
+                                 alt="Informasi media sosial dan layanan digital LPRL Sorong"
+                                 class="hero-poster-image"
+                                 fetchpriority="high"
+                                 decoding="async">
+                        </div>
                     </div>
                 </div>
             </div>
