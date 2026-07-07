@@ -2,26 +2,32 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use Livewire\Attributes\Layout;
 use App\Models\Client;
 use App\Models\SatisfactionSurvey;
+use App\Services\DataHashService;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
 
 #[Layout('components.layouts.app')]
 class CheckStatus extends Component
 {
     public $ticket_number;
+
     public $access_token;
-    
+
     // Result
     public ?Client $client = null;
-    
+
     // Feedback Form
     public $ratings = []; // [assignment_id => rating]
+
     public $criticism;
+
     public $suggestion;
+
+    public $estimated_cost_savings;
 
     protected $queryString = [
         'ticket_number' => ['except' => '', 'as' => 'ticket'],
@@ -43,7 +49,7 @@ class CheckStatus extends Component
             'access_token' => 'required',
         ]);
 
-        $tokenHash = app(\App\Services\DataHashService::class)->token($this->access_token);
+        $tokenHash = app(DataHashService::class)->token($this->access_token);
 
         $this->client = Client::where('ticket_number', $this->ticket_number)
             ->where(function ($query) use ($tokenHash) {
@@ -58,6 +64,7 @@ class CheckStatus extends Component
 
         if (! $this->client) {
             $this->addError('ticket_number', 'Tiket atau Token tidak ditemukan.');
+
             return;
         }
 
@@ -72,6 +79,7 @@ class CheckStatus extends Component
         $rules = [
             'criticism' => 'required|string',
             'suggestion' => 'required|string',
+            'estimated_cost_savings' => 'required|integer|min:0|max:999999999999',
         ];
 
         if ($this->client->assignments->isNotEmpty()) {
@@ -82,6 +90,10 @@ class CheckStatus extends Component
         $this->validate($rules, [
             'criticism.required' => 'Kritik / umpan balik wajib diisi.',
             'suggestion.required' => 'Saran wajib diisi.',
+            'estimated_cost_savings.required' => 'Perkiraan penghematan biaya wajib diisi. Isi 0 jika tidak ada penghematan.',
+            'estimated_cost_savings.integer' => 'Perkiraan penghematan harus berupa angka Rupiah tanpa titik atau koma.',
+            'estimated_cost_savings.min' => 'Perkiraan penghematan tidak boleh kurang dari Rp0.',
+            'estimated_cost_savings.max' => 'Perkiraan penghematan terlalu besar. Mohon periksa kembali angka yang dimasukkan.',
             'ratings.required' => 'Mohon beri penilaian untuk petugas layanan.',
             'ratings.*.required' => 'Setiap petugas wajib diberi penilaian.',
             'ratings.*.integer' => 'Nilai bintang tidak valid.',
@@ -89,7 +101,9 @@ class CheckStatus extends Component
             'ratings.*.max' => 'Maksimal penilaian adalah 5 bintang.',
         ]);
 
-        if (! $this->client) return;
+        if (! $this->client) {
+            return;
+        }
 
         DB::transaction(function () {
             // 1. Update Staff Rating (Assignments)
@@ -108,6 +122,7 @@ class CheckStatus extends Component
                 [
                     'criticism' => $this->criticism,
                     'suggestion' => $this->suggestion,
+                    'estimated_cost_savings' => $this->estimated_cost_savings,
                 ]
             );
         });
@@ -123,8 +138,10 @@ class CheckStatus extends Component
 
     public function getHasFeedbackProperty()
     {
-        if (! $this->client) return false;
-        
+        if (! $this->client) {
+            return false;
+        }
+
         return $this->client->hasSatisfactionFeedback();
     }
 

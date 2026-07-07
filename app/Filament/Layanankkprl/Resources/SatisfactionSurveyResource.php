@@ -22,9 +22,9 @@ class SatisfactionSurveyResource extends Resource
     protected static ?string $model = SatisfactionSurvey::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
-    
+
     protected static ?string $navigationLabel = 'Kepuasan Masyarakat';
-    
+
     protected static ?string $modelLabel = 'Survei Kepuasan';
 
     protected static ?string $pluralModelLabel = 'Survei Kepuasan';
@@ -68,17 +68,28 @@ class SatisfactionSurveyResource extends Resource
                         },
                     ])
                     ->columnSpanFull(),
-                    
+
                 Forms\Components\Textarea::make('criticism')
                     ->label('Kritik')
                     ->required()
                     ->rows(3)
                     ->columnSpanFull(),
-                    
+
                 Forms\Components\Textarea::make('suggestion')
                     ->label('Saran')
                     ->required()
                     ->rows(3)
+                    ->columnSpanFull(),
+
+                Forms\Components\TextInput::make('estimated_cost_savings')
+                    ->label('Perkiraan Penghematan Biaya')
+                    ->prefix('Rp')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(999999999999)
+                    ->step(1000)
+                    ->required()
+                    ->helperText('Perkiraan total biaya yang tidak perlu dikeluarkan klien setelah menerima layanan, misalnya transportasi, penginapan, makan, pencetakan, atau pengiriman berkas. Isi 0 jika tidak ada penghematan.')
                     ->columnSpanFull(),
             ]);
     }
@@ -91,7 +102,7 @@ class SatisfactionSurveyResource extends Resource
                     ->label('Tanggal')
                     ->dateTime('d M Y, H:i')
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('client.ticket_number')
                     ->label('Pemohon')
                     ->formatStateUsing(fn ($state, SatisfactionSurvey $record): string => static::getClientOptionLabel($record->client))
@@ -116,6 +127,13 @@ class SatisfactionSurveyResource extends Resource
                     ->limit(50)
                     ->wrap()
                     ->searchable(),
+
+                Tables\Columns\TextColumn::make('estimated_cost_savings')
+                    ->label('Estimasi Penghematan')
+                    ->formatStateUsing(fn ($state): string => $state === null
+                        ? '-'
+                        : 'Rp '.number_format((int) $state, 0, ',', '.'))
+                    ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

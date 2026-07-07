@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class SatisfactionSurvey extends Model
 {
@@ -15,11 +15,13 @@ class SatisfactionSurvey extends Model
         'client_id',
         'criticism',
         'suggestion',
+        'estimated_cost_savings',
     ];
 
     protected $casts = [
         'criticism_encrypted' => 'encrypted',
         'suggestion_encrypted' => 'encrypted',
+        'estimated_cost_savings' => 'integer',
     ];
 
     protected function criticism(): Attribute

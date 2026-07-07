@@ -205,6 +205,39 @@
                                                 <textarea wire:model="suggestion" rows="2" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500 outline-none placeholder:text-slate-300" placeholder="Apa yang bisa ditingkatkan?"></textarea>
                                                 @error('suggestion') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                             </div>
+
+                                            <div class="rounded-xl border border-emerald-100 bg-emerald-50/70 p-4">
+                                                <div class="flex items-start gap-3">
+                                                    <div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-emerald-600 shadow-sm">
+                                                        <i class="fa-solid fa-wallet"></i>
+                                                    </div>
+                                                    <div class="min-w-0 flex-1">
+                                                        <label for="estimated-cost-savings" class="block text-sm font-semibold text-slate-800">
+                                                            Perkiraan Penghematan Biaya <span class="text-red-500">*</span>
+                                                        </label>
+                                                        <p class="mt-1 text-xs leading-relaxed text-slate-600">
+                                                            Perkirakan jumlah biaya yang tidak jadi Anda keluarkan setelah menerima layanan LPRL Sorong. Jumlahkan, misalnya, biaya perjalanan atau BBM/tiket, penginapan, makan, cetak/fotokopi, pengiriman berkas, dan biaya lain yang dapat dihemat. Tidak perlu tepat—perkiraan terbaik Anda sudah cukup. Jika tidak ada penghematan, isi <strong>0</strong>.
+                                                        </p>
+
+                                                        <div class="relative mt-3">
+                                                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm font-semibold text-slate-500">Rp</span>
+                                                            <input
+                                                                id="estimated-cost-savings"
+                                                                type="number"
+                                                                min="0"
+                                                                max="999999999999"
+                                                                step="1000"
+                                                                inputmode="numeric"
+                                                                wire:model="estimated_cost_savings"
+                                                                class="w-full rounded-lg border border-emerald-200 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-800 outline-none placeholder:text-slate-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                                                                placeholder="Contoh: 1500000"
+                                                            >
+                                                        </div>
+                                                        <p class="mt-1.5 text-[11px] text-slate-500">Masukkan angka saja, tanpa titik atau koma.</p>
+                                                        @error('estimated_cost_savings') <span class="mt-1 block text-xs text-red-500">{{ $message }}</span> @enderror
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <button type="submit" class="w-full py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20">
