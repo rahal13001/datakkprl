@@ -5,13 +5,13 @@ namespace App\Filament\Layanankkprl\Resources\ConsultationLocations;
 use App\Filament\Layanankkprl\Resources\ConsultationLocations\Pages\ListConsultationLocations;
 use App\Models\ConsultationLocation;
 use BackedEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
@@ -45,6 +45,10 @@ class ConsultationLocationResource extends Resource
                     ->label('Konsultasi Online?')
                     ->helperText('Jika aktif, jadwal yang dibuat akan otomatis menjadi online.')
                     ->default(false),
+                Toggle::make('requires_cost_savings_estimate')
+                    ->label('Tampilkan Estimasi Penghematan?')
+                    ->helperText('Jika aktif, klien pada lokasi ini wajib mengisi estimasi penghematan biaya setelah layanan selesai.')
+                    ->default(false),
                 Toggle::make('is_active')
                     ->label('Status Aktif')
                     ->default(true),
@@ -72,6 +76,8 @@ class ConsultationLocationResource extends Resource
                     ->falseIcon('heroicon-o-building-office')
                     ->trueColor('success')
                     ->falseColor('gray'),
+                ToggleColumn::make('requires_cost_savings_estimate')
+                    ->label('Estimasi Penghematan'),
                 ToggleColumn::make('is_active')
                     ->label('Aktif'),
                 TextColumn::make('sort_order')

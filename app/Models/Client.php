@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use App\Services\DataHashService;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use Carbon\Carbon;
 
 class Client extends Model
 {
@@ -27,7 +28,7 @@ class Client extends Model
         'instance',
         'address',
         'booking_type',
-        
+
         'status',          // waiting, scheduled, completed
         'agreed_to_terms', // boolean agreement
         'metadata',
@@ -96,7 +97,7 @@ class Client extends Model
                 $date = Carbon::now('Asia/Jayapura')->format('Ymd');
                 $random = strtoupper(Str::random(4));
                 $model->ticket_number = "TICKET-{$date}-{$random}";
-                
+
                 // Ensure uniqueness mainly for the random part collision (rare but possible)
                 while (static::where('ticket_number', $model->ticket_number)->exists()) {
                     $random = strtoupper(Str::random(4));
@@ -114,7 +115,7 @@ class Client extends Model
 
     protected static function populateProtectionHashes(self $model): void
     {
-        $hash = app(\App\Services\DataHashService::class);
+        $hash = app(DataHashService::class);
         $model->access_token_hash = $hash->token($model->access_token);
         $model->email_hash = $hash->email($model->email);
         $model->whatsapp_hash = $hash->phone($model->whatsapp);
@@ -211,7 +212,7 @@ class Client extends Model
             return false;
         }
 
-        $hash = app(\App\Services\DataHashService::class)->token($token);
+        $hash = app(DataHashService::class)->token($token);
 
         return ($hash !== null && hash_equals((string) $this->access_token_hash, $hash))
             || ($this->access_token_hash === null && hash_equals((string) $this->access_token, (string) $token));
@@ -267,6 +268,11 @@ class Client extends Model
     {
         return $this->assignments()->whereNotNull('score')->exists()
             || $this->satisfactionSurvey()->exists();
+    }
+
+    public function requiresCostSavingsEstimate(): bool
+    {
+        return (bool) $this->consultationLocation?->requires_cost_savings_estimate;
     }
 
     /*

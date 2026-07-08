@@ -4,8 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class ConsultationLocation extends Model
@@ -16,12 +16,14 @@ class ConsultationLocation extends Model
         'name',
         'slug',
         'is_online',
+        'requires_cost_savings_estimate',
         'is_active',
         'sort_order',
     ];
 
     protected $casts = [
         'is_online' => 'boolean',
+        'requires_cost_savings_estimate' => 'boolean',
         'is_active' => 'boolean',
         'sort_order' => 'integer',
     ];
@@ -46,7 +48,7 @@ class ConsultationLocation extends Model
                 $originalSlug = $slug;
                 $count = 1;
                 while (static::where('slug', $slug)->where('id', '!=', $model->id)->exists()) {
-                    $slug = $originalSlug . '-' . $count++;
+                    $slug = $originalSlug.'-'.$count++;
                 }
                 $model->slug = $slug;
             }

@@ -12,6 +12,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -48,6 +49,7 @@ class SatisfactionSurveyResource extends Resource
                     ->getOptionLabelUsing(fn ($value): ?string => static::getClientOptionLabel(Client::find($value)))
                     ->searchable()
                     ->preload()
+                    ->live()
                     ->required()
                     ->disabledOn('edit')
                     ->helperText('Hanya klien yang belum memiliki survei kepuasan yang dapat dipilih.')
@@ -88,8 +90,10 @@ class SatisfactionSurveyResource extends Resource
                     ->minValue(0)
                     ->maxValue(999999999999)
                     ->step(1000)
-                    ->required()
-                    ->helperText('Perkiraan total biaya yang tidak perlu dikeluarkan klien setelah menerima layanan, misalnya transportasi, penginapan, makan, pencetakan, atau pengiriman berkas. Isi 0 jika tidak ada penghematan.')
+                    ->required(fn (Get $get): bool => static::clientRequiresCostSavingsEstimate($get('client_id')))
+                    ->visible(fn (Get $get): bool => static::clientRequiresCostSavingsEstimate($get('client_id')))
+                    ->dehydrated(fn (Get $get): bool => static::clientRequiresCostSavingsEstimate($get('client_id')))
+                    ->helperText(fn (Get $get): string => 'Perkiraan total biaya yang tidak perlu dikeluarkan klien setelah menerima layanan melalui '.static::getCostSavingsChannelLabel($get('client_id')).', misalnya transportasi, penginapan, makan, pencetakan, atau pengiriman berkas. Isi 0 jika tidak ada penghematan.')
                     ->columnSpanFull(),
             ]);
     }
@@ -161,12 +165,13 @@ class SatisfactionSurveyResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with('client');
+        return parent::getEloquentQuery()->with('client.consultationLocation');
     }
 
     protected static function getAvailableClientsQuery(?SatisfactionSurvey $record = null): Builder
     {
         return Client::query()
+            ->with('consultationLocation')
             ->whereDoesntHave('satisfactionSurvey', fn (Builder $query) => $query
                 ->when($record, fn (Builder $query) => $query->whereKeyNot($record->getKey())))
             ->orderBy('ticket_number');
@@ -181,5 +186,40 @@ class SatisfactionSurveyResource extends Resource
         return $client->name
             ? "{$client->name} ({$client->ticket_number})"
             : "Pemohon tidak diketahui ({$client->ticket_number})";
+    }
+
+    protected static function clientRequiresCostSavingsEstimate(mixed $clientId): bool
+    {
+        if (blank($clientId)) {
+            return false;
+        }
+
+        return (bool) Client::query()
+            ->with('consultationLocation')
+            ->find($clientId)
+            ?->requiresCostSavingsEstimate();
+    }
+
+    protected static function getCostSavingsChannelLabel(mixed $clientId): string
+    {
+        if (blank($clientId)) {
+            return 'lokasi layanan yang dipilih';
+        }
+
+        $client = Client::query()
+            ->with('consultationLocation')
+            ->find($clientId);
+
+        $location = $client?->consultationLocation;
+
+        if (! $location) {
+            return 'lokasi layanan yang dipilih';
+        }
+
+        if ($location->is_online) {
+            return 'layanan online';
+        }
+
+        return 'Kantor '.$location->name;
     }
 }

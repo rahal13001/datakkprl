@@ -59,7 +59,7 @@ class CheckStatus extends Component
                             ->where('access_token', $this->access_token);
                     });
             })
-            ->with(['service', 'schedules', 'assignments.user', 'latestConsultationReport', 'beritaAcara'])
+            ->with(['service', 'consultationLocation', 'schedules', 'assignments.user', 'latestConsultationReport', 'beritaAcara'])
             ->first();
 
         if (! $this->client) {
@@ -72,14 +72,25 @@ class CheckStatus extends Component
         foreach ($this->client->assignments as $assignment) {
             $this->ratings[$assignment->id] = null;
         }
+
+        if (! $this->requiresCostSavingsEstimate) {
+            $this->estimated_cost_savings = null;
+        }
     }
 
     public function submitFeedback()
     {
+        $requiresCostSavingsEstimate = $this->requiresCostSavingsEstimate;
+
         $rules = [
             'criticism' => 'required|string',
             'suggestion' => 'required|string',
-            'estimated_cost_savings' => 'required|integer|min:0|max:999999999999',
+            'estimated_cost_savings' => [
+                $requiresCostSavingsEstimate ? 'required' : 'nullable',
+                'integer',
+                'min:0',
+                'max:999999999999',
+            ],
         ];
 
         if ($this->client->assignments->isNotEmpty()) {
@@ -122,7 +133,9 @@ class CheckStatus extends Component
                 [
                     'criticism' => $this->criticism,
                     'suggestion' => $this->suggestion,
-                    'estimated_cost_savings' => $this->estimated_cost_savings,
+                    'estimated_cost_savings' => $this->requiresCostSavingsEstimate
+                        ? $this->estimated_cost_savings
+                        : null,
                 ]
             );
         });
@@ -143,6 +156,30 @@ class CheckStatus extends Component
         }
 
         return $this->client->hasSatisfactionFeedback();
+    }
+
+    public function getRequiresCostSavingsEstimateProperty(): bool
+    {
+        if (! $this->client) {
+            return false;
+        }
+
+        return $this->client->requiresCostSavingsEstimate();
+    }
+
+    public function getCostSavingsChannelLabelProperty(): string
+    {
+        $location = $this->client?->consultationLocation;
+
+        if (! $location) {
+            return 'layanan LPRL Sorong';
+        }
+
+        if ($location->is_online) {
+            return 'layanan online';
+        }
+
+        return 'Kantor '.$location->name;
     }
 
     public function render()
