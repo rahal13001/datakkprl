@@ -217,7 +217,7 @@
                                                             Perkiraan Penghematan Biaya <span class="text-red-500">*</span>
                                                         </label>
                                                         <p class="mt-1 text-xs leading-relaxed text-slate-600">
-                                                            Perkirakan jumlah biaya yang tidak jadi Anda keluarkan setelah menerima layanan LPRL Sorong melalui {{ $this->costSavingsChannelLabel }}. Jumlahkan, misalnya, biaya perjalanan atau BBM/tiket, penginapan, makan, cetak/fotokopi, pengiriman berkas, dan biaya lain yang dapat dihemat. Tidak perlu tepat—perkiraan terbaik Anda sudah cukup. Jika tidak ada penghematan, isi <strong>0</strong>.
+                                                            Perkirakan jumlah biaya yang tidak jadi Anda keluarkan setelah menerima layanan LPRL Sorong {{ $this->costSavingsChannelLabel }}. Jumlahkan, misalnya, biaya perjalanan atau BBM/tiket, penginapan, makan, cetak/fotokopi, pengiriman berkas, dan biaya lain yang dapat dihemat. Tidak perlu tepat—perkiraan terbaik Anda sudah cukup. Jika tidak ada penghematan, isi <strong>0</strong>.
                                                         </p>
                                                         <div class="relative mt-3">
                                                             <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm font-semibold text-slate-500">Rp</span>

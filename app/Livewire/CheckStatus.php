@@ -172,14 +172,14 @@ class CheckStatus extends Component
         $location = $this->client?->consultationLocation;
 
         if (! $location) {
-            return 'layanan LPRL Sorong';
+            return 'secara luring di';
         }
 
         if ($location->is_online) {
-            return 'layanan online';
+            return 'secara online';
         }
 
-        return 'Kantor '.$location->name;
+        return ' Kantor '.$location->name;
     }
 
     public function render()
