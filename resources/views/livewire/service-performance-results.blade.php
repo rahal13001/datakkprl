@@ -135,7 +135,7 @@
                                 @if($result?->description)
                                     <p class="mt-3 max-w-3xl text-sm leading-relaxed text-slate-500 md:text-base">{{ $result->description }}</p>
                                 @else
-                                    <p class="mt-3 max-w-3xl text-sm leading-relaxed text-slate-500 md:text-base">Data capaian organisasi akan tampil setelah admin mempublikasikannya. Tabel kinerja petugas memiliki filter terpisah di bawah.</p>
+                                    <!-- <p class="mt-3 max-w-3xl text-sm leading-relaxed text-slate-500 md:text-base">Data capaian organisasi akan tampil setelah admin mempublikasikannya. Tabel kinerja petugas memiliki filter terpisah di bawah.</p> -->
                                 @endif
                             </div>
 
