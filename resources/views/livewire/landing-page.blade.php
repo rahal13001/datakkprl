@@ -585,7 +585,7 @@
                     [
                         'title' => 'SIPPN',
                         'description' => 'Informasi pelayanan publik nasional dan standar layanan instansi pemerintah di Indonesia.',
-                        'url' => 'https://sippn.menpan.go.id/',
+                        'url' => 'https://sippn.menpan.go.id/instansi/loka-pengelolaan-sumberdaya-pesisir-dan-laut-sorong-172587',
                         'icon' => 'fa-solid fa-building-columns',
                         'accent' => '#2563eb',
                     ],
