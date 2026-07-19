@@ -78,6 +78,23 @@
         .hasil-content li {
             margin-bottom: 1px;
         }
+        .hasil-content table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            margin-bottom: 8px;
+        }
+        .hasil-content table,
+        .hasil-content th,
+        .hasil-content td {
+            border: 1px solid #000;
+        }
+        .hasil-content th,
+        .hasil-content td {
+            padding: 4px 6px;
+            text-align: left;
+            vertical-align: top;
+        }
         .closing-text {
             text-align: justify;
             margin-top: 10px;
