@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\AttachRequestId;
+use App\Http\Middleware\AuthenticateMobile;
+use App\Http\Middleware\EnsureMobileJsonRequest;
 use App\Http\Middleware\EnsureMobileUserIsActive;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -8,7 +10,10 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\Http\Middleware\CheckAbilities;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
@@ -24,11 +29,33 @@ return Application::configure(basePath: dirname(__DIR__))
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+            'abilities' => CheckAbilities::class,
+            'mobile.auth' => AuthenticateMobile::class,
             'mobile.active' => EnsureMobileUserIsActive::class,
+            'mobile.json' => EnsureMobileJsonRequest::class,
             'request.id' => AttachRequestId::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->shouldRenderJsonWhen(
+            fn (Request $request): bool => $request->is('api/mobile/*') || $request->expectsJson(),
+        );
+        $exceptions->respond(function (Response $response): Response {
+            if (request()->is('api/mobile/*')) {
+                $requestId = request()->attributes->get('request_id') ?: (string) Str::uuid();
+                request()->attributes->set('request_id', $requestId);
+                $response->headers->set('X-Request-Id', $requestId);
+
+                $content = json_decode((string) $response->getContent(), true);
+                if (is_array($content) && array_key_exists('request_id', $content) && blank($content['request_id'])) {
+                    $content['request_id'] = $requestId;
+                    $response->setContent(json_encode($content, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                }
+            }
+
+            return $response;
+        });
+
         $exceptions->render(function (ValidationException $exception, Request $request) {
             if (! $request->is('api/mobile/*')) {
                 return null;

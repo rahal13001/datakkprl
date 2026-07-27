@@ -32,7 +32,12 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    if (error.response?.status === 401) {
+    const body = error.response?.data as ApiErrorBody | undefined
+    const sessionRevoked =
+      error.response?.status === 401 ||
+      (error.response?.status === 403 &&
+        ['account_inactive', 'mobile_access_not_assigned'].includes(body?.code ?? ''))
+    if (sessionRevoked) {
       await secureStorage.clear()
       window.dispatchEvent(new CustomEvent('servicekkprl:unauthorized'))
     }

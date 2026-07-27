@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import {
   IonButton,
   IonContent,
@@ -21,10 +22,19 @@ import {
 } from 'ionicons/icons'
 import { api, apiError } from '@/api/client'
 import EmptyState from '@/components/EmptyState.vue'
+import {
+  navigationFallback,
+  navigationMessage,
+  safeInternalRoute,
+  validTicket,
+} from '@/navigation/safeNavigation'
 import type { ApiEnvelope, MobileNotification } from '@/types/api'
 
 const router = useRouter()
+const route = useRoute()
 const queryClient = useQueryClient()
+const actionError = ref('')
+const navigationNotice = computed(() => navigationMessage(route.query.navigation_error))
 const query = useQuery({
   queryKey: ['notifications'],
   queryFn: async () =>
@@ -50,12 +60,25 @@ function time(value: string) {
 }
 
 async function open(notification: MobileNotification) {
-  if (!notification.read_at) {
-    await api.patch(`/notifications/${notification.id}/read`)
-    await queryClient.invalidateQueries({ queryKey: ['notifications'] })
-    await queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+  actionError.value = ''
+  try {
+    const notificationId = validTicket(notification.id)
+    if (!notificationId) {
+      await router.replace(navigationFallback('notifications', 'invalid_resource'))
+      return
+    }
+    if (!notification.read_at) {
+      await api.patch(`/notifications/${encodeURIComponent(notificationId)}/read`)
+      await queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      await queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    }
+    const destination = safeInternalRoute(notification.route)
+    await router.push(
+      destination ?? navigationFallback('notifications', 'invalid_resource'),
+    )
+  } catch (reason) {
+    actionError.value = apiError(reason)
   }
-  if (notification.route) await router.push(notification.route)
 }
 
 async function readAll() {
@@ -88,6 +111,8 @@ async function refresh(event: CustomEvent) {
     <IonContent>
       <IonRefresher slot="fixed" @ion-refresh="refresh"><IonRefresherContent /></IonRefresher>
       <main class="page-shell notification-shell">
+        <div v-if="navigationNotice" class="notice-box" role="status">{{ navigationNotice }}</div>
+        <div v-if="actionError" class="error-box" role="alert">{{ actionError }}</div>
         <div v-if="query.error.value" class="error-box">{{ apiError(query.error.value) }}</div>
         <div v-else-if="query.data.value?.length" class="notification-list">
           <button

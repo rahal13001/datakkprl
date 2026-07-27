@@ -11,9 +11,13 @@ class MobileNotificationController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $data = $request->validate([
+            'cursor' => ['nullable', 'string'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
+        ]);
         $paginator = $request->user()->notifications()
             ->latest()
-            ->cursorPaginate(min($request->integer('per_page', 20), 50));
+            ->cursorPaginate($data['per_page'] ?? 20);
 
         return response()->json([
             'data' => $paginator->getCollection()->map(fn (DatabaseNotification $notification) => $this->data($notification)),

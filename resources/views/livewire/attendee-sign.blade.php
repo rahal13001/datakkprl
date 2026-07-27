@@ -80,7 +80,7 @@
             <div class="mt-8 pt-6 border-t border-slate-100">
                 <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest block mb-4">Isi Berita Acara</span>
                 <div class="ba-rich-content p-6 rounded-xl border border-slate-100 shadow-sm">
-                    {!! $beritaAcara->hasil_pendampingan !!}
+                    {!! app(\App\Services\SafeRichText::class)->sanitize($beritaAcara->hasil_pendampingan) !!}
                 </div>
             </div>
             @endif

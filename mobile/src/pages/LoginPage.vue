@@ -13,6 +13,7 @@ import { lockClosedOutline, mailOutline, waterOutline } from 'ionicons/icons'
 import { apiError } from '@/api/client'
 import { initializePush } from '@/notifications/push'
 import { useAuthStore } from '@/stores/auth'
+import { safeInternalRoute } from '@/navigation/safeNavigation'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -28,7 +29,7 @@ async function submit() {
   try {
     await auth.login(email.value, password.value)
     await initializePush(router)
-    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/tabs/dashboard'
+    const redirect = safeInternalRoute(route.query.redirect) ?? { name: 'dashboard' }
     await router.replace(redirect)
   } catch (reason) {
     error.value = apiError(reason)

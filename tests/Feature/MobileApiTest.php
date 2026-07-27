@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\UserDevice;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
@@ -35,6 +36,37 @@ class MobileApiTest extends TestCase
         $this->getJson('/api/mobile/v1/me')
             ->assertUnauthorized()
             ->assertJsonPath('code', 'unauthenticated');
+    }
+
+    #[Test]
+    public function unauthenticated_mobile_requests_are_always_safe_json_with_a_request_id(): void
+    {
+        $this->get('/api/mobile/v1/me')
+            ->assertUnauthorized()
+            ->assertHeader('Content-Type', 'application/json')
+            ->assertHeader('X-Request-Id')
+            ->assertJsonPath('code', 'unauthenticated')
+            ->assertJsonStructure(['request_id']);
+
+        $this->get('/api/mobile/v1/not-a-route')
+            ->assertNotFound()
+            ->assertHeader('Content-Type', 'application/json')
+            ->assertHeader('X-Request-Id')
+            ->assertJsonPath('code', 'not_found')
+            ->assertJsonStructure(['request_id']);
+    }
+
+    #[Test]
+    public function non_mobile_personal_access_tokens_cannot_call_mobile_endpoints(): void
+    {
+        $user = User::factory()->create(['status' => true]);
+        $user->givePermissionTo(Permission::findOrCreate('ViewAny:Client'));
+        $token = $user->createToken('unrelated-integration', ['unrelated'])->plainTextToken;
+
+        $this->withToken($token)
+            ->getJson('/api/mobile/v1/me')
+            ->assertForbidden()
+            ->assertJsonPath('code', 'forbidden');
     }
 
     #[Test]
@@ -93,6 +125,7 @@ class MobileApiTest extends TestCase
             'platform' => 'android',
         ]);
         $this->assertDatabaseCount('personal_access_tokens', 1);
+        $this->assertFalse(Hash::check('secret-password', $user->fresh()->password));
         $device = UserDevice::query()->sole();
         $this->assertSame('private-fcm-registration-value', $device->push_registration);
         $this->assertStringNotContainsString(
@@ -185,5 +218,44 @@ class MobileApiTest extends TestCase
             ->assertJsonPath('code', 'record_changed');
 
         $this->assertSame('waiting', $client->fresh()->status);
+    }
+
+    #[Test]
+    public function disabling_a_device_revokes_its_linked_mobile_token(): void
+    {
+        $user = User::factory()->create(['status' => true]);
+        $user->givePermissionTo(Permission::findOrCreate('ViewAny:Client'));
+        $token = $user->createToken('servicekkprl:disable-test', ['mobile']);
+        UserDevice::create([
+            'user_id' => $user->id,
+            'personal_access_token_id' => $token->accessToken->id,
+            'platform' => 'android',
+            'installation_id' => 'disable-test-installation',
+            'device_name' => 'Android Test Device',
+            'app_version' => '1.0.0',
+            'build_number' => 1,
+        ]);
+
+        $this->withToken($token->plainTextToken)
+            ->deleteJson('/api/mobile/v1/me/device', [
+                'installation_id' => 'disable-test-installation',
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.disabled', true);
+
+        $this->assertDatabaseMissing('personal_access_tokens', ['id' => $token->accessToken->id]);
+        $this->assertNotNull(UserDevice::query()->sole()->disabled_at);
+    }
+
+    #[Test]
+    public function mobile_list_pagination_rejects_invalid_page_sizes(): void
+    {
+        $user = User::factory()->create(['status' => true]);
+        $user->givePermissionTo(Permission::findOrCreate('ViewAny:Client'));
+        Sanctum::actingAs($user, ['mobile'], 'web');
+
+        $this->getJson('/api/mobile/v1/notifications?per_page=0')
+            ->assertUnprocessable()
+            ->assertJsonPath('code', 'validation_failed');
     }
 }

@@ -1,4 +1,8 @@
 *.log
+*.jks
+*.keystore
+*.p12
+*.pfx
 .DS_Store
 .env
 .env.backup
@@ -8,6 +12,7 @@
 /.fleet
 /.idea
 /.nova
+/.playwright-cli
 /.phpunit.cache
 /.vscode
 /.zed
@@ -15,9 +20,14 @@
 /node_modules
 /public/hot
 /public/storage
+/output/playwright
 /storage/*.key
 /storage/pail
 /vendor
+**/google-services.json
+**/*service-account*.json
+**/*service_account*.json
+**/firebase-credentials*.json
 Homestead.json
 Homestead.yaml
 Thumbs.db

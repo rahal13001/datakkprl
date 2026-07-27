@@ -130,6 +130,16 @@ ion-toolbar {
   padding: 12px;
 }
 
+.notice-box {
+  background: #edf6f9;
+  border: 1px solid #b8d5df;
+  border-radius: 12px;
+  color: #174e65;
+  font-size: 0.85rem;
+  margin: 12px 0;
+  padding: 12px;
+}
+
 .empty-state {
   color: var(--app-muted);
   padding: 44px 24px;

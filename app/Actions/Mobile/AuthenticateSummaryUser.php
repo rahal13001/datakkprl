@@ -3,7 +3,9 @@
 namespace App\Actions\Mobile;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthenticateSummaryUser
@@ -31,20 +33,22 @@ class AuthenticateSummaryUser
             ]);
         }
 
-        return User::updateOrCreate(
-            ['email' => $apiUser['email']],
-            [
-                'name' => $apiUser['name'] ?? $apiUser['email'],
-                'password' => bcrypt($password),
-                'email_verified_at' => $apiUser['email_verified_at'] ?? null,
-                'summary_user_id' => $apiUser['id'] ?? null,
-                'fcm_token' => $apiUser['fcm_token'] ?? null,
-                'avatar_url' => $apiUser['avatar_url'] ?? null,
-                'nip' => $apiUser['nip'] ?? null,
-                'jabatan' => $apiUser['jabatan'] ?? null,
-                'instansi' => $apiUser['instansi'] ?? null,
-                'status' => (bool) ($apiUser['status'] ?? false),
-            ],
-        );
+        $user = User::firstOrNew(['email' => $apiUser['email']]);
+        if (! $user->exists) {
+            $user->password = Hash::make(Str::random(64));
+        }
+        $user->fill([
+            'name' => $apiUser['name'] ?? $apiUser['email'],
+            'email_verified_at' => $apiUser['email_verified_at'] ?? null,
+            'summary_user_id' => $apiUser['id'] ?? null,
+            'avatar_url' => $apiUser['avatar_url'] ?? null,
+            'nip' => $apiUser['nip'] ?? null,
+            'jabatan' => $apiUser['jabatan'] ?? null,
+            'instansi' => $apiUser['instansi'] ?? null,
+            'status' => (bool) ($apiUser['status'] ?? false),
+        ]);
+        $user->save();
+
+        return $user;
     }
 }

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
 import {
   IonBackButton,
   IonButtons,
@@ -15,27 +16,44 @@ import {
 import { api, apiError } from '@/api/client'
 import EmptyState from '@/components/EmptyState.vue'
 import { useAuthStore } from '@/stores/auth'
+import {
+  navigationFallback,
+  navigationMessage,
+  validPositiveId,
+} from '@/navigation/safeNavigation'
 import type { ApiEnvelope, PublicFeedback, SatisfactionSurvey } from '@/types/api'
 
 const auth = useAuthStore()
 const route = useRoute()
-const detailId = computed(() => route.params.id ? Number(route.params.id) : null)
+const router = useRouter()
+const detailId = computed(() => route.params.id ? validPositiveId(route.params.id) : null)
 const routeType = computed(() => String(route.name ?? '').includes('public') ? 'public' : 'satisfaction')
 const tab = ref(detailId.value ? routeType.value : (auth.can('satisfaction_surveys', 'list') ? 'satisfaction' : 'public'))
+const navigationNotice = computed(() => navigationMessage(route.query.navigation_error))
+
+async function unavailable(reason: unknown): Promise<never> {
+  if (axios.isAxiosError(reason) && [403, 404, 410].includes(reason.response?.status ?? 0)) {
+    await router.replace(navigationFallback('feedback', 'resource_unavailable'))
+  }
+  throw reason
+}
+
 const satisfaction = useQuery({
   queryKey: ['satisfaction-surveys', detailId],
   queryFn: async () => {
     if (detailId.value && routeType.value === 'satisfaction') {
       const response = await api.get<ApiEnvelope<SatisfactionSurvey>>(
         `/satisfaction-surveys/${detailId.value}`,
-      )
+      ).catch(unavailable)
       return [response.data.data]
     }
     return (await api.get<ApiEnvelope<SatisfactionSurvey[]>>('/satisfaction-surveys')).data.data
   },
-  enabled: detailId.value
-    ? auth.can('satisfaction_surveys', 'view')
-    : auth.can('satisfaction_surveys', 'list'),
+  enabled: computed(() =>
+    detailId.value
+      ? routeType.value === 'satisfaction' && auth.can('satisfaction_surveys', 'view')
+      : auth.can('satisfaction_surveys', 'list'),
+  ),
 })
 const publicFeedback = useQuery({
   queryKey: ['public-feedback', detailId],
@@ -43,14 +61,20 @@ const publicFeedback = useQuery({
     if (detailId.value && routeType.value === 'public') {
       const response = await api.get<ApiEnvelope<PublicFeedback>>(
         `/public-feedback/${detailId.value}`,
-      )
+      ).catch(unavailable)
       return [response.data.data]
     }
     return (await api.get<ApiEnvelope<PublicFeedback[]>>('/public-feedback')).data.data
   },
-  enabled: detailId.value
-    ? auth.can('public_feedback', 'view')
-    : auth.can('public_feedback', 'list'),
+  enabled: computed(() =>
+    detailId.value
+      ? routeType.value === 'public' && auth.can('public_feedback', 'view')
+      : auth.can('public_feedback', 'list'),
+  ),
+})
+
+watch([detailId, routeType], ([id, type]) => {
+  if (id) tab.value = type
 })
 
 function date(value: string) {
@@ -71,14 +95,21 @@ function date(value: string) {
     </IonHeader>
     <IonContent>
       <main class="page-shell feedback-shell">
+        <div v-if="navigationNotice" class="notice-box" role="status">{{ navigationNotice }}</div>
         <IonSegment v-model="tab">
           <IonSegmentButton
-            v-if="auth.can('satisfaction_surveys', 'list')"
+            v-if="
+              auth.can('satisfaction_surveys', 'list') ||
+              (detailId && routeType === 'satisfaction')
+            "
             value="satisfaction"
           >
             Kepuasan
           </IonSegmentButton>
-          <IonSegmentButton v-if="auth.can('public_feedback', 'list')" value="public">
+          <IonSegmentButton
+            v-if="auth.can('public_feedback', 'list') || (detailId && routeType === 'public')"
+            value="public"
+          >
             Masukan publik
           </IonSegmentButton>
         </IonSegment>

@@ -149,7 +149,7 @@
 
         <div class="section-title">ISI LAPORAN</div>
         <div class="content-box">
-            {!! $report->content !!}
+            {!! app(\App\Services\SafeRichText::class)->sanitize($report->content) !!}
         </div>
 
         @if($report->documentation && count($report->documentation) > 0)

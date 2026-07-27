@@ -18,6 +18,7 @@ import StatusBadge from '@/components/StatusBadge.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useAppConfigStore } from '@/stores/appConfig'
+import { requestDetailRoute } from '@/navigation/safeNavigation'
 import type { ApiEnvelope, ClientSummary } from '@/types/api'
 
 interface DashboardData {
@@ -128,7 +129,7 @@ function dateLabel(value?: string) {
           <router-link
             v-for="client in query.data.value.recent_requests"
             :key="client.ticket_number"
-            :to="`/requests/${client.ticket_number}`"
+            :to="requestDetailRoute(client.ticket_number)"
             class="request-card surface"
           >
             <div class="request-topline">

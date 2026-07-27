@@ -205,7 +205,7 @@
     </p>
 
     <div class="hasil-content">
-        {!! $beritaAcara->hasil_pendampingan ?? '<em>(Belum diisi)</em>' !!}
+        {!! app(\App\Services\SafeRichText::class)->sanitize($beritaAcara->hasil_pendampingan ?? '<em>(Belum diisi)</em>') !!}
     </div>
 
     {{-- PENUTUP --}}

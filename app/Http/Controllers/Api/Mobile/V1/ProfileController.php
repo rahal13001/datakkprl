@@ -89,9 +89,16 @@ class ProfileController extends Controller
 
     public function disableDevice(Request $request): JsonResponse
     {
-        $request->validate(['installation_id' => ['required', 'string']]);
-        $request->user()->devices()
+        $data = $request->validate(['installation_id' => ['required', 'string', 'max:255']]);
+        $devices = $request->user()->devices()
             ->where('installation_id', $request->input('installation_id'))
+            ->get();
+
+        $devices->each(function (UserDevice $device): void {
+            $device->accessToken?->delete();
+        });
+        $request->user()->devices()
+            ->where('installation_id', $data['installation_id'])
             ->update([
                 'disabled_at' => now(),
                 'personal_access_token_id' => null,

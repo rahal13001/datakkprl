@@ -2,6 +2,11 @@ import { createRouter, createWebHistory } from '@ionic/vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useAppConfigStore } from '@/stores/appConfig'
+import {
+  navigationFallback,
+  validPositiveId,
+  validTicket,
+} from '@/navigation/safeNavigation'
 import TabsPage from '@/pages/TabsPage.vue'
 
 const routes: RouteRecordRaw[] = [
@@ -68,6 +73,11 @@ const routes: RouteRecordRaw[] = [
     name: 'public-feedback-detail',
     component: () => import('@/pages/FeedbackPage.vue'),
   },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    redirect: '/tabs/dashboard',
+  },
 ]
 
 const router = createRouter({
@@ -95,6 +105,15 @@ router.beforeEach((to) => {
   }
   if (to.name === 'login' && auth.authenticated) {
     return firstAuthorizedRoute(auth)
+  }
+  if (to.name === 'request-detail' && !validTicket(to.params.ticket)) {
+    return navigationFallback('requests', 'invalid_resource')
+  }
+  if (
+    (to.name === 'satisfaction-detail' || to.name === 'public-feedback-detail') &&
+    !validPositiveId(to.params.id)
+  ) {
+    return navigationFallback('feedback', 'invalid_resource')
   }
   if (to.name === 'dashboard' && !auth.can('dashboard', 'view')) {
     return firstAuthorizedRoute(auth)

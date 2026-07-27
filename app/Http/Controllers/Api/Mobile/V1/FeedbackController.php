@@ -14,10 +14,11 @@ class FeedbackController extends Controller
     public function satisfactionIndex(Request $request, MobileTransformer $transformer): JsonResponse
     {
         $this->authorize('viewAny', SatisfactionSurvey::class);
+        $data = $this->pagination($request);
         $paginator = SatisfactionSurvey::query()
             ->with('client')
             ->latest()
-            ->cursorPaginate(min($request->integer('per_page', 20), 50));
+            ->cursorPaginate($data['per_page'] ?? 20);
 
         return response()->json([
             'data' => $paginator->getCollection()
@@ -37,10 +38,11 @@ class FeedbackController extends Controller
     public function publicIndex(Request $request, MobileTransformer $transformer): JsonResponse
     {
         $this->authorize('viewAny', PublicFeedback::class);
+        $data = $this->pagination($request);
         $paginator = PublicFeedback::query()
             ->with('users')
             ->latest()
-            ->cursorPaginate(min($request->integer('per_page', 20), 50));
+            ->cursorPaginate($data['per_page'] ?? 20);
 
         return response()->json([
             'data' => $paginator->getCollection()
@@ -55,5 +57,13 @@ class FeedbackController extends Controller
         $feedback->load('users');
 
         return response()->json(['data' => $transformer->publicFeedback($feedback)]);
+    }
+
+    private function pagination(Request $request): array
+    {
+        return $request->validate([
+            'cursor' => ['nullable', 'string'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
+        ]);
     }
 }

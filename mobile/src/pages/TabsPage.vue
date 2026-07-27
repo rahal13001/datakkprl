@@ -2,6 +2,7 @@
 import {
   IonIcon,
   IonLabel,
+  IonPage,
   IonRouterOutlet,
   IonTabBar,
   IonTabButton,
@@ -19,27 +20,29 @@ const auth = useAuthStore()
 </script>
 
 <template>
-  <IonTabs>
-    <IonRouterOutlet />
-    <IonTabBar slot="bottom">
-      <IonTabButton v-if="auth.can('dashboard', 'view')" tab="dashboard" href="/tabs/dashboard">
-        <IonIcon :icon="homeOutline" />
-        <IonLabel>Beranda</IonLabel>
-      </IonTabButton>
-      <IonTabButton v-if="auth.can('clients', 'list')" tab="requests" href="/tabs/requests">
-        <IonIcon :icon="waterOutline" />
-        <IonLabel>Layanan</IonLabel>
-      </IonTabButton>
-      <IonTabButton tab="notifications" href="/tabs/notifications">
-        <IonIcon :icon="notificationsOutline" />
-        <IonLabel>Notifikasi</IonLabel>
-      </IonTabButton>
-      <IonTabButton tab="profile" href="/tabs/profile">
-        <IonIcon :icon="personCircleOutline" />
-        <IonLabel>Profil</IonLabel>
-      </IonTabButton>
-    </IonTabBar>
-  </IonTabs>
+  <IonPage>
+    <IonTabs>
+      <IonRouterOutlet />
+      <IonTabBar slot="bottom">
+        <IonTabButton v-if="auth.can('dashboard', 'view')" tab="dashboard" href="/tabs/dashboard">
+          <IonIcon :icon="homeOutline" />
+          <IonLabel>Beranda</IonLabel>
+        </IonTabButton>
+        <IonTabButton v-if="auth.can('clients', 'list')" tab="requests" href="/tabs/requests">
+          <IonIcon :icon="waterOutline" />
+          <IonLabel>Layanan</IonLabel>
+        </IonTabButton>
+        <IonTabButton tab="notifications" href="/tabs/notifications">
+          <IonIcon :icon="notificationsOutline" />
+          <IonLabel>Notifikasi</IonLabel>
+        </IonTabButton>
+        <IonTabButton tab="profile" href="/tabs/profile">
+          <IonIcon :icon="personCircleOutline" />
+          <IonLabel>Profil</IonLabel>
+        </IonTabButton>
+      </IonTabBar>
+    </IonTabs>
+  </IonPage>
 </template>
 
 <style scoped>

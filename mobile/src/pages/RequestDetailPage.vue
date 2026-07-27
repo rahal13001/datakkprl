@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import axios from 'axios'
 import {
   IonAccordion,
   IonAccordionGroup,
@@ -30,6 +31,11 @@ import EmptyState from '@/components/EmptyState.vue'
 import SignaturePad from '@/components/SignaturePad.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { useAuthStore } from '@/stores/auth'
+import {
+  navigationFallback,
+  validPositiveId,
+  validTicket,
+} from '@/navigation/safeNavigation'
 import type {
   ApiEnvelope,
   Assignment,
@@ -72,8 +78,9 @@ interface BeritaAcaraDraft {
 
 const auth = useAuthStore()
 const route = useRoute()
+const router = useRouter()
 const queryClient = useQueryClient()
-const ticket = computed(() => String(route.params.ticket))
+const ticket = computed(() => validTicket(route.params.ticket))
 const saving = ref(false)
 const error = ref('')
 const statusDraft = ref<ClientDetail['status']>()
@@ -89,10 +96,32 @@ const clientDraft = ref({
 const scheduleDrafts = ref<Record<number, Schedule>>({})
 const reportDrafts = ref<Record<number, Pick<ConsultationReport, 'content' | 'status'>>>({})
 
+function clientApiPath(suffix = ''): string {
+  if (!ticket.value) throw new Error('Nomor tiket tidak valid.')
+  return `/clients/${encodeURIComponent(ticket.value)}${suffix}`
+}
+
+function nestedResourcePath(resource: string, id: unknown): string {
+  const normalized = validPositiveId(typeof id === 'number' ? String(id) : id)
+  if (!normalized) throw new Error('Identitas data terkait tidak valid.')
+  return clientApiPath(`/${resource}/${normalized}`)
+}
+
+async function loadClient(): Promise<ClientDetail> {
+  try {
+    return (await api.get<ApiEnvelope<ClientDetail>>(clientApiPath())).data.data
+  } catch (reason) {
+    if (axios.isAxiosError(reason) && [403, 404, 410].includes(reason.response?.status ?? 0)) {
+      await router.replace(navigationFallback('requests', 'resource_unavailable'))
+    }
+    throw reason
+  }
+}
+
 const clientQuery = useQuery({
   queryKey: ['client', ticket],
-  queryFn: async () =>
-    (await api.get<ApiEnvelope<ClientDetail>>(`/clients/${ticket.value}`)).data.data,
+  queryFn: loadClient,
+  enabled: computed(() => ticket.value !== null),
 })
 
 const staffQuery = useQuery({
@@ -134,7 +163,7 @@ async function saveClientStatus() {
   const client = clientQuery.data.value
   if (!client || !statusDraft.value) return
   await perform(async () => {
-    await api.patch(`/clients/${ticket.value}`, {
+    await api.patch(clientApiPath(), {
       version: client.version,
       status: statusDraft.value,
     })
@@ -146,7 +175,7 @@ async function saveClientIdentity() {
   const client = clientQuery.data.value
   if (!client) return
   await perform(async () => {
-    await api.patch(`/clients/${ticket.value}`, {
+    await api.patch(clientApiPath(), {
       version: client.version,
       ...clientDraft.value,
       instance: clientDraft.value.instance || null,
@@ -158,7 +187,7 @@ async function saveClientIdentity() {
 
 async function addSchedule() {
   await perform(async () => {
-    await api.post(`/clients/${ticket.value}/schedules`, {
+    await api.post(clientApiPath('/schedules'), {
       ...scheduleForm.value,
       meeting_link: scheduleForm.value.is_online ? scheduleForm.value.meeting_link : null,
     })
@@ -177,7 +206,7 @@ async function saveSchedule(schedule: Schedule) {
   const draft = scheduleDrafts.value[schedule.id]
   if (!draft) return
   await perform(async () => {
-    await api.patch(`/clients/${ticket.value}/schedules/${schedule.id}`, {
+    await api.patch(nestedResourcePath('schedules', schedule.id), {
       version: schedule.version,
       date: draft.date,
       start_time: draft.start_time.slice(0, 5),
@@ -193,7 +222,7 @@ async function addAssignments() {
   await perform(async () => {
     const response = await api.post<
       ApiEnvelope<Assignment[]> & { meta?: { warnings?: Array<{ message: string }> } }
-    >(`/clients/${ticket.value}/assignments`, assignmentForm.value)
+    >(clientApiPath('/assignments'), assignmentForm.value)
     assignmentForm.value = { schedule_ids: [], user_ids: [], status: 'scheduled' }
     await refreshedMessage('Penugasan dibuat.')
     const warnings = response.data.meta?.warnings ?? []
@@ -210,7 +239,7 @@ async function addAssignments() {
 
 async function updateAssignmentStatus(assignment: Assignment, status: Assignment['status']) {
   await perform(async () => {
-    await api.patch(`/clients/${ticket.value}/assignments/${assignment.id}`, {
+    await api.patch(nestedResourcePath('assignments', assignment.id), {
       version: assignment.version,
       status,
     })
@@ -221,7 +250,7 @@ async function updateAssignmentStatus(assignment: Assignment, status: Assignment
 async function reassignOfficer(assignment: Assignment, userId: number) {
   if (assignment.officer?.id === userId) return
   await perform(async () => {
-    await api.patch(`/clients/${ticket.value}/assignments/${assignment.id}`, {
+    await api.patch(nestedResourcePath('assignments', assignment.id), {
       version: assignment.version,
       user_id: userId,
     })
@@ -239,7 +268,7 @@ async function addReport() {
     form.append('content', reportForm.value.content)
     form.append('status', reportForm.value.status)
     reportFiles.value.forEach((file) => form.append('documentation[]', file))
-    await api.post(`/clients/${ticket.value}/consultation-reports`, form)
+    await api.post(clientApiPath('/consultation-reports'), form)
     reportForm.value = { content: '', status: 'draft' }
     reportFiles.value = []
     await refreshedMessage('Laporan konsultasi disimpan.')
@@ -254,7 +283,7 @@ async function saveReport(report: ConsultationReport) {
     form.append('version', report.version)
     form.append('content', draft.content)
     form.append('status', draft.status)
-    await api.patch(`/clients/${ticket.value}/consultation-reports/${report.id}`, form)
+    await api.patch(nestedResourcePath('consultation-reports', report.id), form)
     await refreshedMessage('Laporan konsultasi diperbarui.')
   })
 }
@@ -294,9 +323,9 @@ async function saveBeritaAcara() {
     baOtherFiles.value.forEach((file) => form.append('other_attachments[]', file))
 
     if (ba) {
-      await api.patch(`/clients/${ticket.value}/berita-acara/${ba.id}`, form)
+      await api.patch(nestedResourcePath('berita-acara', ba.id), form)
     } else {
-      await api.post(`/clients/${ticket.value}/berita-acara`, form)
+      await api.post(clientApiPath('/berita-acara'), form)
     }
     baDraft.value = undefined
     await refreshedMessage('Berita Acara diperbarui.')
@@ -337,7 +366,14 @@ async function openProtected(path: string) {
 }
 
 function privateFilePath(path: string) {
-  return `/clients/${ticket.value}/files/${path.split('/').map(encodeURIComponent).join('/')}`
+  const segments: string[] = []
+  for (const segment of path.split('/')) {
+    const normalized = validTicket(segment)
+    if (!normalized) throw new Error('Identitas dokumen tidak valid.')
+    segments.push(normalized)
+  }
+  if (!segments.length) throw new Error('Identitas dokumen tidak valid.')
+  return clientApiPath(`/files/${segments.map(encodeURIComponent).join('/')}`)
 }
 
 async function perform(action: () => Promise<void>) {
@@ -412,6 +448,17 @@ function initializeDrafts(client: ClientDetail) {
     }
   }
 }
+
+watch(ticket, () => {
+  statusDraft.value = undefined
+  scheduleDrafts.value = {}
+  reportDrafts.value = {}
+  baDraft.value = undefined
+  baMapFile.value = null
+  baDocumentationFiles.value = []
+  baOtherFiles.value = []
+  error.value = ''
+})
 
 watch(
   () => clientQuery.data.value,
@@ -523,10 +570,10 @@ function plainText(value: string) {
               <section class="sub-card">
                 <strong>Dokumen layanan</strong>
                 <div class="button-row">
-                  <IonButton size="small" fill="outline" @click="openProtected(`/clients/${ticket}/ticket`)">
+                  <IonButton size="small" fill="outline" @click="openProtected(clientApiPath('/ticket'))">
                     Tiket
                   </IonButton>
-                  <IonButton size="small" fill="outline" @click="openProtected(`/clients/${ticket}/report-pdf`)">
+                  <IonButton size="small" fill="outline" @click="openProtected(clientApiPath('/report-pdf'))">
                     PDF laporan
                   </IonButton>
                 </div>
@@ -784,7 +831,7 @@ function plainText(value: string) {
                   <IonButton
                     size="small"
                     fill="outline"
-                    @click="openProtected(`/clients/${ticket}/berita-acara-pdf`)"
+                    @click="openProtected(clientApiPath('/berita-acara-pdf'))"
                   >
                     Buka PDF
                   </IonButton>

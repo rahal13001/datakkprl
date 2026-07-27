@@ -7,6 +7,10 @@ import {
 } from '@capacitor/push-notifications'
 import type { Router } from 'vue-router'
 import { api } from '@/api/client'
+import {
+  navigationFallback,
+  safeInternalRoute,
+} from '@/navigation/safeNavigation'
 
 const channels = [
   { id: 'assignments', name: 'Penugasan', importance: 4 },
@@ -16,7 +20,7 @@ const channels = [
   { id: 'system_updates', name: 'Pembaruan Sistem', importance: 2 },
 ] as const
 
-let initialized = false
+let listenersInitialized = false
 
 async function devicePayload(permission: PermissionStatus, token?: string) {
   const [identifier, info] = await Promise.all([Device.getId(), Device.getInfo()])
@@ -32,34 +36,34 @@ async function devicePayload(permission: PermissionStatus, token?: string) {
 }
 
 export async function initializePush(router: Router): Promise<void> {
-  if (!Capacitor.isNativePlatform() || initialized) return
-  initialized = true
+  if (!Capacitor.isNativePlatform()) return
 
-  for (const channel of channels) {
-    await PushNotifications.createChannel({
-      ...channel,
-      description: channel.name,
-      visibility: 0,
-      vibration: channel.importance >= 3,
+  if (!listenersInitialized) {
+    for (const channel of channels) {
+      await PushNotifications.createChannel({
+        ...channel,
+        description: channel.name,
+        visibility: 0,
+        vibration: channel.importance >= 3,
+      })
+    }
+
+    await PushNotifications.addListener('registration', async ({ value }) => {
+      const permission = await PushNotifications.checkPermissions()
+      await api.put('/me/device', await devicePayload(permission, value))
     })
+
+    await PushNotifications.addListener(
+      'pushNotificationActionPerformed',
+      async (event: ActionPerformed) => {
+        const destination = safeInternalRoute(event.notification.data?.route)
+        await router.push(
+          destination ?? navigationFallback('notifications', 'invalid_resource'),
+        )
+      },
+    )
+    listenersInitialized = true
   }
-
-  await PushNotifications.addListener('registration', async ({ value }) => {
-    const permission = await PushNotifications.checkPermissions()
-    await api.put('/me/device', await devicePayload(permission, value))
-  })
-
-  await PushNotifications.addListener(
-    'pushNotificationActionPerformed',
-    async (event: ActionPerformed) => {
-      const route = event.notification.data?.route
-      if (typeof route === 'string' && route.startsWith('/')) {
-        await router.push(route)
-      } else {
-        await router.push('/tabs/notifications')
-      }
-    },
-  )
 
   let permission = await PushNotifications.checkPermissions()
   if (permission.receive === 'prompt') {

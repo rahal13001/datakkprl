@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\ConsultationReport;
 use App\Services\MobileTransformer;
+use App\Services\SafeRichText;
 use App\Support\EnsuresMobileVersion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,8 @@ use Illuminate\Http\UploadedFile;
 class ConsultationReportController extends Controller
 {
     use EnsuresMobileVersion;
+
+    public function __construct(private readonly SafeRichText $richText) {}
 
     public function index(Client $client, MobileTransformer $transformer): JsonResponse
     {
@@ -60,13 +63,16 @@ class ConsultationReportController extends Controller
 
     private function validated(Request $request, bool $creating): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'version' => [$creating ? 'nullable' : 'required', 'string'],
             'content' => ['required', 'string'],
             'status' => ['required', 'in:draft,completed'],
             'documentation' => [$creating ? 'required' : 'sometimes', 'array', 'min:1', 'max:3'],
             'documentation.*' => ['image', 'max:10240'],
         ]);
+        $data['content'] = $this->richText->sanitize($data['content']);
+
+        return $data;
     }
 
     private function storeDocumentation(array $files): array

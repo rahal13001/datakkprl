@@ -7,6 +7,7 @@ import router from './router'
 import { useAuthStore } from '@/stores/auth'
 import { useAppConfigStore } from '@/stores/appConfig'
 import { initializePush } from '@/notifications/push'
+import { initializeAppLinks } from '@/navigation/appLinks'
 
 import '@ionic/vue/css/core.css'
 import '@ionic/vue/css/normalize.css'
@@ -48,6 +49,7 @@ async function initializeApplication(): Promise<void> {
   })
 
   await auth.initialize()
+  await initializeAppLinks(router).catch(() => undefined)
 
   if (auth.authenticated) {
     if (router.currentRoute.value.name === 'login') {

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BeritaAcara;
 use App\Models\Client;
 use App\Services\MobileTransformer;
+use App\Services\SafeRichText;
 use App\Services\SignatureService;
 use App\Support\EnsuresMobileVersion;
 use Illuminate\Http\JsonResponse;
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\DB;
 class BeritaAcaraController extends Controller
 {
     use EnsuresMobileVersion;
+
+    public function __construct(private readonly SafeRichText $richText) {}
 
     public function show(Client $client, MobileTransformer $transformer): JsonResponse
     {
@@ -85,7 +88,7 @@ class BeritaAcaraController extends Controller
 
     private function validated(Request $request, bool $updating): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'version' => [$updating ? 'required' : 'nullable', 'string'],
             'nomor_berita_acara' => ['nullable', 'string', 'max:100'],
             'kbli' => ['nullable', 'string', 'max:50'],
@@ -111,6 +114,11 @@ class BeritaAcaraController extends Controller
             'attendees.*.is_signatory' => ['required_with:attendees', 'boolean'],
             'attendees.*.signature' => $this->signatureRules(),
         ]);
+        if (array_key_exists('hasil_pendampingan', $data)) {
+            $data['hasil_pendampingan'] = $this->richText->sanitize($data['hasil_pendampingan']);
+        }
+
+        return $data;
     }
 
     private function signatureRules(): array

@@ -19,12 +19,22 @@ import { calendarOutline, chevronForwardOutline, locationOutline } from 'ionicon
 import { api, apiError } from '@/api/client'
 import StatusBadge from '@/components/StatusBadge.vue'
 import EmptyState from '@/components/EmptyState.vue'
+import { navigationMessage, requestDetailRoute } from '@/navigation/safeNavigation'
 import type { ApiEnvelope, ClientSummary } from '@/types/api'
 
 const route = useRoute()
-const status = ref(String(route.query.status ?? 'all'))
-const scope = ref(String(route.query.scope ?? 'all'))
+
+function filterValue(value: unknown, allowed: readonly string[], fallback: string): string {
+  const candidate = Array.isArray(value) ? value[0] : value
+  return typeof candidate === 'string' && allowed.includes(candidate) ? candidate : fallback
+}
+
+const status = ref(
+  filterValue(route.query.status, ['all', 'waiting', 'scheduled', 'completed'], 'all'),
+)
+const scope = ref(filterValue(route.query.scope, ['all', 'mine'], 'all'))
 const ticket = ref('')
+const navigationNotice = computed(() => navigationMessage(route.query.navigation_error))
 
 const params = computed(() => ({
   status: status.value === 'all' ? undefined : status.value,
@@ -42,8 +52,8 @@ const query = useQuery({
 watch(
   () => route.query,
   (value) => {
-    status.value = String(value.status ?? 'all')
-    scope.value = String(value.scope ?? 'all')
+    status.value = filterValue(value.status, ['all', 'waiting', 'scheduled', 'completed'], 'all')
+    scope.value = filterValue(value.scope, ['all', 'mine'], 'all')
   },
 )
 
@@ -75,6 +85,7 @@ function scheduleLabel(client: ClientSummary) {
         <IonRefresherContent />
       </IonRefresher>
       <main class="page-shell requests-shell">
+        <div v-if="navigationNotice" class="notice-box" role="status">{{ navigationNotice }}</div>
         <div class="scope-switch surface">
           <button :class="{ active: scope === 'all' }" @click="scope = 'all'">Semua</button>
           <button :class="{ active: scope === 'mine' }" @click="scope = 'mine'">Layanan saya</button>
@@ -108,7 +119,7 @@ function scheduleLabel(client: ClientSummary) {
           <router-link
             v-for="client in query.data.value"
             :key="client.ticket_number"
-            :to="`/requests/${client.ticket_number}`"
+            :to="requestDetailRoute(client.ticket_number)"
             class="request-row surface"
           >
             <div class="row-head">

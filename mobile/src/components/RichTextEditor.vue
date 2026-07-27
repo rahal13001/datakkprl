@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
+import { sanitizeRichText } from '@/security/sanitizeRichText'
 
 const model = defineModel<string>({ required: true })
 const editor = ref<HTMLElement>()
@@ -11,16 +12,26 @@ function format(command: 'bold' | 'italic' | 'insertUnorderedList') {
 }
 
 function update() {
-  model.value = editor.value?.innerHTML ?? ''
+  if (!editor.value) return
+  const sanitized = sanitizeRichText(editor.value.innerHTML)
+  if (editor.value.innerHTML !== sanitized) editor.value.innerHTML = sanitized
+  model.value = sanitized
+}
+
+function pastePlainText(event: ClipboardEvent) {
+  const text = event.clipboardData?.getData('text/plain') ?? ''
+  document.execCommand('insertText', false, text)
+  update()
 }
 
 onMounted(() => {
-  if (editor.value) editor.value.innerHTML = model.value
+  if (editor.value) editor.value.innerHTML = sanitizeRichText(model.value)
 })
 
 watch(model, (value) => {
-  if (editor.value && editor.value.innerHTML !== value) {
-    editor.value.innerHTML = value
+  const sanitized = sanitizeRichText(value)
+  if (editor.value && editor.value.innerHTML !== sanitized) {
+    editor.value.innerHTML = sanitized
   }
 })
 </script>
@@ -41,6 +52,7 @@ watch(model, (value) => {
       aria-multiline="true"
       @input="update"
       @blur="update"
+      @paste.prevent="pastePlainText"
     />
   </label>
 </template>
