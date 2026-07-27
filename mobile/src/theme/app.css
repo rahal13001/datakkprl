@@ -1,0 +1,148 @@
+html,
+body {
+  background: var(--app-surface);
+}
+
+ion-content {
+  --background: var(--app-surface);
+}
+
+ion-toolbar {
+  --background: rgba(255, 255, 255, 0.96);
+  --border-color: var(--app-line);
+}
+
+.page-shell {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 18px 16px 100px;
+}
+
+.eyebrow {
+  color: var(--ion-color-secondary-shade);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.page-title {
+  color: var(--app-ink);
+  font-size: clamp(1.65rem, 7vw, 2.35rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin: 6px 0;
+}
+
+.page-subtitle {
+  color: var(--app-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.surface {
+  background: #fff;
+  border: 1px solid var(--app-line);
+  border-radius: 20px;
+  box-shadow: 0 10px 35px rgba(12, 44, 64, 0.06);
+}
+
+.section-title {
+  align-items: center;
+  color: var(--app-ink);
+  display: flex;
+  font-size: 1rem;
+  font-weight: 800;
+  justify-content: space-between;
+  margin: 24px 2px 12px;
+}
+
+.offline-banner {
+  align-items: center;
+  background: #fff0d4;
+  color: #714300;
+  display: flex;
+  font-size: 0.82rem;
+  font-weight: 700;
+  gap: 8px;
+  justify-content: center;
+  padding: calc(8px + env(safe-area-inset-top)) 12px 8px;
+  position: relative;
+  z-index: 9999;
+}
+
+.status-pill {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 5px 9px;
+}
+
+.status-waiting {
+  background: #fff2d9;
+  color: #855000;
+}
+
+.status-scheduled {
+  background: #dceef7;
+  color: #145477;
+}
+
+.status-completed {
+  background: #daf0e5;
+  color: #17613d;
+}
+
+.metric-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.metric-card {
+  min-height: 120px;
+  padding: 17px;
+}
+
+.metric-value {
+  color: var(--app-ink);
+  display: block;
+  font-size: 2rem;
+  font-weight: 850;
+  letter-spacing: -0.06em;
+}
+
+.metric-label {
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+.error-box {
+  background: #fff0f1;
+  border: 1px solid #f0c8cc;
+  border-radius: 12px;
+  color: #8d252d;
+  font-size: 0.85rem;
+  margin: 12px 0;
+  padding: 12px;
+}
+
+.empty-state {
+  color: var(--app-muted);
+  padding: 44px 24px;
+  text-align: center;
+}
+
+.empty-state ion-icon {
+  color: #a6b5bd;
+  font-size: 2.5rem;
+}
+
+@media (min-width: 720px) {
+  .metric-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

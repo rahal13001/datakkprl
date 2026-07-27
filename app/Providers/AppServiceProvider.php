@@ -40,6 +40,9 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Assignment::observe(\App\Observers\AssignmentObserver::class);
         \App\Models\ConsultationReport::observe(\App\Observers\ConsultationReportObserver::class);
         \App\Models\BeritaAcara::observe(\App\Observers\BeritaAcaraObserver::class);
+        \App\Models\Schedule::observe(\App\Observers\ScheduleObserver::class);
+        \App\Models\SatisfactionSurvey::observe(\App\Observers\SatisfactionSurveyObserver::class);
+        \App\Models\PublicFeedback::observe(\App\Observers\PublicFeedbackObserver::class);
 
         \Filament\Support\Facades\FilamentView::registerRenderHook(
             \Filament\View\PanelsRenderHook::PAGE_START,

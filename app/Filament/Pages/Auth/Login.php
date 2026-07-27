@@ -2,16 +2,16 @@
 
 namespace App\Filament\Pages\Auth;
 
+use App\Actions\Mobile\AuthenticateSummaryUser;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Actions\Action;
+use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Validation\ValidationException;
-use App\Models\User;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
-use Filament\Auth\Http\Responses\Contracts\LoginResponse;
+use Illuminate\Validation\ValidationException;
 
 class Login extends BaseLogin
 {
@@ -28,7 +28,7 @@ class Login extends BaseLogin
         parent::mount();
     }
 
-    public function form(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
+    public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
@@ -54,51 +54,21 @@ class Login extends BaseLogin
         $this->validateCaptcha($data['captcha'] ?? null);
 
         try {
-            $response = Http::post('https://summary.timurbersinar.com/api/login', [
-                'email' => $data['email'],
-                'password' => $data['password'],
-            ]);
+            $user = app(AuthenticateSummaryUser::class)->handle(
+                $data['email'],
+                $data['password'],
+            );
+            Auth::login($user, $data['remember'] ?? false);
+            session()->regenerate();
 
-            if ($response->successful()) {
-                $responseData = $response->json();
-                
-                if (isset($responseData['data']['user'])) {
-                    $apiUser = $responseData['data']['user'];
-                    $token = $responseData['data']['access_token'] ?? null;
-
-                    // Update or create user in local database
-                    $user = User::updateOrCreate(
-                        ['email' => $apiUser['email']],
-                        [
-                            'name' => $apiUser['name'],
-                            'password' => bcrypt($data['password']), // Sync password or keep random
-                            'email_verified_at' => $apiUser['email_verified_at'],
-                            'summary_user_id' => $apiUser['id'], // Assuming migration added this
-                            'fcm_token' => $apiUser['fcm_token'] ?? null,
-                            'avatar_url' => $apiUser['avatar_url'] ?? null,
-                            'nip' => $apiUser['nip'] ?? null,
-                            'status' => $apiUser['status'] == '1',
-                            'jabatan' => $apiUser['jabatan'] ?? null,
-                            // 'custom_fields' => $apiUser['custom_fields'] ?? null, // Add if migration has it
-                        ]
-                    );
-
-                    // Log the user in
-                    Auth::login($user, $data['remember'] ?? false);
-
-                    session()->regenerate();
-
-                    return app(LoginResponse::class);
-                }
-            } else {
-                $this->generateCaptchaChallenge();
-
-                throw ValidationException::withMessages([
-                    'data.email' => 'Login failed. Please check your credentials and try again.',
-                ]);
-            }
+            return app(LoginResponse::class);
         } catch (ValidationException $e) {
-            throw $e;
+            $this->generateCaptchaChallenge();
+
+            throw ValidationException::withMessages([
+                'data.email' => $e->validator->errors()->first('email')
+                    ?: 'Login failed. Please check your credentials and try again.',
+            ]);
         } catch (\Throwable $e) {
             $this->generateCaptchaChallenge();
 

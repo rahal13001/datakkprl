@@ -2,13 +2,14 @@
 
 namespace App\Observers;
 
-use App\Models\Assignment;
-use App\Models\Client;
 use App\Mail\StaffAssigned;
 use App\Mail\StatusScheduledMail;
 use App\Mail\StatusWaitingMail;
-use Illuminate\Support\Facades\Mail;
+use App\Models\Assignment;
+use App\Models\Client;
+use App\Services\MobileNotificationService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class AssignmentObserver
 {
@@ -40,7 +41,7 @@ class AssignmentObserver
             $client = $assignment->schedule->client;
             if ($client && $client->status === 'waiting') {
                 $client->update(['status' => 'scheduled']);
-                
+
                 if ($client->email) {
                     Mail::to($client->email)->send(new StatusScheduledMail($client));
                     Log::info('StatusScheduledMail sent.', [
@@ -55,6 +56,8 @@ class AssignmentObserver
                 'exception' => get_class($e),
             ]);
         }
+
+        app(MobileNotificationService::class)->assignmentCreated($assignment);
     }
 
     /**
@@ -105,6 +108,16 @@ class AssignmentObserver
                 'assignment_id' => $assignment->id,
                 'exception' => get_class($e),
             ]);
+        }
+    }
+
+    public function updated(Assignment $assignment): void
+    {
+        if ($assignment->wasChanged(['user_id', 'status'])) {
+            app(MobileNotificationService::class)->assignmentChanged(
+                $assignment,
+                $assignment->wasChanged('user_id') ? (int) $assignment->getOriginal('user_id') : null,
+            );
         }
     }
 }

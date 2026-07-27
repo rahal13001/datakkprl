@@ -1,0 +1,560 @@
+openapi: 3.1.0
+info:
+  title: ServiceKKPRL Mobile API
+  version: 1.0.0
+  description: >
+    Versioned API for the internal ServiceKKPRL Capacitor application.
+    Laravel policies and Filament Shield remain authoritative.
+servers:
+  - url: https://kawanruanglaut.timurbersinar.com/api/mobile/v1
+security:
+  - bearerAuth: []
+tags:
+  - name: Configuration
+  - name: Authentication
+  - name: Account
+  - name: Dashboard
+  - name: Clients
+  - name: Schedules
+  - name: Assignments
+  - name: Reports
+  - name: Berita Acara
+  - name: Feedback
+  - name: Notifications
+  - name: Files
+paths:
+  /app-config:
+    get:
+      tags: [Configuration]
+      security: []
+      summary: Get version compatibility and maintenance state
+      parameters:
+        - { name: version, in: query, schema: { type: string } }
+        - { name: build, in: query, schema: { type: integer, minimum: 0 } }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /auth/login:
+    post:
+      tags: [Authentication]
+      security: []
+      summary: Authenticate through the Laravel Summary broker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginRequest" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "422": { $ref: "#/components/responses/Validation" }
+        "429": { description: Rate limited }
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Revoke the current installation token
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /auth/logout-all:
+    post:
+      tags: [Authentication]
+      summary: Revoke all mobile tokens for the current user
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /me:
+    get:
+      tags: [Account]
+      summary: Get current profile and capabilities
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /me/capabilities:
+    get:
+      tags: [Account]
+      summary: Refresh the server-calculated capability document
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /me/device:
+    put:
+      tags: [Account]
+      summary: Upsert installation and push registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DeviceRequest" }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Validation" }
+    delete:
+      tags: [Account]
+      summary: Disable the current installation registration
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /dashboard:
+    get:
+      tags: [Dashboard]
+      summary: Get policy-filtered operational cards and recent requests
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /staff:
+    get:
+      tags: [Assignments]
+      summary: Search active staff for assignment
+      parameters:
+        - { name: search, in: query, schema: { type: string, maxLength: 100 } }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /clients:
+    get:
+      tags: [Clients]
+      summary: List visible requests using cursor pagination
+      parameters:
+        - { name: scope, in: query, schema: { type: string, enum: [all, mine] } }
+        - { name: status, in: query, schema: { type: string, enum: [waiting, scheduled, completed] } }
+        - { name: service_id, in: query, schema: { type: integer } }
+        - { name: location_id, in: query, schema: { type: integer } }
+        - { name: activity_type, in: query, schema: { type: string, enum: [business, non_business] } }
+        - { name: date_from, in: query, schema: { type: string, format: date } }
+        - { name: date_until, in: query, schema: { type: string, format: date } }
+        - { name: ticket, in: query, schema: { type: string } }
+        - { name: cursor, in: query, schema: { type: string } }
+        - { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 50 } }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /clients/{ticket}:
+    parameters:
+      - $ref: "#/components/parameters/Ticket"
+    get:
+      tags: [Clients]
+      summary: Get an authorized request aggregate
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [Clients]
+      summary: Update permitted request fields
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/VersionedWrite"
+                - type: object
+                  properties:
+                    status: { type: string, enum: [waiting, scheduled, completed] }
+                    name: { type: string }
+                    email: { type: string, format: email }
+                    whatsapp: { type: string }
+                    address: { type: [string, "null"] }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Validation" }
+  /clients/{ticket}/schedules:
+    parameters:
+      - $ref: "#/components/parameters/Ticket"
+    post:
+      tags: [Schedules]
+      summary: Create a schedule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ScheduleWrite" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "422": { $ref: "#/components/responses/Validation" }
+  /clients/{ticket}/schedules/{schedule}:
+    parameters:
+      - $ref: "#/components/parameters/Ticket"
+      - { name: schedule, in: path, required: true, schema: { type: integer } }
+    patch:
+      tags: [Schedules]
+      summary: Update a schedule with optimistic concurrency
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/VersionedWrite"
+                - $ref: "#/components/schemas/ScheduleWrite"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /clients/{ticket}/assignments:
+    parameters:
+      - $ref: "#/components/parameters/Ticket"
+    post:
+      tags: [Assignments]
+      summary: Bulk-create officer assignments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [schedule_ids, user_ids]
+              properties:
+                schedule_ids: { type: array, minItems: 1, items: { type: integer } }
+                user_ids: { type: array, minItems: 1, items: { type: integer } }
+                status: { type: string, enum: [scheduled, hadir, izin_mendadak] }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+  /clients/{ticket}/assignments/{assignment}:
+    parameters:
+      - $ref: "#/components/parameters/Ticket"
+      - { name: assignment, in: path, required: true, schema: { type: integer } }
+    patch:
+      tags: [Assignments]
+      summary: Reassign an officer or update attendance status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/VersionedWrite"
+                - type: object
+                  properties:
+                    user_id: { type: integer }
+                    status: { type: string, enum: [scheduled, hadir, izin_mendadak] }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /clients/{ticket}/consultation-reports:
+    parameters:
+      - $ref: "#/components/parameters/Ticket"
+    get:
+      tags: [Reports]
+      summary: List consultation reports
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    post:
+      tags: [Reports]
+      summary: Create a report with one to three documentation images
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: "#/components/schemas/ReportWrite" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+  /clients/{ticket}/consultation-reports/{report}:
+    parameters:
+      - $ref: "#/components/parameters/Ticket"
+      - { name: report, in: path, required: true, schema: { type: integer } }
+    patch:
+      tags: [Reports]
+      summary: Update a consultation report
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/VersionedWrite"
+                - $ref: "#/components/schemas/ReportWrite"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /clients/{ticket}/berita-acara:
+    parameters:
+      - $ref: "#/components/parameters/Ticket"
+    get:
+      tags: [Berita Acara]
+      summary: Get Berita Acara and participants
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+    post:
+      tags: [Berita Acara]
+      summary: Create Berita Acara when none exists
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: "#/components/schemas/BeritaAcaraWrite" }
+      responses:
+        "201": { $ref: "#/components/responses/Success" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /clients/{ticket}/berita-acara/{beritaAcara}:
+    parameters:
+      - $ref: "#/components/parameters/Ticket"
+      - { name: beritaAcara, in: path, required: true, schema: { type: integer } }
+    patch:
+      tags: [Berita Acara]
+      summary: Update data, participants, signatures, and attachments
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/VersionedWrite"
+                - $ref: "#/components/schemas/BeritaAcaraWrite"
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /clients/{ticket}/berita-acara/{beritaAcara}/attendance-link:
+    parameters:
+      - $ref: "#/components/parameters/Ticket"
+      - { name: beritaAcara, in: path, required: true, schema: { type: integer } }
+    get:
+      tags: [Berita Acara]
+      summary: Get the existing public attendance URL
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /clients/{ticket}/berita-acara/{beritaAcara}/signing-links:
+    parameters:
+      - $ref: "#/components/parameters/Ticket"
+      - { name: beritaAcara, in: path, required: true, schema: { type: integer } }
+    get:
+      tags: [Berita Acara]
+      summary: Get existing participant signing URLs
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /clients/{ticket}/files/{path}:
+    parameters:
+      - $ref: "#/components/parameters/Ticket"
+      - { name: path, in: path, required: true, schema: { type: string } }
+    get:
+      tags: [Files]
+      summary: Stream an authorized private file
+      responses:
+        "200": { description: Private file stream }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /clients/{ticket}/ticket:
+    parameters: [{ $ref: "#/components/parameters/Ticket" }]
+    get:
+      tags: [Files]
+      summary: Render the established ticket output
+      responses:
+        "200": { description: Ticket document }
+  /clients/{ticket}/report-pdf:
+    parameters: [{ $ref: "#/components/parameters/Ticket" }]
+    get:
+      tags: [Files]
+      summary: Render the established consultation report PDF
+      responses:
+        "200": { description: PDF }
+  /clients/{ticket}/berita-acara-pdf:
+    parameters: [{ $ref: "#/components/parameters/Ticket" }]
+    get:
+      tags: [Files]
+      summary: Render the established Berita Acara PDF
+      responses:
+        "200": { description: PDF }
+  /satisfaction-surveys:
+    get:
+      tags: [Feedback]
+      summary: List authorized satisfaction surveys
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /satisfaction-surveys/{survey}:
+    parameters:
+      - { name: survey, in: path, required: true, schema: { type: integer } }
+    get:
+      tags: [Feedback]
+      summary: Get an authorized satisfaction survey
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /public-feedback:
+    get:
+      tags: [Feedback]
+      summary: List authorized public feedback
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /public-feedback/{feedback}:
+    parameters:
+      - { name: feedback, in: path, required: true, schema: { type: integer } }
+    get:
+      tags: [Feedback]
+      summary: Get authorized public feedback
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: List the current user's durable inbox
+      parameters:
+        - { name: cursor, in: query, schema: { type: string } }
+        - { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 50 } }
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /notifications/unread-count:
+    get:
+      tags: [Notifications]
+      summary: Get unread inbox count
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /notifications/{notification}:
+    parameters:
+      - { name: notification, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Notifications]
+      summary: Get one inbox notification owned by the current user
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /notifications/{notification}/read:
+    parameters:
+      - { name: notification, in: path, required: true, schema: { type: string, format: uuid } }
+    patch:
+      tags: [Notifications]
+      summary: Mark an owned notification read
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+  /notifications/read-all:
+    post:
+      tags: [Notifications]
+      summary: Mark all current-user notifications read
+      responses:
+        "200": { $ref: "#/components/responses/Success" }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+  parameters:
+    Ticket:
+      name: ticket
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: "^TICKET-[0-9]{8}-[A-Z0-9]{4}$"
+  schemas:
+    VersionedWrite:
+      type: object
+      required: [version]
+      properties:
+        version: { type: string, format: date-time }
+    LoginRequest:
+      type: object
+      required: [email, password, installation_id, device_name, platform, app_version, build_number]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, format: password }
+        installation_id: { type: string }
+        device_name: { type: string }
+        platform: { type: string, enum: [android, ios] }
+        app_version: { type: string }
+        build_number: { type: integer, minimum: 1 }
+        notification_permission:
+          type: string
+          enum: [prompt, prompt-with-rationale, granted, denied]
+    DeviceRequest:
+      type: object
+      required: [installation_id, device_name, platform, app_version, build_number]
+      properties:
+        installation_id: { type: string }
+        device_name: { type: string }
+        platform: { type: string, enum: [android, ios] }
+        app_version: { type: string }
+        build_number: { type: integer, minimum: 1 }
+        push_registration: { type: [string, "null"], writeOnly: true }
+        notification_permission: { type: string }
+    ScheduleWrite:
+      type: object
+      required: [date, start_time, end_time, is_online]
+      properties:
+        date: { type: string, format: date }
+        start_time: { type: string, pattern: "^[0-9]{2}:[0-9]{2}$" }
+        end_time: { type: string, pattern: "^[0-9]{2}:[0-9]{2}$" }
+        is_online: { type: boolean }
+        meeting_link: { type: [string, "null"], format: uri }
+    ReportWrite:
+      type: object
+      required: [content, status]
+      properties:
+        content: { type: string }
+        status: { type: string, enum: [draft, completed] }
+        documentation:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items: { type: string, format: binary }
+    BeritaAcaraWrite:
+      type: object
+      required: [tanggal_pelaksanaan, status, attendance_is_open]
+      properties:
+        nomor_berita_acara: { type: [string, "null"] }
+        kbli: { type: [string, "null"] }
+        tanggal_pelaksanaan: { type: string, format: date }
+        lokasi_permohonan: { type: [string, "null"] }
+        hasil_pendampingan: { type: [string, "null"] }
+        status: { type: string, enum: [draft, completed] }
+        attendance_is_open: { type: boolean }
+        applicant_signature: { type: [string, "null"], description: Data URL accepted by the existing signature service }
+        map_attachment: { type: string, format: binary }
+        documentation_attachments:
+          type: array
+          maxItems: 6
+          items: { type: string, format: binary }
+        other_attachments:
+          type: array
+          maxItems: 5
+          items: { type: string, format: binary }
+        attendees:
+          type: array
+          items:
+            type: object
+            required: [name, is_officer, is_signatory]
+            properties:
+              id: { type: integer }
+              name: { type: string }
+              position: { type: [string, "null"] }
+              institution: { type: [string, "null"] }
+              email: { type: [string, "null"], format: email }
+              phone: { type: [string, "null"] }
+              is_officer: { type: boolean }
+              is_signatory: { type: boolean }
+              signature: { type: [string, "null"] }
+    Error:
+      type: object
+      required: [message, code, request_id]
+      properties:
+        message: { type: string }
+        code: { type: string }
+        request_id: { type: string, format: uuid }
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+  responses:
+    Success:
+      description: Successful envelope
+      headers:
+        X-Request-Id:
+          schema: { type: string, format: uuid }
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data: {}
+              meta: { type: object, additionalProperties: true }
+              links: { type: object, additionalProperties: true }
+    Validation:
+      description: Validation failed
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Forbidden:
+      description: Authenticated but unauthorized
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: Missing or deliberately hidden resource
+    Conflict:
+      description: Existing resource or stale version conflict
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }

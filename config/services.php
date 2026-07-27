@@ -39,4 +39,14 @@ return [
         'key' => env('GROQ_API_KEY'),
     ],
 
+    'summary' => [
+        'login_url' => env('SUMMARY_LOGIN_URL', 'https://summary.timurbersinar.com/api/login'),
+        'timeout' => (int) env('SUMMARY_LOGIN_TIMEOUT', 15),
+    ],
+
+    'firebase' => [
+        'project_id' => env('FIREBASE_PROJECT_ID'),
+        'credentials' => env('FIREBASE_CREDENTIALS'),
+    ],
+
 ];
