@@ -1,0 +1,1 @@
+import{d as s,o as e,n,t as i,T as l}from"./index-XII0Llbn.js";const u=s({__name:"StatusBadge",props:{status:{}},setup(a){const t={waiting:"Menunggu",scheduled:"Dijadwalkan",completed:"Selesai",hadir:"Hadir",izin_mendadak:"Izin mendadak",draft:"Draft"};return(d,o)=>(e(),n("span",{class:l(["status-pill",`status-${a.status}`])},i(t[a.status]??a.status),3))}});export{u as _};

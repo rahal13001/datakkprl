@@ -1,5 +1,7 @@
 <script setup lang="ts">
-defineProps<{ status: string }>()
+import { computed } from 'vue'
+
+const props = defineProps<{ status: string }>()
 
 const labels: Record<string, string> = {
   waiting: 'Menunggu',
@@ -9,10 +11,18 @@ const labels: Record<string, string> = {
   izin_mendadak: 'Izin mendadak',
   draft: 'Draft',
 }
+
+const label = computed(() => labels[props.status] ?? props.status.replaceAll('_', ' '))
+const visualStatus = computed(() => props.status in labels ? props.status : 'unknown')
 </script>
 
 <template>
-  <span class="status-pill" :class="`status-${status}`">
-    {{ labels[status] ?? status }}
+  <span
+    class="status-pill"
+    :class="[`status-${status}`, `status-${visualStatus}`]"
+    role="status"
+    :aria-label="`Status: ${label}`"
+  >
+    {{ label }}
   </span>
 </template>

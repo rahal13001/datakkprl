@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">ServiceKKPRL</string>
-    <string name="title_activity_main">ServiceKKPRL</string>
+    <string name="app_name">Jago KKPRL</string>
+    <string name="title_activity_main">Jago KKPRL</string>
     <string name="package_name">com.timurbersinar.servicekkprl</string>
     <string name="custom_url_scheme">com.timurbersinar.servicekkprl</string>
 </resources>

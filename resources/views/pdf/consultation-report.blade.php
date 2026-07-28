@@ -95,6 +95,18 @@
             color: #666;
             text-align: left;
         }
+        .signature-block {
+            margin-left: auto;
+            margin-top: 34px;
+            text-align: center;
+            width: 240px;
+        }
+        .signature-image {
+            height: 72px;
+            margin: 8px auto 2px;
+            object-fit: contain;
+            width: 190px;
+        }
         .text-upper { text-transform: uppercase; }
         .text-bold { font-weight: bold; }
     </style>
@@ -165,6 +177,19 @@
                 </div>
                 @endif
             @endforeach
+        </div>
+        @endif
+
+        @if($report->officer_signature)
+        <div class="signature-block">
+            <div>Petugas layanan,</div>
+            <img
+                class="signature-image"
+                src="{{ app(\App\Services\SignatureService::class)->retrieveAsDataUri($report->officer_signature) }}"
+                alt="Tanda tangan petugas"
+            >
+            <div class="text-bold">{{ $report->signer?->name ?? 'Petugas KKPRL' }}</div>
+            <div>{{ $report->signer?->jabatan ?? '' }}</div>
         </div>
         @endif
 

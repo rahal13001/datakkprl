@@ -47,14 +47,35 @@ const auth = useAuthStore()
 
 <style scoped>
 ion-tab-bar {
-  --background: rgba(255, 255, 255, 0.97);
-  border-top: 1px solid var(--app-line);
-  padding: 5px 8px max(5px, env(safe-area-inset-bottom));
+  --background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(18px);
+  border-top: 1px solid rgba(163, 184, 194, 0.42);
+  box-shadow: 0 -12px 32px rgba(8, 43, 69, 0.1);
+  min-height: calc(4.75rem + env(safe-area-inset-bottom));
+  padding: var(--app-space-1) var(--app-space-2) var(--app-safe-bottom);
 }
 
 ion-tab-button {
-  --color: #7b8c96;
+  --color: #718590;
   --color-selected: var(--ion-color-primary);
+  border-radius: var(--app-radius-lg);
   font-weight: 650;
+  min-height: var(--app-touch-target);
+}
+
+ion-tab-button.tab-selected {
+  --background: linear-gradient(145deg, rgba(21, 160, 166, 0.16), rgba(13, 77, 104, 0.1));
+  font-weight: 800;
+}
+
+ion-tab-button ion-icon {
+  font-size: var(--app-icon-md);
+}
+
+ion-tab-button.tab-selected ion-icon {
+  background: var(--ion-color-primary);
+  border-radius: var(--app-radius-pill);
+  color: white;
+  padding: 0.32rem 0.7rem;
 }
 </style>

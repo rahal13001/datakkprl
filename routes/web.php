@@ -147,6 +147,7 @@ Route::get('/clients/{client}/report/download', function (Request $request, Clie
     if (! $report) {
         abort(404, 'Belum ada laporan konsultasi.');
     }
+    $report->load('signer');
 
     $pdf = Pdf::loadView('pdf.consultation-report', compact('client', 'report'));
     $pdf->setPaper('a4', 'portrait');

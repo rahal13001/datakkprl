@@ -31,7 +31,7 @@ class MobileFileController extends Controller
     public function report(Client $client): Response
     {
         $this->authorize('view', $client);
-        $report = $client->latestConsultationReport;
+        $report = $client->latestConsultationReport()->with('signer')->first();
         abort_unless($report, 404, 'No consultation report exists.');
 
         return Pdf::loadView('pdf.consultation-report', compact('client', 'report'))

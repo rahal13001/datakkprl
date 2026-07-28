@@ -17,13 +17,13 @@ const appConfig = useAppConfigStore()
           </span>
           <h1>
             {{ appConfig.config?.maintenance.enabled
-              ? 'ServiceKKPRL sedang dalam pemeliharaan.'
+              ? 'Jago KKPRL sedang dalam pemeliharaan.'
               : 'Versi aplikasi ini sudah tidak didukung.' }}
           </h1>
           <p>
             {{ appConfig.config?.maintenance.enabled
               ? (appConfig.config.maintenance.message || 'Silakan coba kembali beberapa saat lagi.')
-              : 'Pasang versi ServiceKKPRL terbaru dari Firebase App Distribution untuk melanjutkan.' }}
+              : 'Pasang versi Jago KKPRL terbaru dari Firebase App Distribution untuk melanjutkan.' }}
           </p>
           <IonButton
             v-if="!appConfig.config?.maintenance.enabled && appConfig.config?.distribution_url"

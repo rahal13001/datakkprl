@@ -4,16 +4,17 @@ import { useQuery } from '@tanstack/vue-query'
 import {
   IonButton,
   IonContent,
-  IonHeader,
   IonIcon,
   IonPage,
   IonRefresher,
   IonRefresherContent,
-  IonSkeletonText,
-  IonToolbar,
 } from '@ionic/vue'
 import { arrowForwardOutline, chatbubblesOutline, notificationsOutline } from 'ionicons/icons'
 import { api, apiError } from '@/api/client'
+import AppHeader from '@/components/AppHeader.vue'
+import ErrorState from '@/components/ErrorState.vue'
+import LoadingSkeleton from '@/components/LoadingSkeleton.vue'
+import PageContainer from '@/components/PageContainer.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -56,24 +57,21 @@ function dateLabel(value?: string) {
 
 <template>
   <IonPage>
-    <IonHeader>
-      <IonToolbar>
-        <div class="toolbar-brand">
-          <span>ServiceKKPRL</span>
-          <router-link to="/tabs/notifications" aria-label="Notifikasi">
+    <AppHeader title="Jago KKPRL" eyebrow="Ruang layanan">
+      <template #actions>
+          <router-link class="notification-link" to="/tabs/notifications" aria-label="Notifikasi">
             <IonIcon :icon="notificationsOutline" />
             <b v-if="query.data.value?.counts.unread_notifications">
               {{ query.data.value.counts.unread_notifications }}
             </b>
           </router-link>
-        </div>
-      </IonToolbar>
-    </IonHeader>
+      </template>
+    </AppHeader>
     <IonContent>
       <IonRefresher slot="fixed" @ion-refresh="refresh">
         <IonRefresherContent />
       </IonRefresher>
-      <main class="page-shell">
+      <PageContainer>
         <section class="welcome">
           <span class="eyebrow">Ringkasan operasional</span>
           <h1 class="page-title">Selamat bertugas, {{ firstName }}.</h1>
@@ -90,16 +88,19 @@ function dateLabel(value?: string) {
           </IonButton>
         </section>
 
-        <div v-if="query.isLoading.value" class="metric-grid">
-          <div v-for="index in 4" :key="index" class="metric-card surface">
-            <IonSkeletonText :animated="true" style="width: 45%; height: 35px" />
-            <IonSkeletonText :animated="true" style="width: 75%" />
-          </div>
-        </div>
+        <LoadingSkeleton
+          v-if="query.isLoading.value"
+          :rows="4"
+          compact
+          label="Memuat ringkasan operasional"
+        />
 
-        <div v-else-if="query.error.value" class="error-box">
-          {{ apiError(query.error.value) }}
-        </div>
+        <ErrorState
+          v-else-if="query.error.value"
+          compact
+          :message="apiError(query.error.value)"
+          @retry="query.refetch()"
+        />
 
         <div v-else class="metric-grid">
           <router-link to="/tabs/requests" class="metric-card surface">
@@ -160,28 +161,19 @@ function dateLabel(value?: string) {
           <IonIcon slot="start" :icon="chatbubblesOutline" />
           Masukan & penilaian
         </IonButton>
-      </main>
+      </PageContainer>
     </IonContent>
   </IonPage>
 </template>
 
 <style scoped>
-.toolbar-brand {
-  align-items: center;
-  color: var(--app-ink);
-  display: flex;
-  font-weight: 850;
-  justify-content: space-between;
-  padding: 0 18px;
-}
-
-.toolbar-brand a {
-  color: var(--ion-color-primary);
+.notification-link {
+  color: white;
   font-size: 1.35rem;
   position: relative;
 }
 
-.toolbar-brand b {
+.notification-link b {
   align-items: center;
   background: var(--ion-color-secondary);
   border: 2px solid #fff;

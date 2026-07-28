@@ -5,12 +5,10 @@ import { useRoute, useRouter } from 'vue-router'
 import {
   IonButton,
   IonContent,
-  IonHeader,
   IonIcon,
   IonPage,
   IonRefresher,
   IonRefresherContent,
-  IonToolbar,
 } from '@ionic/vue'
 import {
   calendarOutline,
@@ -21,7 +19,12 @@ import {
   waterOutline,
 } from 'ionicons/icons'
 import { api, apiError } from '@/api/client'
+import AppHeader from '@/components/AppHeader.vue'
 import EmptyState from '@/components/EmptyState.vue'
+import ErrorState from '@/components/ErrorState.vue'
+import LoadingSkeleton from '@/components/LoadingSkeleton.vue'
+import PageContainer from '@/components/PageContainer.vue'
+import PaginationControl from '@/components/PaginationControl.vue'
 import {
   navigationFallback,
   navigationMessage,
@@ -30,17 +33,36 @@ import {
 } from '@/navigation/safeNavigation'
 import type { ApiEnvelope, MobileNotification } from '@/types/api'
 
+interface NotificationMeta extends Record<string, unknown> {
+  next_cursor?: string | null
+  unread_count?: number
+}
+
 const router = useRouter()
 const route = useRoute()
 const queryClient = useQueryClient()
 const actionError = ref('')
+const cursor = ref<string>()
+const cursorHistory = ref<string[]>([])
+const page = ref(1)
+const readAllLoading = ref(false)
 const navigationNotice = computed(() => navigationMessage(route.query.navigation_error))
 const query = useQuery({
-  queryKey: ['notifications'],
-  queryFn: async () =>
-    (await api.get<ApiEnvelope<MobileNotification[]>>('/notifications', { params: { per_page: 50 } }))
-      .data.data,
+  queryKey: ['notifications', cursor],
+  queryFn: async () => {
+    const response = await api.get<ApiEnvelope<MobileNotification[], NotificationMeta>>(
+      '/notifications',
+      { params: { cursor: cursor.value, per_page: 20 } },
+    )
+    return {
+      items: response.data.data,
+      nextCursor: response.data.meta?.next_cursor ?? null,
+      unreadCount: response.data.meta?.unread_count ?? 0,
+    }
+  },
 })
+
+const notifications = computed(() => query.data.value?.items ?? [])
 
 function icon(type: string) {
   if (type.startsWith('assignment.')) return personAddOutline
@@ -73,17 +95,39 @@ async function open(notification: MobileNotification) {
       await queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     }
     const destination = safeInternalRoute(notification.route)
-    await router.push(
-      destination ?? navigationFallback('notifications', 'invalid_resource'),
-    )
+    await router.push(destination ?? navigationFallback('notifications', 'invalid_resource'))
   } catch (reason) {
     actionError.value = apiError(reason)
   }
 }
 
 async function readAll() {
-  await api.post('/notifications/read-all')
-  await query.refetch()
+  if (readAllLoading.value) return
+  actionError.value = ''
+  readAllLoading.value = true
+  try {
+    await api.post('/notifications/read-all')
+    await queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    await query.refetch()
+  } catch (reason) {
+    actionError.value = apiError(reason)
+  } finally {
+    readAllLoading.value = false
+  }
+}
+
+function nextPage() {
+  const next = query.data.value?.nextCursor
+  if (!next) return
+  cursorHistory.value.push(cursor.value ?? '')
+  cursor.value = next
+  page.value += 1
+}
+
+function previousPage() {
+  if (!cursorHistory.value.length) return
+  cursor.value = cursorHistory.value.pop() || undefined
+  page.value = Math.max(1, page.value - 1)
 }
 
 async function refresh(event: CustomEvent) {
@@ -94,125 +138,130 @@ async function refresh(event: CustomEvent) {
 
 <template>
   <IonPage>
-    <IonHeader>
-      <IonToolbar>
-        <div class="notification-toolbar">
-          <div>
-            <span class="eyebrow">Pusat informasi</span>
-            <h1>Notifikasi</h1>
-          </div>
-          <IonButton fill="clear" size="small" @click="readAll">
-            <IonIcon slot="start" :icon="checkmarkDoneOutline" />
-            Baca semua
-          </IonButton>
-        </div>
-      </IonToolbar>
-    </IonHeader>
+    <AppHeader title="Notifikasi" eyebrow="Pusat informasi">
+      <template #actions>
+        <IonButton
+          fill="clear"
+          :disabled="readAllLoading || !query.data.value?.unreadCount"
+          @click="readAll"
+        >
+          <IonIcon slot="start" :icon="checkmarkDoneOutline" aria-hidden="true" />
+          {{ readAllLoading ? 'Memproses…' : 'Baca semua' }}
+        </IonButton>
+      </template>
+    </AppHeader>
     <IonContent>
-      <IonRefresher slot="fixed" @ion-refresh="refresh"><IonRefresherContent /></IonRefresher>
-      <main class="page-shell notification-shell">
+      <IonRefresher slot="fixed" @ion-refresh="refresh">
+        <IonRefresherContent />
+      </IonRefresher>
+      <PageContainer compact>
         <div v-if="navigationNotice" class="notice-box" role="status">{{ navigationNotice }}</div>
         <div v-if="actionError" class="error-box" role="alert">{{ actionError }}</div>
-        <div v-if="query.error.value" class="error-box">{{ apiError(query.error.value) }}</div>
-        <div v-else-if="query.data.value?.length" class="notification-list">
+
+        <LoadingSkeleton v-if="query.isLoading.value" :rows="5" label="Memuat notifikasi" />
+        <ErrorState
+          v-else-if="query.error.value"
+          :message="apiError(query.error.value)"
+          @retry="query.refetch()"
+        />
+
+        <div v-else-if="notifications.length" class="notification-list">
           <button
-            v-for="notification in query.data.value"
+            v-for="notification in notifications"
             :key="notification.id"
+            type="button"
             class="notification-item surface"
             :class="{ unread: !notification.read_at }"
             @click="open(notification)"
           >
-            <span class="notification-icon"><IonIcon :icon="icon(notification.type)" /></span>
+            <span class="notification-icon">
+              <IonIcon :icon="icon(notification.type)" aria-hidden="true" />
+            </span>
             <span class="notification-copy">
               <strong>{{ notification.title }}</strong>
               <span>{{ notification.body }}</span>
               <small>{{ time(notification.created_at) }}</small>
             </span>
-            <i v-if="!notification.read_at" />
+            <i v-if="!notification.read_at" aria-label="Belum dibaca" />
           </button>
         </div>
         <EmptyState
-          v-else-if="!query.isLoading.value"
+          v-else
           title="Belum ada notifikasi"
           body="Penugasan, perubahan jadwal, dan masukan baru akan tersimpan di sini."
         />
-      </main>
+
+        <PaginationControl
+          v-if="query.data.value"
+          :page="page"
+          :item-count="notifications.length"
+          :has-previous="cursorHistory.length > 0"
+          :has-next="Boolean(query.data.value.nextCursor)"
+          :loading="query.isFetching.value"
+          @previous="previousPage"
+          @next="nextPage"
+        />
+      </PageContainer>
     </IonContent>
   </IonPage>
 </template>
 
 <style scoped>
-.notification-toolbar {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 12px 8px 18px;
-}
-
-.notification-toolbar h1 {
-  color: var(--app-ink);
-  font-size: 1.25rem;
-  margin: 2px 0;
-}
-
-.notification-shell {
-  padding-top: 14px;
-}
-
 .notification-list {
   display: grid;
-  gap: 10px;
+  gap: var(--app-space-3);
 }
 
 .notification-item {
   align-items: flex-start;
   display: grid;
-  gap: 12px;
-  grid-template-columns: 42px 1fr auto;
-  padding: 15px;
+  gap: var(--app-space-3);
+  grid-template-columns: 2.75rem 1fr auto;
+  min-height: 5rem;
+  padding: var(--app-space-3);
   text-align: left;
   width: 100%;
 }
 
 .notification-item.unread {
-  border-color: #b8d5df;
-  box-shadow: 0 10px 35px rgba(13, 49, 80, 0.1);
+  background: color-mix(in srgb, var(--app-color-info-soft) 50%, white);
+  border-color: color-mix(in srgb, var(--app-color-info) 35%, white);
 }
 
 .notification-icon {
   align-items: center;
-  background: #e8f0f3;
-  border-radius: 13px;
-  color: var(--ion-color-primary);
+  background: var(--app-color-info-soft);
+  border-radius: var(--app-radius-md);
+  color: var(--app-color-info);
   display: flex;
-  font-size: 1.2rem;
-  height: 42px;
+  font-size: var(--app-icon-md);
+  height: 2.75rem;
   justify-content: center;
-  width: 42px;
+  width: 2.75rem;
 }
 
 .notification-copy {
   display: grid;
-  gap: 4px;
+  gap: var(--app-space-1);
 }
 
 .notification-copy strong {
-  color: var(--app-ink);
-  font-size: 0.9rem;
+  color: var(--app-color-text);
+  font-size: var(--app-font-size-sm);
 }
 
 .notification-copy > span,
 .notification-copy small {
-  color: var(--app-muted);
-  font-size: 0.78rem;
-  line-height: 1.45;
+  color: var(--app-color-text-secondary);
+  font-size: var(--app-font-size-xs);
+  line-height: var(--app-line-height-body);
 }
 
 .notification-item i {
-  background: var(--ion-color-secondary);
+  background: var(--app-color-accent);
   border-radius: 50%;
-  height: 8px;
-  margin-top: 8px;
-  width: 8px;
+  height: 0.5rem;
+  margin-top: var(--app-space-2);
+  width: 0.5rem;
 }
 </style>

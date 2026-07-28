@@ -22,4 +22,10 @@ describe('sanitizeRichText', () => {
       ),
     ).toBe('<table><tbody><tr><td>Kolom</td></tr></tbody></table>')
   })
+
+  it('preserves the ordered and unordered lists offered by the mobile toolbar', () => {
+    expect(
+      sanitizeRichText('<ol><li>Satu</li></ol><ul><li>Dua</li></ul>'),
+    ).toBe('<ol><li>Satu</li></ol><ul><li>Dua</li></ul>')
+  })
 })

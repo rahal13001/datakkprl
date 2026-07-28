@@ -19,6 +19,14 @@ export interface UserProfile {
   active: boolean
 }
 
+export interface StaffMember {
+  id: number
+  name: string
+  nip?: string | null
+  jabatan?: string | null
+  instansi?: string | null
+}
+
 export interface Schedule {
   id: number
   date: string
@@ -48,6 +56,13 @@ export interface ConsultationReport {
   content: string
   status: 'draft' | 'completed'
   documentation: Array<{ path: string; name: string }>
+  has_signature: boolean
+  signed_by?: {
+    id: number
+    name: string
+    jabatan?: string | null
+  } | null
+  signed_at?: string | null
   version: string
   created_at: string
 }
@@ -136,9 +151,12 @@ export interface MobileNotification {
   created_at: string
 }
 
-export interface ApiEnvelope<T> {
+export interface ApiEnvelope<
+  T,
+  TMeta extends Record<string, unknown> = Record<string, unknown>,
+> {
   data: T
-  meta?: Record<string, unknown>
+  meta?: TMeta
   links?: Record<string, string | null>
 }
 

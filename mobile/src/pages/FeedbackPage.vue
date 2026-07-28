@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import {
-  IonBackButton,
-  IonButtons,
   IonContent,
-  IonHeader,
   IonPage,
   IonSegment,
   IonSegmentButton,
-  IonToolbar,
 } from '@ionic/vue'
 import { api, apiError } from '@/api/client'
+import AppHeader from '@/components/AppHeader.vue'
 import EmptyState from '@/components/EmptyState.vue'
+import ErrorState from '@/components/ErrorState.vue'
+import LoadingSkeleton from '@/components/LoadingSkeleton.vue'
+import PageContainer from '@/components/PageContainer.vue'
+import PaginationControl from '@/components/PaginationControl.vue'
 import { useAuthStore } from '@/stores/auth'
 import {
   navigationFallback,
@@ -23,13 +24,30 @@ import {
 } from '@/navigation/safeNavigation'
 import type { ApiEnvelope, PublicFeedback, SatisfactionSurvey } from '@/types/api'
 
+interface CursorMeta extends Record<string, unknown> {
+  next_cursor?: string | null
+}
+
+interface PageState {
+  cursor?: string
+  history: string[]
+  page: number
+}
+
 const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 const detailId = computed(() => route.params.id ? validPositiveId(route.params.id) : null)
 const routeType = computed(() => String(route.name ?? '').includes('public') ? 'public' : 'satisfaction')
-const tab = ref(detailId.value ? routeType.value : (auth.can('satisfaction_surveys', 'list') ? 'satisfaction' : 'public'))
+const tab = ref(
+  detailId.value
+    ? routeType.value
+    : (auth.can('satisfaction_surveys', 'list') ? 'satisfaction' : 'public'),
+)
 const navigationNotice = computed(() => navigationMessage(route.query.navigation_error))
+const satisfactionPage = reactive<PageState>({ cursor: undefined, history: [], page: 1 })
+const publicPage = reactive<PageState>({ cursor: undefined, history: [], page: 1 })
+const activePage = computed(() => tab.value === 'satisfaction' ? satisfactionPage : publicPage)
 
 async function unavailable(reason: unknown): Promise<never> {
   if (axios.isAxiosError(reason) && [403, 404, 410].includes(reason.response?.status ?? 0)) {
@@ -39,15 +57,22 @@ async function unavailable(reason: unknown): Promise<never> {
 }
 
 const satisfaction = useQuery({
-  queryKey: ['satisfaction-surveys', detailId],
+  queryKey: ['satisfaction-surveys', detailId, computed(() => satisfactionPage.cursor)],
   queryFn: async () => {
     if (detailId.value && routeType.value === 'satisfaction') {
       const response = await api.get<ApiEnvelope<SatisfactionSurvey>>(
         `/satisfaction-surveys/${detailId.value}`,
       ).catch(unavailable)
-      return [response.data.data]
+      return { items: [response.data.data], nextCursor: null }
     }
-    return (await api.get<ApiEnvelope<SatisfactionSurvey[]>>('/satisfaction-surveys')).data.data
+    const response = await api.get<ApiEnvelope<SatisfactionSurvey[], CursorMeta>>(
+      '/satisfaction-surveys',
+      { params: { cursor: satisfactionPage.cursor, per_page: 20 } },
+    )
+    return {
+      items: response.data.data,
+      nextCursor: response.data.meta?.next_cursor ?? null,
+    }
   },
   enabled: computed(() =>
     detailId.value
@@ -55,16 +80,24 @@ const satisfaction = useQuery({
       : auth.can('satisfaction_surveys', 'list'),
   ),
 })
+
 const publicFeedback = useQuery({
-  queryKey: ['public-feedback', detailId],
+  queryKey: ['public-feedback', detailId, computed(() => publicPage.cursor)],
   queryFn: async () => {
     if (detailId.value && routeType.value === 'public') {
       const response = await api.get<ApiEnvelope<PublicFeedback>>(
         `/public-feedback/${detailId.value}`,
       ).catch(unavailable)
-      return [response.data.data]
+      return { items: [response.data.data], nextCursor: null }
     }
-    return (await api.get<ApiEnvelope<PublicFeedback[]>>('/public-feedback')).data.data
+    const response = await api.get<ApiEnvelope<PublicFeedback[], CursorMeta>>(
+      '/public-feedback',
+      { params: { cursor: publicPage.cursor, per_page: 20 } },
+    )
+    return {
+      items: response.data.data,
+      nextCursor: response.data.meta?.next_cursor ?? null,
+    }
   },
   enabled: computed(() =>
     detailId.value
@@ -77,6 +110,23 @@ watch([detailId, routeType], ([id, type]) => {
   if (id) tab.value = type
 })
 
+const activeQuery = computed(() => tab.value === 'satisfaction' ? satisfaction : publicFeedback)
+const activeItems = computed(() => activeQuery.value.data.value?.items ?? [])
+const activeNextCursor = computed(() => activeQuery.value.data.value?.nextCursor ?? null)
+
+function nextPage() {
+  if (!activeNextCursor.value) return
+  activePage.value.history.push(activePage.value.cursor ?? '')
+  activePage.value.cursor = activeNextCursor.value
+  activePage.value.page += 1
+}
+
+function previousPage() {
+  if (!activePage.value.history.length) return
+  activePage.value.cursor = activePage.value.history.pop() || undefined
+  activePage.value.page = Math.max(1, activePage.value.page - 1)
+}
+
 function date(value: string) {
   return new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(new Date(value))
 }
@@ -84,17 +134,13 @@ function date(value: string) {
 
 <template>
   <IonPage>
-    <IonHeader>
-      <IonToolbar>
-        <IonButtons slot="start"><IonBackButton default-href="/tabs/dashboard" /></IonButtons>
-        <div class="feedback-toolbar">
-          <span class="eyebrow">Laporan publik</span>
-          <h1>Masukan & penilaian</h1>
-        </div>
-      </IonToolbar>
-    </IonHeader>
+    <AppHeader
+      title="Masukan & penilaian"
+      eyebrow="Laporan publik"
+      default-href="/tabs/dashboard"
+    />
     <IonContent>
-      <main class="page-shell feedback-shell">
+      <PageContainer compact>
         <div v-if="navigationNotice" class="notice-box" role="status">{{ navigationNotice }}</div>
         <IonSegment v-model="tab">
           <IonSegmentButton
@@ -114,75 +160,95 @@ function date(value: string) {
           </IonSegmentButton>
         </IonSegment>
 
-        <div v-if="tab === 'satisfaction'">
-          <div v-if="satisfaction.error.value" class="error-box">
-            {{ apiError(satisfaction.error.value) }}
-          </div>
-          <div v-else-if="satisfaction.data.value?.length" class="feedback-list">
-            <article v-for="item in satisfaction.data.value" :key="item.id" class="surface feedback-card">
+        <LoadingSkeleton
+          v-if="activeQuery.isLoading.value"
+          class="feedback-state"
+          :rows="4"
+          label="Memuat masukan"
+        />
+        <ErrorState
+          v-else-if="activeQuery.error.value"
+          class="feedback-state"
+          :message="apiError(activeQuery.error.value)"
+          @retry="activeQuery.refetch()"
+        />
+
+        <div v-else-if="activeItems.length" class="feedback-list">
+          <article
+            v-for="item in activeItems"
+            :key="item.id"
+            class="surface feedback-card"
+          >
+            <template v-if="tab === 'satisfaction'">
               <div class="feedback-meta">
-                <strong>{{ item.ticket_number }}</strong><span>{{ date(item.created_at) }}</span>
+                <strong>{{ (item as SatisfactionSurvey).ticket_number }}</strong>
+                <span>{{ date(item.created_at) }}</span>
               </div>
               <h2>Kritik / umpan balik</h2>
-              <p>{{ item.criticism }}</p>
+              <p>{{ (item as SatisfactionSurvey).criticism }}</p>
               <h2>Saran</h2>
-              <p>{{ item.suggestion }}</p>
-            </article>
-          </div>
-          <EmptyState v-else title="Belum ada survei" />
+              <p>{{ (item as SatisfactionSurvey).suggestion }}</p>
+            </template>
+            <template v-else>
+              <div class="feedback-meta">
+                <strong>{{ (item as PublicFeedback).submitter }}</strong>
+                <span>{{ date(item.created_at) }}</span>
+              </div>
+              <p>{{ (item as PublicFeedback).feedback }}</p>
+              <h2 v-if="(item as PublicFeedback).suggestion">Saran perbaikan</h2>
+              <p v-if="(item as PublicFeedback).suggestion">
+                {{ (item as PublicFeedback).suggestion }}
+              </p>
+            </template>
+          </article>
         </div>
 
-        <div v-else>
-          <div v-if="publicFeedback.error.value" class="error-box">
-            {{ apiError(publicFeedback.error.value) }}
-          </div>
-          <div v-else-if="publicFeedback.data.value?.length" class="feedback-list">
-            <article v-for="item in publicFeedback.data.value" :key="item.id" class="surface feedback-card">
-              <div class="feedback-meta">
-                <strong>{{ item.submitter }}</strong><span>{{ date(item.created_at) }}</span>
-              </div>
-              <p>{{ item.feedback }}</p>
-              <h2 v-if="item.suggestion">Saran perbaikan</h2>
-              <p v-if="item.suggestion">{{ item.suggestion }}</p>
-            </article>
-          </div>
-          <EmptyState v-else title="Belum ada masukan publik" />
-        </div>
-      </main>
+        <EmptyState
+          v-else
+          :title="tab === 'satisfaction' ? 'Belum ada survei' : 'Belum ada masukan publik'"
+          body="Data terbaru akan muncul di halaman ini."
+        />
+
+        <PaginationControl
+          v-if="!detailId && activeQuery.data.value"
+          :page="activePage.page"
+          :item-count="activeItems.length"
+          :has-previous="activePage.history.length > 0"
+          :has-next="Boolean(activeNextCursor)"
+          :loading="activeQuery.isFetching.value"
+          @previous="previousPage"
+          @next="nextPage"
+        />
+      </PageContainer>
     </IonContent>
   </IonPage>
 </template>
 
 <style scoped>
-.feedback-toolbar {
-  padding: 8px 12px 8px 0;
+ion-segment {
+  margin-bottom: var(--app-space-4);
 }
 
-.feedback-toolbar h1 {
-  color: var(--app-ink);
-  font-size: 1.12rem;
-  margin: 2px 0;
-}
-
-.feedback-shell {
-  padding-top: 14px;
+.feedback-state,
+.feedback-list {
+  margin-top: var(--app-space-3);
 }
 
 .feedback-list {
   display: grid;
-  gap: 12px;
-  margin-top: 14px;
+  gap: var(--app-space-3);
 }
 
 .feedback-card {
-  padding: 17px;
+  padding: var(--app-space-4);
 }
 
 .feedback-meta {
   align-items: center;
-  color: var(--app-muted);
+  color: var(--app-color-text-secondary);
   display: flex;
-  font-size: 0.75rem;
+  font-size: var(--app-font-size-xs);
+  gap: var(--app-space-3);
   justify-content: space-between;
 }
 
@@ -191,16 +257,17 @@ function date(value: string) {
 }
 
 .feedback-card h2 {
-  color: var(--app-ink);
-  font-size: 0.8rem;
-  margin: 15px 0 4px;
+  color: var(--app-color-text);
+  font-size: var(--app-font-size-xs);
+  letter-spacing: 0.04em;
+  margin: var(--app-space-4) 0 var(--app-space-1);
   text-transform: uppercase;
 }
 
 .feedback-card p {
-  color: var(--app-muted);
-  font-size: 0.88rem;
-  line-height: 1.6;
+  color: var(--app-color-text-secondary);
+  font-size: var(--app-font-size-sm);
+  line-height: var(--app-line-height-body);
   margin: 0;
   white-space: pre-wrap;
 }

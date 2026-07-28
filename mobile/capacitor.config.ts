@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
   appId: 'com.timurbersinar.servicekkprl',
-  appName: 'ServiceKKPRL',
+  appName: 'Jago KKPRL',
   webDir: 'dist',
   server: {
     androidScheme: 'https',

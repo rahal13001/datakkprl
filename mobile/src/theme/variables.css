@@ -1,21 +1,87 @@
 :root {
-  --ion-color-primary: #0d3150;
-  --ion-color-primary-rgb: 13, 49, 80;
+  color-scheme: light;
+
+  --ion-color-primary: #123f5a;
+  --ion-color-primary-rgb: 18, 63, 90;
   --ion-color-primary-contrast: #ffffff;
-  --ion-color-primary-shade: #0b2b46;
-  --ion-color-primary-tint: #254660;
-  --ion-color-secondary: #de8e22;
-  --ion-color-secondary-rgb: 222, 142, 34;
+  --ion-color-primary-shade: #10374f;
+  --ion-color-primary-tint: #2a526b;
+  --ion-color-secondary: #167985;
+  --ion-color-secondary-rgb: 22, 121, 133;
   --ion-color-secondary-contrast: #ffffff;
-  --ion-color-secondary-shade: #c37d1e;
-  --ion-color-secondary-tint: #e19a38;
-  --ion-color-tertiary: #1c6d75;
-  --ion-color-success: #227a51;
-  --ion-color-warning: #d8881f;
-  --ion-color-danger: #ba3b43;
-  --ion-font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --app-surface: #f3f6f7;
-  --app-ink: #102b3d;
-  --app-muted: #61727e;
-  --app-line: #dce5e9;
+  --ion-color-secondary-shade: #136a75;
+  --ion-color-secondary-tint: #2d8791;
+  --ion-color-tertiary: #b56f17;
+  --ion-color-tertiary-rgb: 181, 111, 23;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-success: #1d7650;
+  --ion-color-warning: #a7610c;
+  --ion-color-danger: #b43b45;
+
+  --ion-font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+
+  --app-color-background: #f3f6f8;
+  --app-color-surface: #ffffff;
+  --app-color-surface-muted: #f8fafb;
+  --app-color-text: #132f40;
+  --app-color-text-secondary: #5e717d;
+  --app-color-border: #d8e2e7;
+  --app-color-border-strong: #bdcdd5;
+  --app-color-info: #17647d;
+  --app-color-info-soft: #e8f3f7;
+  --app-color-success: #1d7650;
+  --app-color-success-soft: #e2f3e9;
+  --app-color-warning: #8c550c;
+  --app-color-warning-soft: #fff1d8;
+  --app-color-danger: #a92f3a;
+  --app-color-danger-soft: #fdebed;
+  --app-color-focus: #247c9b;
+  --app-color-accent: #b56f17;
+
+  /* Compatibility aliases used while existing screens adopt the new system. */
+  --app-surface: var(--app-color-background);
+  --app-ink: var(--app-color-text);
+  --app-muted: var(--app-color-text-secondary);
+  --app-line: var(--app-color-border);
+
+  --app-font-size-xs: 0.75rem;
+  --app-font-size-sm: 0.875rem;
+  --app-font-size-md: 1rem;
+  --app-font-size-lg: 1.25rem;
+  --app-font-size-xl: 1.5rem;
+  --app-font-size-2xl: 2rem;
+  --app-line-height-tight: 1.2;
+  --app-line-height-body: 1.55;
+
+  --app-space-1: 0.25rem;
+  --app-space-2: 0.5rem;
+  --app-space-3: 0.75rem;
+  --app-space-4: 1rem;
+  --app-space-5: 1.25rem;
+  --app-space-6: 1.5rem;
+  --app-space-8: 2rem;
+  --app-space-10: 2.5rem;
+  --app-space-12: 3rem;
+
+  --app-radius-sm: 0.5rem;
+  --app-radius-md: 0.75rem;
+  --app-radius-lg: 1rem;
+  --app-radius-xl: 1.25rem;
+  --app-radius-pill: 999px;
+
+  --app-shadow-card: 0 8px 24px rgba(15, 49, 67, 0.07);
+  --app-shadow-raised: 0 12px 32px rgba(15, 49, 67, 0.12);
+  --app-control-height: 3.25rem;
+  --app-button-height: 3rem;
+  --app-touch-target: 3rem;
+  --app-icon-sm: 1.125rem;
+  --app-icon-md: 1.5rem;
+  --app-icon-lg: 1.75rem;
+  --app-content-max: 55rem;
+  --app-motion-fast: 140ms;
+  --app-motion-standard: 200ms;
+  --app-safe-top: max(var(--app-space-2), env(safe-area-inset-top));
+  --app-safe-bottom: max(var(--app-space-3), env(safe-area-inset-bottom));
 }

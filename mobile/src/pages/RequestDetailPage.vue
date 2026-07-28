@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import axios from 'axios'
 import {
   IonAccordion,
   IonAccordionGroup,
-  IonBackButton,
   IonButton,
-  IonButtons,
   IonCheckbox,
   IonContent,
-  IonHeader,
   IonInput,
   IonItem,
   IonLabel,
@@ -20,17 +17,25 @@ import {
   IonRefresherContent,
   IonSelect,
   IonSelectOption,
-  IonSpinner,
   IonTextarea,
-  IonToolbar,
+  alertController,
   toastController,
 } from '@ionic/vue'
 import { api, apiError } from '@/api/client'
+import AppHeader from '@/components/AppHeader.vue'
+import AttachmentUploader from '@/components/AttachmentUploader.vue'
+import EmployeeSearchSelector from '@/components/EmployeeSearchSelector.vue'
+import ErrorState from '@/components/ErrorState.vue'
+import FormSection from '@/components/FormSection.vue'
+import LoadingSkeleton from '@/components/LoadingSkeleton.vue'
+import PageContainer from '@/components/PageContainer.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import SignaturePad from '@/components/SignaturePad.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import StickyFormActions from '@/components/StickyFormActions.vue'
 import { useAuthStore } from '@/stores/auth'
+import { openDocument, responseFilename } from '@/native/documentViewer'
 import {
   navigationFallback,
   validPositiveId,
@@ -44,13 +49,6 @@ import type {
   ConsultationReport,
   Schedule,
 } from '@/types/api'
-
-interface StaffMember {
-  id: number
-  name: string
-  nip?: string | null
-  jabatan?: string | null
-}
 
 interface AttendeeDraft {
   id?: number
@@ -83,6 +81,9 @@ const queryClient = useQueryClient()
 const ticket = computed(() => validTicket(route.params.ticket))
 const saving = ref(false)
 const error = ref('')
+const assignmentError = ref('')
+const reportError = ref('')
+const baError = ref('')
 const statusDraft = ref<ClientDetail['status']>()
 const clientDraft = ref({
   name: '',
@@ -124,12 +125,6 @@ const clientQuery = useQuery({
   enabled: computed(() => ticket.value !== null),
 })
 
-const staffQuery = useQuery({
-  queryKey: ['staff'],
-  queryFn: async () => (await api.get<ApiEnvelope<StaffMember[]>>('/staff')).data.data,
-  enabled: auth.can('assignments', 'create') || auth.can('assignments', 'update'),
-})
-
 const scheduleForm = ref({
   date: '',
   start_time: '09:00',
@@ -145,12 +140,52 @@ const assignmentForm = ref({
 const reportForm = ref({
   content: '',
   status: 'draft' as 'draft' | 'completed',
+  signature: null as string | null,
 })
 const reportFiles = ref<File[]>([])
+const reportSignatures = ref<Record<number, string | null>>({})
+const reportUploadProgress = ref<number | null>(null)
 const baDraft = ref<BeritaAcaraDraft>()
-const baMapFile = ref<File | null>(null)
+const baBaseline = ref('')
+const baMapFiles = ref<File[]>([])
 const baDocumentationFiles = ref<File[]>([])
 const baOtherFiles = ref<File[]>([])
+const baUploadProgress = ref<number | null>(null)
+const reportFormDirty = computed(
+  () => Boolean(
+    plainText(reportForm.value.content).trim() ||
+    reportFiles.value.length ||
+    reportForm.value.signature ||
+    reportForm.value.status !== 'draft',
+  ),
+)
+const baFormDirty = computed(
+  () => Boolean(
+    baDraft.value &&
+    (
+      JSON.stringify(baDraft.value) !== baBaseline.value ||
+      baMapFiles.value.length ||
+      baDocumentationFiles.value.length ||
+      baOtherFiles.value.length
+    )
+  ),
+)
+
+onBeforeRouteLeave(async () => {
+  if (!reportFormDirty.value && !baFormDirty.value) return true
+
+  const confirmation = await alertController.create({
+    header: 'Perubahan belum disimpan',
+    message: 'Jika Anda keluar sekarang, perubahan pada form akan hilang.',
+    buttons: [
+      { text: 'Tetap di halaman', role: 'cancel' },
+      { text: 'Keluar', role: 'leave' },
+    ],
+  })
+  await confirmation.present()
+  const { role } = await confirmation.onDidDismiss()
+  return role === 'leave'
+})
 
 async function refreshedMessage(message: string) {
   await clientQuery.refetch()
@@ -219,11 +254,31 @@ async function saveSchedule(schedule: Schedule) {
 }
 
 async function addAssignments() {
+  if (saving.value) return
+  assignmentError.value = ''
+  if (!assignmentForm.value.schedule_ids.length || !assignmentForm.value.user_ids.length) {
+    assignmentError.value = 'Pilih minimal satu jadwal dan satu pegawai sebelum melanjutkan.'
+    return
+  }
+
+  const confirmation = await alertController.create({
+    header: 'Konfirmasi penugasan',
+    message: `Tetapkan ${assignmentForm.value.user_ids.length} pegawai pada ${assignmentForm.value.schedule_ids.length} jadwal?`,
+    buttons: [
+      { text: 'Batal', role: 'cancel' },
+      { text: 'Tetapkan', role: 'confirm' },
+    ],
+  })
+  await confirmation.present()
+  const { role } = await confirmation.onDidDismiss()
+  if (role !== 'confirm') return
+
   await perform(async () => {
     const response = await api.post<
       ApiEnvelope<Assignment[]> & { meta?: { warnings?: Array<{ message: string }> } }
     >(clientApiPath('/assignments'), assignmentForm.value)
     assignmentForm.value = { schedule_ids: [], user_ids: [], status: 'scheduled' }
+    assignmentError.value = ''
     await refreshedMessage('Penugasan dibuat.')
     const warnings = response.data.meta?.warnings ?? []
     if (warnings.length) {
@@ -235,6 +290,11 @@ async function addAssignments() {
       await toast.present()
     }
   })
+}
+
+function reassignFromSelection(assignment: Assignment, userIds: number[]) {
+  const [userId] = userIds
+  if (userId) void reassignOfficer(assignment, userId)
 }
 
 async function updateAssignmentStatus(assignment: Assignment, status: Assignment['status']) {
@@ -258,21 +318,64 @@ async function reassignOfficer(assignment: Assignment, userId: number) {
   })
 }
 
-function selectReportFiles(event: Event) {
-  reportFiles.value = Array.from((event.target as HTMLInputElement).files ?? []).slice(0, 3)
-}
-
 async function addReport() {
+  if (saving.value) return
+  reportError.value = ''
+  if (!plainText(reportForm.value.content).trim()) {
+    reportError.value = 'Isi laporan wajib diisi.'
+    return
+  }
+  if (!reportFiles.value.length) {
+    reportError.value = 'Pilih minimal satu foto dokumentasi.'
+    return
+  }
+  if (reportForm.value.status === 'completed' && !reportForm.value.signature) {
+    reportError.value = 'Tanda tangan petugas wajib diisi sebelum laporan diselesaikan.'
+    return
+  }
+
+  const confirmation = await alertController.create({
+    header: reportForm.value.status === 'completed' ? 'Kirim laporan?' : 'Simpan laporan?',
+    message: plainText(reportForm.value.content).trim().slice(0, 180),
+    buttons: [
+      { text: 'Batal', role: 'cancel' },
+      {
+        text: reportForm.value.status === 'completed' ? 'Kirim' : 'Simpan',
+        role: 'confirm',
+      },
+    ],
+  })
+  await confirmation.present()
+  const { role } = await confirmation.onDidDismiss()
+  if (role !== 'confirm') return
+
   await perform(async () => {
     const form = new FormData()
     form.append('content', reportForm.value.content)
     form.append('status', reportForm.value.status)
+    if (reportForm.value.signature) form.append('signature', reportForm.value.signature)
     reportFiles.value.forEach((file) => form.append('documentation[]', file))
-    await api.post(clientApiPath('/consultation-reports'), form)
-    reportForm.value = { content: '', status: 'draft' }
+    try {
+      await api.post(clientApiPath('/consultation-reports'), form, {
+        onUploadProgress: (event) => {
+          if (event.total) {
+            reportUploadProgress.value = Math.round((event.loaded / event.total) * 100)
+          }
+        },
+      })
+    } finally {
+      reportUploadProgress.value = null
+    }
+    reportForm.value = { content: '', status: 'draft', signature: null }
     reportFiles.value = []
+    reportError.value = ''
     await refreshedMessage('Laporan konsultasi disimpan.')
   })
+}
+
+function saveReportAsDraft() {
+  reportForm.value.status = 'draft'
+  void addReport()
 }
 
 async function saveReport(report: ConsultationReport) {
@@ -283,7 +386,11 @@ async function saveReport(report: ConsultationReport) {
     form.append('version', report.version)
     form.append('content', draft.content)
     form.append('status', draft.status)
+    if (reportSignatures.value[report.id]) {
+      form.append('signature', reportSignatures.value[report.id] as string)
+    }
     await api.patch(nestedResourcePath('consultation-reports', report.id), form)
+    reportSignatures.value[report.id] = null
     await refreshedMessage('Laporan konsultasi diperbarui.')
   })
 }
@@ -293,6 +400,28 @@ async function saveBeritaAcara() {
   const ba = client?.berita_acara
   const draft = baDraft.value
   if (!client || !draft) return
+  if (saving.value) return
+  baError.value = ''
+  if (!draft.tanggal_pelaksanaan) {
+    baError.value = 'Tanggal pelaksanaan wajib diisi.'
+    return
+  }
+  if (draft.attendees.some((attendee) => !attendee.name.trim())) {
+    baError.value = 'Nama setiap peserta wajib diisi.'
+    return
+  }
+
+  const confirmation = await alertController.create({
+    header: draft.status === 'completed' ? 'Selesaikan Berita Acara?' : 'Simpan draft Berita Acara?',
+    message: `${draft.attendees.length} peserta · ${date(draft.tanggal_pelaksanaan)}`,
+    buttons: [
+      { text: 'Batal', role: 'cancel' },
+      { text: draft.status === 'completed' ? 'Selesaikan' : 'Simpan', role: 'confirm' },
+    ],
+  })
+  await confirmation.present()
+  const { role } = await confirmation.onDidDismiss()
+  if (role !== 'confirm') return
 
   await perform(async () => {
     const form = new FormData()
@@ -318,18 +447,39 @@ async function saveBeritaAcara() {
       form.append(`attendees[${index}][is_signatory]`, attendee.is_signatory ? '1' : '0')
       if (attendee.signature) form.append(`attendees[${index}][signature]`, attendee.signature)
     })
-    if (baMapFile.value) form.append('map_attachment', baMapFile.value)
+    if (baMapFiles.value[0]) form.append('map_attachment', baMapFiles.value[0])
     baDocumentationFiles.value.forEach((file) => form.append('documentation_attachments[]', file))
     baOtherFiles.value.forEach((file) => form.append('other_attachments[]', file))
 
-    if (ba) {
-      await api.patch(nestedResourcePath('berita-acara', ba.id), form)
-    } else {
-      await api.post(clientApiPath('/berita-acara'), form)
+    const uploadConfig = {
+      onUploadProgress: (event: { loaded: number; total?: number }) => {
+        if (event.total) {
+          baUploadProgress.value = Math.round((event.loaded / event.total) * 100)
+        }
+      },
+    }
+    try {
+      if (ba) {
+        await api.patch(nestedResourcePath('berita-acara', ba.id), form, uploadConfig)
+      } else {
+        await api.post(clientApiPath('/berita-acara'), form, uploadConfig)
+      }
+    } finally {
+      baUploadProgress.value = null
     }
     baDraft.value = undefined
+    baMapFiles.value = []
+    baDocumentationFiles.value = []
+    baOtherFiles.value = []
+    baError.value = ''
     await refreshedMessage('Berita Acara diperbarui.')
   })
+}
+
+function saveBeritaAcaraAsDraft() {
+  if (!baDraft.value) return
+  baDraft.value.status = 'draft'
+  void saveBeritaAcara()
 }
 
 function addAttendee() {
@@ -349,19 +499,16 @@ function removeNewAttendee(index: number) {
   if (attendee && !attendee.id) baDraft.value?.attendees.splice(index, 1)
 }
 
-function selectBaFiles(kind: 'map' | 'documentation' | 'other', event: Event) {
-  const files = Array.from((event.target as HTMLInputElement).files ?? [])
-  if (kind === 'map') baMapFile.value = files[0] ?? null
-  if (kind === 'documentation') baDocumentationFiles.value = files.slice(0, 6)
-  if (kind === 'other') baOtherFiles.value = files.slice(0, 5)
-}
-
-async function openProtected(path: string) {
+async function openProtected(path: string, fallbackName = 'dokumen.pdf') {
   await perform(async () => {
     const response = await api.get(path, { responseType: 'blob' })
-    const url = URL.createObjectURL(response.data)
-    window.open(url, '_blank', 'noopener,noreferrer')
-    window.setTimeout(() => URL.revokeObjectURL(url), 60_000)
+    const contentType = String(response.headers['content-type'] ?? response.data.type ?? '')
+    const filename = responseFilename(
+      response.headers['content-disposition'],
+      fallbackName,
+      contentType,
+    )
+    await openDocument(response.data, filename)
   })
 }
 
@@ -394,6 +541,7 @@ async function refresh(event: CustomEvent) {
 }
 
 function initializeDrafts(client: ClientDetail) {
+  let initializedBa = false
   statusDraft.value ??= client.status
   clientDraft.value = {
     name: client.name,
@@ -434,6 +582,7 @@ function initializeDrafts(client: ClientDetail) {
         is_signatory: attendee.is_signatory,
       })),
     }
+    initializedBa = true
   } else if (!client.berita_acara && !baDraft.value) {
     baDraft.value = {
       nomor_berita_acara: '',
@@ -446,7 +595,9 @@ function initializeDrafts(client: ClientDetail) {
       attendance_is_open: false,
       attendees: [],
     }
+    initializedBa = true
   }
+  if (initializedBa) baBaseline.value = JSON.stringify(baDraft.value)
 }
 
 watch(ticket, () => {
@@ -454,9 +605,14 @@ watch(ticket, () => {
   scheduleDrafts.value = {}
   reportDrafts.value = {}
   baDraft.value = undefined
-  baMapFile.value = null
+  baBaseline.value = ''
+  baMapFiles.value = []
   baDocumentationFiles.value = []
   baOtherFiles.value = []
+  reportUploadProgress.value = null
+  baUploadProgress.value = null
+  reportError.value = ''
+  baError.value = ''
   error.value = ''
 })
 
@@ -480,35 +636,37 @@ function plainText(value: string) {
 
 <template>
   <IonPage>
-    <IonHeader>
-      <IonToolbar>
-        <IonButtons slot="start"><IonBackButton default-href="/tabs/requests" /></IonButtons>
-        <div class="detail-toolbar">
-          <span>{{ ticket }}</span>
-          <strong>Detail layanan</strong>
-        </div>
-      </IonToolbar>
-    </IonHeader>
+    <AppHeader
+      :title="ticket ?? 'Detail layanan'"
+      eyebrow="Detail layanan"
+      default-href="/tabs/requests"
+    />
     <IonContent>
       <IonRefresher slot="fixed" @ion-refresh="refresh"><IonRefresherContent /></IonRefresher>
 
-      <main v-if="clientQuery.isLoading.value" class="loading-shell">
-        <IonSpinner name="crescent" />
-      </main>
+      <PageContainer v-if="clientQuery.isLoading.value" compact>
+        <LoadingSkeleton :rows="3" label="Memuat detail permohonan" />
+      </PageContainer>
 
-      <main v-else-if="clientQuery.error.value" class="page-shell">
-        <div class="error-box">{{ apiError(clientQuery.error.value) }}</div>
-      </main>
+      <PageContainer v-else-if="clientQuery.error.value" compact>
+        <ErrorState
+          :message="apiError(clientQuery.error.value)"
+          @retry="clientQuery.refetch()"
+        />
+      </PageContainer>
 
-      <main
+      <PageContainer
         v-else-if="clientQuery.data.value"
-        class="page-shell detail-shell"
+        class="detail-shell"
+        compact
+        reserve-actions
       >
         <section class="request-hero">
           <div class="hero-line">
-            <span class="eyebrow">{{ clientQuery.data.value.service?.name }}</span>
+            <span class="request-hero__ticket">{{ ticket }}</span>
             <StatusBadge :status="clientQuery.data.value.status" />
           </div>
+          <span class="eyebrow">{{ clientQuery.data.value.service?.name || 'Layanan KKPRL' }}</span>
           <h1>{{ clientQuery.data.value.name }}</h1>
           <p>{{ clientQuery.data.value.instance || 'Pemohon perorangan' }}</p>
           <div class="hero-meta">
@@ -532,7 +690,7 @@ function plainText(value: string) {
           <IonButton size="small" :disabled="saving" @click="saveClientStatus">Simpan</IonButton>
         </section>
 
-        <IonAccordionGroup :multiple="true" :value="['identity', 'schedule', 'assignment']">
+        <IonAccordionGroup :multiple="true" :value="['identity']">
           <IonAccordion value="identity">
             <IonItem slot="header">
               <IonLabel>
@@ -570,10 +728,18 @@ function plainText(value: string) {
               <section class="sub-card">
                 <strong>Dokumen layanan</strong>
                 <div class="button-row">
-                  <IonButton size="small" fill="outline" @click="openProtected(clientApiPath('/ticket'))">
+                  <IonButton
+                    size="small"
+                    fill="outline"
+                    @click="openProtected(clientApiPath('/ticket'), `Tiket-${ticket}.pdf`)"
+                  >
                     Tiket
                   </IonButton>
-                  <IonButton size="small" fill="outline" @click="openProtected(clientApiPath('/report-pdf'))">
+                  <IonButton
+                    size="small"
+                    fill="outline"
+                    @click="openProtected(clientApiPath('/report-pdf'), `Laporan-${ticket}.pdf`)"
+                  >
                     PDF laporan
                   </IonButton>
                 </div>
@@ -582,7 +748,7 @@ function plainText(value: string) {
                   :key="document.path"
                   size="small"
                   fill="clear"
-                  @click="openProtected(privateFilePath(document.path))"
+                  @click="openProtected(privateFilePath(document.path), document.name)"
                 >
                   {{ document.name }}
                 </IonButton>
@@ -590,7 +756,12 @@ function plainText(value: string) {
                   v-if="clientQuery.data.value.coordinate_file"
                   size="small"
                   fill="clear"
-                  @click="openProtected(privateFilePath(clientQuery.data.value.coordinate_file.path))"
+                  @click="
+                    openProtected(
+                      privateFilePath(clientQuery.data.value.coordinate_file.path),
+                      clientQuery.data.value.coordinate_file.name,
+                    )
+                  "
                 >
                   {{ clientQuery.data.value.coordinate_file.name }}
                 </IonButton>
@@ -694,23 +865,17 @@ function plainText(value: string) {
                   <strong>{{ assignment.officer?.name }}</strong>
                   <small>{{ assignment.officer?.jabatan || 'Petugas' }}</small>
                 </div>
-                <IonSelect
+                <EmployeeSearchSelector
                   v-if="auth.can('assignments', 'update')"
-                  :value="assignment.officer?.id"
-                  label="Petugas"
-                  label-placement="stacked"
-                  interface="popover"
+                  :model-value="assignment.officer ? [assignment.officer.id] : []"
+                  :selected-employees="assignment.officer ? [assignment.officer] : []"
+                  label="Petugas penugasan"
+                  helper="Cari pegawai pengganti berdasarkan nama, NIP, jabatan, atau instansi."
+                  :multiple="false"
+                  :required="true"
                   :disabled="saving"
-                  @ion-change="reassignOfficer(assignment, Number($event.detail.value))"
-                >
-                  <IonSelectOption
-                    v-for="officer in staffQuery.data.value"
-                    :key="officer.id"
-                    :value="officer.id"
-                  >
-                    {{ officer.name }}
-                  </IonSelectOption>
-                </IonSelect>
+                  @update:model-value="reassignFromSelection(assignment, $event)"
+                />
                 <IonSelect
                   :value="assignment.status"
                   interface="popover"
@@ -730,37 +895,76 @@ function plainText(value: string) {
                 @submit.prevent="addAssignments"
               >
                 <h3>Buat penugasan</h3>
-                <IonSelect
-                  v-model="assignmentForm.schedule_ids"
-                  label="Jadwal"
-                  label-placement="stacked"
-                  :multiple="true"
-                  required
+                <p class="form-intro">
+                  Pilih jadwal dan pegawai, lalu tinjau ringkasan sebelum penugasan dikirim.
+                </p>
+                <FormSection
+                  title="Jadwal penugasan"
+                  description="Pilih satu atau beberapa jadwal yang relevan."
+                  :step="1"
                 >
-                  <IonSelectOption
-                    v-for="schedule in clientQuery.data.value.schedules"
-                    :key="schedule.id"
-                    :value="schedule.id"
+                  <IonSelect
+                    v-model="assignmentForm.schedule_ids"
+                    label="Jadwal"
+                    label-placement="stacked"
+                    :multiple="true"
+                    required
                   >
-                    {{ date(schedule.date) }} · {{ schedule.start_time }}
-                  </IonSelectOption>
-                </IonSelect>
-                <IonSelect
-                  v-model="assignmentForm.user_ids"
-                  label="Petugas"
-                  label-placement="stacked"
-                  :multiple="true"
-                  required
+                    <IonSelectOption
+                      v-for="schedule in clientQuery.data.value.schedules"
+                      :key="schedule.id"
+                      :value="schedule.id"
+                    >
+                      {{ date(schedule.date) }} · {{ schedule.start_time }}
+                    </IonSelectOption>
+                  </IonSelect>
+                </FormSection>
+
+                <FormSection
+                  title="Pegawai yang ditugaskan"
+                  description="Gunakan pencarian agar daftar panjang tetap mudah digunakan."
+                  :step="2"
+                  :error="assignmentError"
                 >
-                  <IonSelectOption
-                    v-for="officer in staffQuery.data.value"
-                    :key="officer.id"
-                    :value="officer.id"
-                  >
-                    {{ officer.name }} · {{ officer.jabatan || 'Petugas' }}
-                  </IonSelectOption>
-                </IonSelect>
-                <IonButton type="submit" size="small" :disabled="saving">Tetapkan petugas</IonButton>
+                  <EmployeeSearchSelector
+                    v-model="assignmentForm.user_ids"
+                    :required="true"
+                    :disabled="saving"
+                  />
+                </FormSection>
+
+                <FormSection
+                  title="Ringkasan penugasan"
+                  description="Nilai yang dikirim tetap memakai struktur penugasan yang sudah ada."
+                  :step="3"
+                >
+                  <div class="assignment-summary">
+                    <span>
+                      <strong>{{ assignmentForm.schedule_ids.length }}</strong>
+                      jadwal
+                    </span>
+                    <span>
+                      <strong>{{ assignmentForm.user_ids.length }}</strong>
+                      pegawai
+                    </span>
+                    <span>
+                      <strong>Terjadwal</strong>
+                      status awal
+                    </span>
+                  </div>
+                </FormSection>
+
+                <IonButton
+                  type="submit"
+                  expand="block"
+                  :disabled="
+                    saving ||
+                    !assignmentForm.schedule_ids.length ||
+                    !assignmentForm.user_ids.length
+                  "
+                >
+                  {{ saving ? 'Menyimpan penugasan…' : 'Tinjau dan tetapkan pegawai' }}
+                </IonButton>
               </form>
             </div>
           </IonAccordion>
@@ -785,6 +989,14 @@ function plainText(value: string) {
                     <IonSelectOption value="draft">Draft</IonSelectOption>
                     <IonSelectOption value="completed">Selesai</IonSelectOption>
                   </IonSelect>
+                  <div v-if="report.has_signature" class="signature-saved">
+                    Tanda tangan tersimpan
+                    <small>
+                      {{ report.signed_by?.name || 'Petugas KKPRL' }}
+                      <template v-if="report.signed_at"> · {{ date(report.signed_at) }}</template>
+                    </small>
+                  </div>
+                  <SignaturePad @change="reportSignatures[report.id] = $event" />
                   <IonButton size="small" fill="outline" :disabled="saving" @click="saveReport(report)">
                     Simpan perubahan
                   </IonButton>
@@ -798,16 +1010,87 @@ function plainText(value: string) {
                 @submit.prevent="addReport"
               >
                 <h3>Buat laporan</h3>
-                <RichTextEditor v-model="reportForm.content" />
-                <IonSelect v-model="reportForm.status" label="Status" label-placement="stacked">
-                  <IonSelectOption value="draft">Draft</IonSelectOption>
-                  <IonSelectOption value="completed">Selesai</IonSelectOption>
-                </IonSelect>
-                <label class="file-field">
-                  <span>Dokumentasi (1–3 foto)</span>
-                  <input type="file" accept="image/*" multiple required @change="selectReportFiles" />
-                </label>
-                <IonButton type="submit" size="small" :disabled="saving">Simpan laporan</IonButton>
+                <p class="form-intro">
+                  Isi laporan, tambahkan dokumentasi, lalu periksa ringkasan sebelum disimpan.
+                </p>
+
+                <FormSection
+                  title="Uraian dan hasil"
+                  description="Toolbar dibatasi pada format HTML yang diterima backend."
+                  :step="1"
+                  :error="reportError"
+                >
+                  <RichTextEditor
+                    v-model="reportForm.content"
+                    label="Isi laporan"
+                    :required="true"
+                    :error="reportError && !plainText(reportForm.content).trim() ? reportError : ''"
+                  />
+                </FormSection>
+
+                <FormSection
+                  title="Dokumentasi"
+                  description="Unggah 1–3 foto, masing-masing maksimal 10 MB."
+                  :step="2"
+                >
+                  <AttachmentUploader
+                    v-model="reportFiles"
+                    label="Foto dokumentasi"
+                    helper="Pilih dari galeri atau ambil foto menggunakan kamera Android."
+                    accept="image/*"
+                    :max-files="3"
+                    :max-size-mb="10"
+                    :multiple="true"
+                    :required="true"
+                    :allow-camera="true"
+                    :disabled="saving"
+                    :progress="reportUploadProgress"
+                  />
+                </FormSection>
+
+                <FormSection
+                  title="Tanda tangan petugas"
+                  description="Tanda tangan disimpan terenkripsi dan ditampilkan pada PDF laporan."
+                  :step="3"
+                >
+                  <SignaturePad @change="reportForm.signature = $event" />
+                </FormSection>
+
+                <FormSection
+                  title="Status dan pratinjau"
+                  description="Laporan selesai memerlukan tanda tangan petugas."
+                  :step="4"
+                >
+                  <IonSelect v-model="reportForm.status" label="Status" label-placement="stacked">
+                    <IonSelectOption value="draft">Draft</IonSelectOption>
+                    <IonSelectOption value="completed">Selesai</IonSelectOption>
+                  </IonSelect>
+                  <article class="form-preview">
+                    <span class="eyebrow">Pratinjau ringkas</span>
+                    <p>
+                      {{ plainText(reportForm.content).trim() || 'Isi laporan belum ditulis.' }}
+                    </p>
+                    <small>
+                      {{ reportFiles.length }} foto dipilih ·
+                      {{ reportForm.signature ? 'sudah ditandatangani' : 'belum ditandatangani' }} ·
+                      status {{ reportForm.status }}
+                    </small>
+                  </article>
+                </FormSection>
+
+                <StickyFormActions
+                  :primary-label="reportForm.status === 'completed' ? 'Kirim laporan' : 'Simpan laporan'"
+                  secondary-label="Simpan draft"
+                  :loading="saving"
+                  :disabled="
+                    !plainText(reportForm.content).trim() ||
+                    !reportFiles.length ||
+                    (reportForm.status === 'completed' && !reportForm.signature)
+                  "
+                  :dirty="reportFormDirty"
+                  @primary="addReport"
+                  @secondary="saveReportAsDraft"
+                />
               </form>
             </div>
           </IonAccordion>
@@ -831,7 +1114,12 @@ function plainText(value: string) {
                   <IonButton
                     size="small"
                     fill="outline"
-                    @click="openProtected(clientApiPath('/berita-acara-pdf'))"
+                    @click="
+                      openProtected(
+                        clientApiPath('/berita-acara-pdf'),
+                        `Berita-Acara-${ticket}.pdf`,
+                      )
+                    "
                   >
                     Buka PDF
                   </IonButton>
@@ -842,99 +1130,178 @@ function plainText(value: string) {
                   @submit.prevent="saveBeritaAcara"
                 >
                   <h3>{{ clientQuery.data.value.berita_acara ? 'Edit Berita Acara' : 'Buat Berita Acara' }}</h3>
-                  <div class="two-columns">
-                    <IonInput v-model="baDraft.nomor_berita_acara" label="Nomor" label-placement="stacked" />
-                    <IonInput v-model="baDraft.kbli" label="KBLI" label-placement="stacked" />
-                  </div>
-                  <IonInput
-                    v-model="baDraft.tanggal_pelaksanaan"
-                    type="date"
-                    label="Tanggal pelaksanaan"
-                    label-placement="stacked"
-                    required
-                  />
-                  <IonTextarea
-                    v-model="baDraft.lokasi_permohonan"
-                    label="Lokasi permohonan"
-                    label-placement="stacked"
-                    :auto-grow="true"
-                  />
-                  <IonTextarea
-                    v-model="baDraft.hasil_pendampingan"
-                    label="Hasil pendampingan"
-                    label-placement="stacked"
-                    :auto-grow="true"
-                  />
-                  <IonSelect v-model="baDraft.status" label="Status" label-placement="stacked">
-                    <IonSelectOption value="draft">Draft</IonSelectOption>
-                    <IonSelectOption value="completed">Selesai</IonSelectOption>
-                  </IonSelect>
-                  <IonCheckbox v-model="baDraft.attendance_is_open">Presensi peserta dibuka</IonCheckbox>
+                  <p class="form-intro">
+                    Lengkapi section secara berurutan. Anda tetap dapat menyimpan sebagai draft.
+                  </p>
+                  <div v-if="baError" class="error-box" role="alert">{{ baError }}</div>
 
-                  <section class="signature-section">
-                    <strong>Tanda tangan pemohon</strong>
-                    <small>Gambar baru diproses oleh layanan tanda tangan yang sama dengan panel web.</small>
-                    <SignaturePad @change="baDraft.applicant_signature = $event" />
-                  </section>
-
-                  <section class="attendee-editor">
-                    <div class="section-heading">
-                      <div>
-                        <strong>Peserta dan penanda tangan</strong>
-                        <small>{{ baDraft.attendees.length }} peserta</small>
+                  <FormSection
+                    title="Informasi dasar"
+                    description="Nomor, KBLI, waktu, dan lokasi pelaksanaan."
+                    :step="1"
+                  >
+                      <div class="two-columns">
+                        <IonInput v-model="baDraft.nomor_berita_acara" label="Nomor" label-placement="stacked" />
+                        <IonInput v-model="baDraft.kbli" label="KBLI" label-placement="stacked" />
                       </div>
+                      <IonInput
+                        v-model="baDraft.tanggal_pelaksanaan"
+                        type="date"
+                        label="Tanggal pelaksanaan"
+                        label-placement="stacked"
+                        required
+                      />
+                      <IonTextarea
+                        v-model="baDraft.lokasi_permohonan"
+                        label="Lokasi permohonan"
+                        label-placement="stacked"
+                        :auto-grow="true"
+                      />
+                  </FormSection>
+
+                  <FormSection
+                    title="Hasil pendampingan"
+                    description="Gunakan format sederhana yang tetap kompatibel dengan backend dan PDF."
+                    :step="2"
+                  >
+                    <RichTextEditor
+                      v-model="baDraft.hasil_pendampingan"
+                      label="Uraian hasil pendampingan"
+                    />
+                  </FormSection>
+
+                  <FormSection
+                    title="Status, presensi, dan pemohon"
+                    description="Atur status dokumen dan tanda tangan pemohon."
+                    :step="3"
+                  >
+                    <IonSelect v-model="baDraft.status" label="Status" label-placement="stacked">
+                      <IonSelectOption value="draft">Draft</IonSelectOption>
+                      <IonSelectOption value="completed">Selesai</IonSelectOption>
+                    </IonSelect>
+                    <IonCheckbox v-model="baDraft.attendance_is_open">Presensi peserta dibuka</IonCheckbox>
+                    <section class="signature-section">
+                      <strong>Tanda tangan pemohon</strong>
+                      <small>Gambar diproses oleh layanan tanda tangan yang sama dengan panel web.</small>
+                      <SignaturePad @change="baDraft.applicant_signature = $event" />
+                    </section>
+                  </FormSection>
+
+                  <FormSection
+                    title="Peserta dan penanda tangan"
+                    :description="`${baDraft.attendees.length} peserta terdaftar.`"
+                    :step="4"
+                  >
+                    <template #action>
                       <IonButton size="small" fill="outline" type="button" @click="addAttendee">
                         Tambah
                       </IonButton>
-                    </div>
-                    <article
-                      v-for="(attendee, attendeeIndex) in baDraft.attendees"
-                      :key="attendee.id ?? `new-${attendeeIndex}`"
-                      class="sub-card attendee-card"
-                    >
-                      <IonInput v-model="attendee.name" label="Nama" label-placement="stacked" required />
-                      <div class="two-columns">
-                        <IonInput v-model="attendee.position" label="Jabatan" label-placement="stacked" />
-                        <IonInput v-model="attendee.institution" label="Instansi" label-placement="stacked" />
-                      </div>
-                      <div class="two-columns">
-                        <IonInput v-model="attendee.email" type="email" label="Email" label-placement="stacked" />
-                        <IonInput v-model="attendee.phone" type="tel" label="Telepon" label-placement="stacked" />
-                      </div>
-                      <IonCheckbox v-model="attendee.is_officer">Petugas</IonCheckbox>
-                      <IonCheckbox v-model="attendee.is_signatory">Penanda tangan</IonCheckbox>
-                      <SignaturePad
-                        v-if="attendee.is_signatory"
-                        @change="attendee.signature = $event"
+                    </template>
+                    <section class="attendee-editor">
+                      <EmptyState
+                        v-if="!baDraft.attendees.length"
+                        title="Belum ada peserta"
+                        body="Tambahkan peserta bila Berita Acara memerlukan daftar hadir atau penanda tangan."
                       />
-                      <IonButton
-                        v-if="!attendee.id"
-                        type="button"
-                        size="small"
-                        fill="clear"
-                        color="danger"
-                        @click="removeNewAttendee(attendeeIndex)"
+                      <article
+                        v-for="(attendee, attendeeIndex) in baDraft.attendees"
+                        :key="attendee.id ?? `new-${attendeeIndex}`"
+                        class="sub-card attendee-card"
                       >
-                        Hapus peserta baru
-                      </IonButton>
-                    </article>
-                  </section>
+                        <IonInput v-model="attendee.name" label="Nama" label-placement="stacked" required />
+                        <div class="two-columns">
+                          <IonInput v-model="attendee.position" label="Jabatan" label-placement="stacked" />
+                          <IonInput v-model="attendee.institution" label="Instansi" label-placement="stacked" />
+                        </div>
+                        <div class="two-columns">
+                          <IonInput v-model="attendee.email" type="email" label="Email" label-placement="stacked" />
+                          <IonInput v-model="attendee.phone" type="tel" label="Telepon" label-placement="stacked" />
+                        </div>
+                        <IonCheckbox v-model="attendee.is_officer">Petugas</IonCheckbox>
+                        <IonCheckbox v-model="attendee.is_signatory">Penanda tangan</IonCheckbox>
+                        <SignaturePad
+                          v-if="attendee.is_signatory"
+                          @change="attendee.signature = $event"
+                        />
+                        <IonButton
+                          v-if="!attendee.id"
+                          type="button"
+                          size="small"
+                          fill="clear"
+                          color="danger"
+                          @click="removeNewAttendee(attendeeIndex)"
+                        >
+                          Hapus peserta baru
+                        </IonButton>
+                      </article>
+                    </section>
+                  </FormSection>
 
-                  <div class="file-grid">
-                    <label class="file-field">
-                      <span>Lampiran peta</span>
-                      <input type="file" accept=".pdf,image/*" @change="selectBaFiles('map', $event)" />
-                    </label>
-                    <label class="file-field">
-                      <span>Dokumentasi (maks. 6)</span>
-                      <input type="file" accept="image/*" multiple @change="selectBaFiles('documentation', $event)" />
-                    </label>
-                    <label class="file-field">
-                      <span>Lampiran lain (maks. 5)</span>
-                      <input type="file" multiple @change="selectBaFiles('other', $event)" />
-                    </label>
-                  </div>
-                  <IonButton type="submit" size="small" :disabled="saving">Simpan Berita Acara</IonButton>
+                  <FormSection
+                    title="Lampiran"
+                    description="File mengikuti batas tipe dan ukuran backend yang sudah berlaku."
+                    :step="5"
+                  >
+                    <div class="file-grid">
+                      <AttachmentUploader
+                        v-model="baMapFiles"
+                        label="Lampiran peta"
+                        helper="PDF, JPG, JPEG, atau PNG · maksimal 10 MB."
+                        accept=".pdf,image/jpeg,image/png"
+                        :max-files="1"
+                        :max-size-mb="10"
+                        :disabled="saving"
+                        :progress="baUploadProgress"
+                      />
+                      <AttachmentUploader
+                        v-model="baDocumentationFiles"
+                        label="Dokumentasi"
+                        helper="Maksimal 6 foto, masing-masing 10 MB."
+                        accept="image/*"
+                        :max-files="6"
+                        :max-size-mb="10"
+                        :multiple="true"
+                        :allow-camera="true"
+                        :disabled="saving"
+                      />
+                      <AttachmentUploader
+                        v-model="baOtherFiles"
+                        label="Lampiran lain"
+                        helper="Maksimal 5 file, masing-masing 10 MB."
+                        :max-files="5"
+                        :max-size-mb="10"
+                        :multiple="true"
+                        :disabled="saving"
+                      />
+                    </div>
+                  </FormSection>
+
+                  <FormSection
+                    title="Pratinjau ringkas"
+                    description="Periksa isi sebelum menyimpan atau menyelesaikan dokumen."
+                    :step="6"
+                  >
+                    <article class="form-preview">
+                      <strong>{{ baDraft.nomor_berita_acara || 'Nomor belum diisi' }}</strong>
+                      <span>{{ date(baDraft.tanggal_pelaksanaan) }}</span>
+                      <p>{{ plainText(baDraft.hasil_pendampingan).trim() || 'Hasil pendampingan belum diisi.' }}</p>
+                      <small>
+                        {{ baDraft.attendees.length }} peserta ·
+                        {{ baDocumentationFiles.length + baOtherFiles.length + baMapFiles.length }} lampiran baru ·
+                        status {{ baDraft.status }}
+                      </small>
+                    </article>
+                  </FormSection>
+
+                  <StickyFormActions
+                    :primary-label="baDraft.status === 'completed' ? 'Selesaikan Berita Acara' : 'Simpan Berita Acara'"
+                    secondary-label="Simpan draft"
+                    :loading="saving"
+                    :disabled="!baDraft.tanggal_pelaksanaan"
+                    :dirty="baFormDirty"
+                    @primary="saveBeritaAcara"
+                    @secondary="saveBeritaAcaraAsDraft"
+                  />
                 </form>
               </template>
               <EmptyState v-else title="Berita Acara belum tersedia" />
@@ -959,47 +1326,44 @@ function plainText(value: string) {
             </div>
           </IonAccordion>
         </IonAccordionGroup>
-      </main>
+      </PageContainer>
     </IonContent>
   </IonPage>
 </template>
 
 <style scoped>
-.detail-toolbar {
-  display: grid;
-  padding: 5px 12px 5px 0;
-}
-
-.detail-toolbar span {
-  color: var(--app-muted);
-  font-size: 0.68rem;
-}
-
-.detail-toolbar strong {
-  color: var(--app-ink);
-  font-size: 0.98rem;
-}
-
-.loading-shell {
-  align-items: center;
-  display: flex;
-  height: 100%;
-  justify-content: center;
-}
-
 .detail-shell {
-  padding-top: 16px;
+  padding-top: var(--app-space-4);
 }
 
 .request-hero {
-  background: linear-gradient(145deg, #0d3150, #176780);
-  border-radius: 25px;
+  background:
+    radial-gradient(circle at 92% 5%, rgba(92, 232, 217, 0.28), transparent 34%),
+    radial-gradient(circle at 8% 100%, rgba(235, 174, 65, 0.16), transparent 38%),
+    linear-gradient(145deg, #082b45, #0e6078);
+  border-radius: var(--app-radius-xl);
+  box-shadow: 0 18px 38px rgba(8, 43, 69, 0.24);
   color: #fff;
-  padding: 22px;
+  overflow: hidden;
+  padding: var(--app-space-5);
+  position: relative;
 }
 
 .request-hero .eyebrow {
-  color: #ffd18a;
+  color: #7de4da;
+  display: inline-block;
+  margin-top: var(--app-space-4);
+}
+
+.request-hero__ticket {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--app-radius-pill);
+  color: white;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0.42rem 0.72rem;
 }
 
 .hero-line,
@@ -1012,31 +1376,31 @@ function plainText(value: string) {
 }
 
 .request-hero h1 {
-  font-size: 1.5rem;
+  font-size: 1.65rem;
   letter-spacing: -0.04em;
-  margin: 18px 0 5px;
+  margin: var(--app-space-2) 0 var(--app-space-1);
 }
 
 .request-hero p {
   color: #d8e9ef;
-  margin: 0 0 18px;
+  margin: 0 0 var(--app-space-4);
 }
 
 .hero-meta {
   border-top: 1px solid rgba(255, 255, 255, 0.15);
   color: #d8e9ef;
-  font-size: 0.76rem;
+  font-size: var(--app-font-size-xs);
   justify-content: flex-start;
-  padding-top: 14px;
+  padding-top: var(--app-space-3);
 }
 
 .quick-action {
   align-items: end;
   display: grid;
-  gap: 10px;
+  gap: var(--app-space-3);
   grid-template-columns: 1fr;
-  margin: 14px 0;
-  padding: 16px;
+  margin: var(--app-space-4) 0;
+  padding: var(--app-space-4);
 }
 
 .quick-action > div {
@@ -1056,30 +1420,38 @@ function plainText(value: string) {
 
 ion-accordion-group {
   display: grid;
-  gap: 10px;
+  gap: var(--app-space-3);
 }
 
 ion-accordion {
-  background: #fff;
-  border: 1px solid var(--app-line);
-  border-radius: 17px;
+  background: var(--app-color-surface);
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--app-radius-xl);
+  box-shadow: var(--app-shadow-sm);
   overflow: hidden;
 }
 
+.detail-shell :deep(ion-accordion > ion-item[slot='header']) {
+  --background: var(--app-color-surface);
+  --min-height: 4.75rem;
+  --padding-start: var(--app-space-4);
+  --inner-padding-end: var(--app-space-4);
+}
+
 .accordion-content {
-  background: #f9fbfb;
+  background: var(--app-color-surface-muted);
   display: grid;
-  gap: 10px;
-  padding: 12px;
+  gap: var(--app-space-3);
+  padding: var(--app-space-4);
 }
 
 .sub-card {
-  background: #fff;
-  border: 1px solid #e5ebee;
-  border-radius: 13px;
+  background: var(--app-color-surface);
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--app-radius-md);
   display: grid;
   gap: 4px;
-  padding: 13px;
+  padding: var(--app-space-3);
 }
 
 .sub-card strong {
@@ -1104,18 +1476,78 @@ ion-accordion {
 }
 
 .inline-form {
-  background: #fff;
-  border: 1px dashed #b9cbd2;
-  border-radius: 14px;
+  background: var(--app-color-surface);
+  border: 1px solid var(--app-color-border-strong);
+  border-radius: var(--app-radius-lg);
   display: grid;
-  gap: 12px;
+  gap: var(--app-space-3);
   margin-top: 5px;
-  padding: 15px;
+  padding: var(--app-space-4);
 }
 
 .inline-form h3 {
   font-size: 0.9rem;
   margin: 0;
+}
+
+.form-intro {
+  color: var(--app-color-text-secondary);
+  font-size: var(--app-font-size-xs);
+  line-height: var(--app-line-height-body);
+  margin: calc(-1 * var(--app-space-1)) 0 var(--app-space-1);
+}
+
+.assignment-summary {
+  display: grid;
+  gap: var(--app-space-2);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.assignment-summary span {
+  background: var(--app-color-surface-muted);
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--app-radius-md);
+  color: var(--app-color-text-secondary);
+  display: grid;
+  font-size: var(--app-font-size-xs);
+  gap: var(--app-space-1);
+  padding: var(--app-space-3);
+  text-align: center;
+}
+
+.assignment-summary strong {
+  color: var(--app-color-text);
+  font-size: var(--app-font-size-md);
+}
+
+.form-preview {
+  background: var(--app-color-surface-muted);
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--app-radius-md);
+  display: grid;
+  gap: var(--app-space-2);
+  padding: var(--app-space-3);
+}
+
+.form-preview strong {
+  color: var(--app-color-text);
+}
+
+.form-preview p {
+  color: var(--app-color-text-secondary);
+  display: -webkit-box;
+  font-size: var(--app-font-size-sm);
+  line-height: var(--app-line-height-body);
+  margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+}
+
+.form-preview span,
+.form-preview small {
+  color: var(--app-color-text-secondary);
+  font-size: var(--app-font-size-xs);
 }
 
 .two-columns {
@@ -1144,9 +1576,31 @@ ion-accordion {
   gap: 8px;
 }
 
+.button-row ion-button {
+  --border-radius: var(--app-radius-pill);
+  min-height: var(--app-touch-target);
+}
+
 .signature-section {
   border-top: 1px solid var(--app-line);
   padding-top: 14px;
+}
+
+.signature-saved {
+  background: var(--app-color-success-soft);
+  border: 1px solid color-mix(in srgb, var(--app-color-success) 24%, white);
+  border-radius: var(--app-radius-md);
+  color: var(--app-color-success);
+  display: grid;
+  font-size: var(--app-font-size-sm);
+  font-weight: 800;
+  gap: var(--app-space-1);
+  padding: var(--app-space-3);
+}
+
+.signature-saved small {
+  color: var(--app-color-text-secondary);
+  font-weight: 600;
 }
 
 .signature-section small,
@@ -1185,6 +1639,13 @@ ion-accordion {
 
 ion-button {
   --border-radius: 12px;
+}
+
+@media (max-width: 440px) {
+  .two-columns,
+  .assignment-summary {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (min-width: 700px) {

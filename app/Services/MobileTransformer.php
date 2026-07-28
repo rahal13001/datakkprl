@@ -121,6 +121,13 @@ class MobileTransformer
                 ->values(),
             'reviewed_by' => $report->reviewed_by,
             'reviewed_at' => $report->reviewed_at?->toISOString(),
+            'has_signature' => filled($report->officer_signature),
+            'signed_by' => $report->signer ? [
+                'id' => $report->signer->id,
+                'name' => $report->signer->name,
+                'jabatan' => $report->signer->jabatan,
+            ] : null,
+            'signed_at' => $report->signed_at?->toISOString(),
             'version' => $this->version($report),
             'created_at' => $report->created_at?->toISOString(),
         ];

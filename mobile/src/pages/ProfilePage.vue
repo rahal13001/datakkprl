@@ -4,10 +4,9 @@ import {
   IonButton,
   IonChip,
   IonContent,
-  IonHeader,
   IonIcon,
   IonPage,
-  IonToolbar,
+  alertController,
 } from '@ionic/vue'
 import {
   businessOutline,
@@ -18,12 +17,28 @@ import {
   shieldCheckmarkOutline,
 } from 'ionicons/icons'
 import { useAuthStore } from '@/stores/auth'
+import AppHeader from '@/components/AppHeader.vue'
+import PageContainer from '@/components/PageContainer.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
 const appVersion = import.meta.env.VITE_APP_VERSION ?? '1.0.0'
 
 async function logout(all = false) {
+  const confirmation = await alertController.create({
+    header: all ? 'Keluar dari semua perangkat?' : 'Keluar dari perangkat ini?',
+    message: all
+      ? 'Semua sesi Jago KKPRL akan dicabut dan perlu login kembali.'
+      : 'Sesi pada perangkat ini akan dihapus.',
+    buttons: [
+      { text: 'Batal', role: 'cancel' },
+      { text: 'Keluar', role: 'confirm' },
+    ],
+  })
+  await confirmation.present()
+  const { role } = await confirmation.onDidDismiss()
+  if (role !== 'confirm') return
+
   await auth.logout(all)
   await router.replace('/login')
 }
@@ -31,20 +46,13 @@ async function logout(all = false) {
 
 <template>
   <IonPage>
-    <IonHeader>
-      <IonToolbar>
-        <div class="page-toolbar">
-          <span class="eyebrow">Akun petugas</span>
-          <h1>Profil</h1>
-        </div>
-      </IonToolbar>
-    </IonHeader>
+    <AppHeader title="Profil" eyebrow="Akun petugas" />
     <IonContent>
-      <main class="page-shell profile-shell">
+      <PageContainer class="profile-shell" compact>
         <section class="profile-hero">
           <div class="avatar">{{ auth.user?.name.slice(0, 1).toUpperCase() }}</div>
           <h2>{{ auth.user?.name }}</h2>
-          <p>{{ auth.user?.jabatan || 'Petugas ServiceKKPRL' }}</p>
+          <p>{{ auth.user?.jabatan || 'Petugas Jago KKPRL' }}</p>
           <div>
             <IonChip v-for="role in auth.user?.roles" :key="role" color="secondary">
               <IonIcon :icon="shieldCheckmarkOutline" />
@@ -73,30 +81,20 @@ async function logout(all = false) {
           Keluar dari semua perangkat
         </IonButton>
 
-        <p class="version">ServiceKKPRL {{ appVersion }}</p>
-      </main>
+        <p class="version">Jago KKPRL {{ appVersion }}</p>
+      </PageContainer>
     </IonContent>
   </IonPage>
 </template>
 
 <style scoped>
-.page-toolbar {
-  padding: 8px 18px;
-}
-
-.page-toolbar h1 {
-  color: var(--app-ink);
-  font-size: 1.25rem;
-  margin: 2px 0;
-}
-
 .profile-shell {
-  padding-top: 18px;
+  padding-top: var(--app-space-4);
 }
 
 .profile-hero {
-  background: linear-gradient(145deg, #0d3150, #176580);
-  border-radius: 26px;
+  background: var(--ion-color-primary);
+  border-radius: var(--app-radius-xl);
   color: #fff;
   padding: 28px 20px;
   text-align: center;

@@ -10,6 +10,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Permission;
@@ -193,6 +195,85 @@ class MobileApiTest extends TestCase
         $this->getJson('/api/mobile/v1/clients')
             ->assertOk()
             ->assertJsonStructure(['data', 'meta' => ['per_page', 'next_cursor']]);
+    }
+
+    #[Test]
+    public function mobile_clients_can_be_searched_by_ticket_applicant_or_company(): void
+    {
+        $user = User::factory()->create(['status' => true]);
+        $user->givePermissionTo(Permission::findOrCreate('ViewAny:Client'));
+        Sanctum::actingAs($user, ['mobile'], 'web');
+
+        $service = Service::create(['name' => 'Search Test Service']);
+        $match = Client::create([
+            'service_id' => $service->id,
+            'name' => 'Nadia Permatasari',
+            'instance' => 'Samudra Bahari Nusantara',
+            'email' => 'nadia@example.test',
+            'whatsapp' => '081200000001',
+        ]);
+        Client::create([
+            'service_id' => $service->id,
+            'name' => 'Pemohon Lain',
+            'instance' => 'Instansi Berbeda',
+            'email' => 'other@example.test',
+            'whatsapp' => '081200000002',
+        ]);
+
+        foreach (['Permata', 'bahari nus', substr($match->ticket_number, -4)] as $search) {
+            $this->getJson('/api/mobile/v1/clients?search='.urlencode($search))
+                ->assertOk()
+                ->assertJsonCount(1, 'data')
+                ->assertJsonPath('data.0.ticket_number', $match->ticket_number);
+        }
+    }
+
+    #[Test]
+    public function mobile_report_signature_is_stored_encrypted_and_returned_as_metadata(): void
+    {
+        Storage::fake('local');
+        $user = User::factory()->create([
+            'status' => true,
+            'name' => 'Petugas Penanda Tangan',
+        ]);
+        $user->givePermissionTo([
+            Permission::findOrCreate('View:Client'),
+            Permission::findOrCreate('Create:ConsultationReport'),
+        ]);
+        Sanctum::actingAs($user, ['mobile'], 'web');
+
+        $service = Service::create(['name' => 'Signed Report Service']);
+        $client = Client::create([
+            'service_id' => $service->id,
+            'name' => 'Pemohon Laporan',
+            'email' => 'signed-report@example.test',
+            'whatsapp' => '081200000003',
+        ]);
+        $signature = 'data:image/png;base64,'.base64_encode(
+            "\x89PNG\r\n\x1a\n".str_repeat("\0", 32),
+        );
+
+        $response = $this->post(
+            "/api/mobile/v1/clients/{$client->ticket_number}/consultation-reports",
+            [
+                'content' => '<p>Laporan yang sudah ditandatangani.</p>',
+                'status' => 'completed',
+                'signature' => $signature,
+                'documentation' => [UploadedFile::fake()->image('lapangan.jpg')],
+            ],
+            ['Accept' => 'application/json'],
+        );
+
+        $response->assertCreated()
+            ->assertJsonPath('data.has_signature', true)
+            ->assertJsonPath('data.signed_by.name', 'Petugas Penanda Tangan');
+
+        $report = $client->consultationReports()->sole();
+        Storage::disk('local')->assertExists($report->officer_signature);
+        $this->assertNotSame(
+            $report->officer_signature,
+            $report->getRawOriginal('officer_signature_encrypted'),
+        );
     }
 
     #[Test]

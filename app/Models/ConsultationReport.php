@@ -20,6 +20,9 @@ class ConsultationReport extends Model
         'reviewed_at',
         'feedback',
         'documentation',
+        'officer_signature',
+        'signed_by',
+        'signed_at',
     ];
 
     protected $casts = [
@@ -28,6 +31,8 @@ class ConsultationReport extends Model
         'content_encrypted' => 'encrypted',
         'feedback_encrypted' => 'encrypted',
         'documentation_encrypted' => 'encrypted:array',
+        'officer_signature_encrypted' => 'encrypted',
+        'signed_at' => 'datetime',
     ];
 
     protected function content(): Attribute
@@ -43,6 +48,20 @@ class ConsultationReport extends Model
     protected function documentation(): Attribute
     {
         return $this->protectedAttribute('documentation', 'documentation_encrypted', true);
+    }
+
+    protected function officerSignature(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => filled($this->attributes['officer_signature_encrypted'] ?? null)
+                ? $this->getAttributeValue('officer_signature_encrypted')
+                : null,
+            set: fn ($value) => [
+                'officer_signature_encrypted' => $value === null
+                    ? null
+                    : static::currentEncrypter()->encrypt($value, false),
+            ],
+        );
     }
 
     protected function protectedAttribute(string $legacyColumn, string $encryptedColumn, bool $legacyIsJson = false)
@@ -88,5 +107,10 @@ class ConsultationReport extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function signer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'signed_by');
     }
 }

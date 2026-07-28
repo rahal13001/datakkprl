@@ -45,8 +45,8 @@ async function submit() {
       <main class="login-shell">
         <section class="brand-panel">
           <div class="brand-mark"><IonIcon :icon="waterOutline" /></div>
-          <span class="eyebrow">Marine Space Services</span>
-          <h1>ServiceKKPRL</h1>
+          <span class="eyebrow">Layanan ruang laut</span>
+          <h1>Jago KKPRL</h1>
           <p>Kontrol layanan, jadwal, penugasan, dan masukan publik dalam satu aplikasi internal.</p>
           <div class="wave" aria-hidden="true" />
         </section>
@@ -55,7 +55,7 @@ async function submit() {
           <div>
             <span class="eyebrow">Akses petugas</span>
             <h2>Selamat datang</h2>
-            <p>Gunakan akun Summary yang telah memperoleh akses ServiceKKPRL.</p>
+            <p>Gunakan akun Summary yang telah memperoleh akses Jago KKPRL.</p>
           </div>
 
           <label>
@@ -108,12 +108,12 @@ async function submit() {
 }
 
 .brand-panel {
-  background: linear-gradient(145deg, #0b2b47, #105879);
-  border-radius: 28px;
+  background: var(--ion-color-primary);
+  border-radius: var(--app-radius-xl);
   color: white;
-  min-height: 300px;
+  min-height: 15rem;
   overflow: hidden;
-  padding: 30px;
+  padding: var(--app-space-8) var(--app-space-6);
   position: relative;
 }
 
@@ -122,9 +122,9 @@ async function submit() {
 }
 
 .brand-panel h1 {
-  font-size: clamp(2rem, 9vw, 3.3rem);
-  letter-spacing: -0.06em;
-  margin: 12px 0;
+  font-size: clamp(2rem, 9vw, 3rem);
+  letter-spacing: -0.05em;
+  margin: var(--app-space-3) 0;
   white-space: nowrap;
 }
 
@@ -138,12 +138,12 @@ async function submit() {
   align-items: center;
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 18px;
+  border-radius: var(--app-radius-lg);
   display: flex;
   font-size: 2rem;
   height: 58px;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: var(--app-space-6);
   width: 58px;
 }
 
@@ -158,8 +158,8 @@ async function submit() {
 }
 
 .login-card {
-  margin: -28px 14px 0;
-  padding: 26px 22px;
+  margin: var(--app-space-4) 0 0;
+  padding: var(--app-space-6) var(--app-space-5);
   position: relative;
   z-index: 2;
 }
@@ -194,8 +194,9 @@ label > span {
   align-items: center;
   background: #f7f9fa;
   border: 1px solid var(--app-line);
-  border-radius: 14px;
+  border-radius: var(--app-radius-md);
   display: flex;
+  min-height: var(--app-control-height);
   padding: 2px 13px;
 }
 
@@ -205,7 +206,6 @@ label > span {
 }
 
 ion-button {
-  --border-radius: 14px;
   margin: 22px 0 14px;
 }
 

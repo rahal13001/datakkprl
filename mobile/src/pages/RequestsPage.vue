@@ -1,60 +1,133 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import {
   IonContent,
-  IonHeader,
   IonIcon,
   IonPage,
   IonRefresher,
   IonRefresherContent,
-  IonSearchbar,
   IonSegment,
   IonSegmentButton,
-  IonSkeletonText,
-  IonToolbar,
 } from '@ionic/vue'
-import { calendarOutline, chevronForwardOutline, locationOutline } from 'ionicons/icons'
+import { calendarOutline, locationOutline } from 'ionicons/icons'
 import { api, apiError } from '@/api/client'
-import StatusBadge from '@/components/StatusBadge.vue'
+import AppHeader from '@/components/AppHeader.vue'
+import DataListCard from '@/components/DataListCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
+import ErrorState from '@/components/ErrorState.vue'
+import LoadingSkeleton from '@/components/LoadingSkeleton.vue'
+import PageContainer from '@/components/PageContainer.vue'
+import PaginationControl from '@/components/PaginationControl.vue'
+import SearchToolbar from '@/components/SearchToolbar.vue'
+import StatusBadge from '@/components/StatusBadge.vue'
 import { navigationMessage, requestDetailRoute } from '@/navigation/safeNavigation'
 import type { ApiEnvelope, ClientSummary } from '@/types/api'
 
-const route = useRoute()
-
-function filterValue(value: unknown, allowed: readonly string[], fallback: string): string {
-  const candidate = Array.isArray(value) ? value[0] : value
-  return typeof candidate === 'string' && allowed.includes(candidate) ? candidate : fallback
+interface CursorMeta extends Record<string, unknown> {
+  per_page?: number
+  next_cursor?: string | null
+  previous_cursor?: string | null
 }
 
-const status = ref(
-  filterValue(route.query.status, ['all', 'waiting', 'scheduled', 'completed'], 'all'),
-)
-const scope = ref(filterValue(route.query.scope, ['all', 'mine'], 'all'))
-const ticket = ref('')
+const route = useRoute()
+const router = useRouter()
+const allowedStatuses = ['all', 'waiting', 'scheduled', 'completed'] as const
+const allowedScopes = ['all', 'mine'] as const
+
+function queryValue(value: unknown, maxLength = 100): string {
+  const candidate = Array.isArray(value) ? value[0] : value
+  return typeof candidate === 'string' ? candidate.slice(0, maxLength) : ''
+}
+
+function filterValue(
+  value: unknown,
+  allowed: readonly string[],
+  fallback: string,
+): string {
+  const candidate = queryValue(value)
+  return allowed.includes(candidate) ? candidate : fallback
+}
+
+function pageValue(value: unknown): number {
+  const parsed = Number.parseInt(queryValue(value, 8), 10)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : 1
+}
+
+function normalizedQuery(overrides: Record<string, string | undefined>) {
+  const next = {
+    status: filterValue(route.query.status, allowedStatuses, 'all'),
+    scope: filterValue(route.query.scope, allowedScopes, 'all'),
+    search: queryValue(route.query.search),
+    cursor: queryValue(route.query.cursor, 2048),
+    page: String(pageValue(route.query.page)),
+    navigation_error: queryValue(route.query.navigation_error, 50),
+    ...overrides,
+  }
+
+  if (next.status === 'all') next.status = ''
+  if (next.scope === 'all') next.scope = ''
+  if (next.page === '1') next.page = ''
+
+  return Object.fromEntries(
+    Object.entries(next).filter((entry): entry is [string, string] => Boolean(entry[1])),
+  )
+}
+
+function updateListQuery(
+  overrides: Record<string, string | undefined>,
+  resetPagination = false,
+) {
+  const pagination = resetPagination ? { cursor: undefined, page: undefined } : {}
+  return router.replace({
+    name: 'requests',
+    query: normalizedQuery({ ...overrides, ...pagination }),
+  })
+}
+
+const status = computed({
+  get: () => filterValue(route.query.status, allowedStatuses, 'all'),
+  set: (value: string) => void updateListQuery({ status: value }, true),
+})
+const scope = computed({
+  get: () => filterValue(route.query.scope, allowedScopes, 'all'),
+  set: (value: string) => void updateListQuery({ scope: value }, true),
+})
+const search = computed({
+  get: () => queryValue(route.query.search),
+  set: (value: string) => void updateListQuery({ search: value.slice(0, 100) }, true),
+})
+const cursor = computed(() => queryValue(route.query.cursor, 2048))
+const page = computed(() => pageValue(route.query.page))
 const navigationNotice = computed(() => navigationMessage(route.query.navigation_error))
 
 const params = computed(() => ({
   status: status.value === 'all' ? undefined : status.value,
   scope: scope.value,
-  ticket: ticket.value || undefined,
-  per_page: 40,
+  search: search.value.trim().length >= 2 ? search.value.trim() : undefined,
+  cursor: cursor.value || undefined,
+  per_page: 20,
 }))
 
 const query = useQuery({
   queryKey: ['clients', params],
-  queryFn: async () =>
-    (await api.get<ApiEnvelope<ClientSummary[]>>('/clients', { params: params.value })).data.data,
+  queryFn: async () => {
+    const response = await api.get<ApiEnvelope<ClientSummary[], CursorMeta>>(
+      '/clients',
+      { params: params.value },
+    )
+    return {
+      items: response.data.data,
+      meta: response.data.meta ?? {},
+    }
+  },
 })
 
-watch(
-  () => route.query,
-  (value) => {
-    status.value = filterValue(value.status, ['all', 'waiting', 'scheduled', 'completed'], 'all')
-    scope.value = filterValue(value.scope, ['all', 'mine'], 'all')
-  },
+const items = computed(() => query.data.value?.items ?? [])
+const meta = computed(() => query.data.value?.meta ?? {})
+const activeFilterCount = computed(
+  () => Number(status.value !== 'all') + Number(scope.value !== 'all'),
 )
 
 async function refresh(event: CustomEvent) {
@@ -62,118 +135,235 @@ async function refresh(event: CustomEvent) {
   ;(event.target as HTMLIonRefresherElement).complete()
 }
 
+function nextPage() {
+  if (!meta.value.next_cursor) return
+  void updateListQuery({
+    cursor: meta.value.next_cursor,
+    page: String(page.value + 1),
+  })
+}
+
+function previousPage() {
+  if (!meta.value.previous_cursor) return
+  void updateListQuery({
+    cursor: meta.value.previous_cursor,
+    page: String(Math.max(1, page.value - 1)),
+  })
+}
+
 function scheduleLabel(client: ClientSummary) {
   if (!client.next_schedule) return 'Belum ada jadwal'
-  return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(
-    new Date(client.next_schedule.date),
-  )
+  return new Intl.DateTimeFormat('id-ID', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(client.next_schedule.date))
 }
 </script>
 
 <template>
   <IonPage>
-    <IonHeader>
-      <IonToolbar>
-        <div class="page-toolbar">
-          <span class="eyebrow">Service desk</span>
-          <h1>Permohonan layanan</h1>
-        </div>
-      </IonToolbar>
-    </IonHeader>
+    <AppHeader title="Permohonan layanan" eyebrow="Pekerjaan layanan" />
     <IonContent>
       <IonRefresher slot="fixed" @ion-refresh="refresh">
         <IonRefresherContent />
       </IonRefresher>
-      <main class="page-shell requests-shell">
-        <div v-if="navigationNotice" class="notice-box" role="status">{{ navigationNotice }}</div>
-        <div class="scope-switch surface">
-          <button :class="{ active: scope === 'all' }" @click="scope = 'all'">Semua</button>
-          <button :class="{ active: scope === 'mine' }" @click="scope = 'mine'">Layanan saya</button>
+
+      <PageContainer compact>
+        <div v-if="navigationNotice" class="notice-box" role="status">
+          {{ navigationNotice }}
         </div>
 
-        <IonSearchbar
-          v-model="ticket"
-          placeholder="Cari nomor tiket lengkap"
-          :debounce="450"
-          class="ticket-search"
+        <section class="requests-overview">
+          <div>
+            <span class="eyebrow">Workspace layanan</span>
+            <h2>Temukan permohonan lebih cepat</h2>
+            <p>Tiket, pemohon, perusahaan, status, dan penugasan dalam satu tampilan.</p>
+          </div>
+          <span class="requests-overview__count">
+            <strong>{{ items.length }}</strong>
+            <small>halaman ini</small>
+          </span>
+        </section>
+
+        <section class="list-controls" aria-label="Filter permohonan">
+          <div class="scope-switch surface">
+            <button
+              type="button"
+              :class="{ active: scope === 'all' }"
+              :aria-pressed="scope === 'all'"
+              @click="scope = 'all'"
+            >
+              Semua
+            </button>
+            <button
+              type="button"
+              :class="{ active: scope === 'mine' }"
+              :aria-pressed="scope === 'mine'"
+              @click="scope = 'mine'"
+            >
+              Layanan saya
+            </button>
+          </div>
+
+          <SearchToolbar
+            v-model="search"
+            placeholder="Cari tiket, pemohon, atau perusahaan"
+            :busy="query.isFetching.value && !query.isLoading.value"
+            :result-count="query.data.value ? items.length : undefined"
+            :active-filter-count="activeFilterCount"
+          />
+          <p class="search-help">
+            Ketik minimal 2 karakter. Cari dengan nomor tiket, nama pemohon, atau nama perusahaan.
+          </p>
+
+          <IonSegment v-model="status" :scrollable="true" aria-label="Filter status">
+            <IonSegmentButton value="all">Semua</IonSegmentButton>
+            <IonSegmentButton value="waiting">Menunggu</IonSegmentButton>
+            <IonSegmentButton value="scheduled">Terjadwal</IonSegmentButton>
+            <IonSegmentButton value="completed">Selesai</IonSegmentButton>
+          </IonSegment>
+        </section>
+
+        <LoadingSkeleton v-if="query.isLoading.value" :rows="5" label="Memuat permohonan" />
+
+        <ErrorState
+          v-else-if="query.error.value"
+          :message="apiError(query.error.value)"
+          @retry="query.refetch()"
         />
 
-        <IonSegment v-model="status" :scrollable="true">
-          <IonSegmentButton value="all">Semua</IonSegmentButton>
-          <IonSegmentButton value="waiting">Menunggu</IonSegmentButton>
-          <IonSegmentButton value="scheduled">Terjadwal</IonSegmentButton>
-          <IonSegmentButton value="completed">Selesai</IonSegmentButton>
-        </IonSegment>
-
-        <div v-if="query.isLoading.value" class="request-list">
-          <div v-for="index in 5" :key="index" class="request-row surface">
-            <IonSkeletonText :animated="true" style="width: 40%" />
-            <IonSkeletonText :animated="true" style="width: 75%; height: 22px" />
-            <IonSkeletonText :animated="true" style="width: 55%" />
-          </div>
-        </div>
-
-        <div v-else-if="query.error.value" class="error-box">{{ apiError(query.error.value) }}</div>
-
-        <div v-else-if="query.data.value?.length" class="request-list">
-          <router-link
-            v-for="client in query.data.value"
+        <div v-else-if="items.length" class="request-list">
+          <DataListCard
+            v-for="client in items"
             :key="client.ticket_number"
             :to="requestDetailRoute(client.ticket_number)"
-            class="request-row surface"
+            :eyebrow="client.ticket_number"
+            :title="client.name"
+            :subtitle="client.instance || client.service?.name || 'Pemohon layanan'"
           >
-            <div class="row-head">
-              <span>{{ client.ticket_number }}</span>
+            <template #status>
               <StatusBadge :status="client.status" />
-            </div>
-            <h2>{{ client.name }}</h2>
-            <p>{{ client.instance || client.service?.name || 'Pemohon layanan' }}</p>
-            <div class="row-meta">
-              <span><IonIcon :icon="calendarOutline" /> {{ scheduleLabel(client) }}</span>
-              <span v-if="client.location"><IonIcon :icon="locationOutline" /> {{ client.location.name }}</span>
-              <IonIcon class="next" :icon="chevronForwardOutline" />
-            </div>
-          </router-link>
+            </template>
+            <template #meta>
+              <span>
+                <IonIcon :icon="calendarOutline" aria-hidden="true" />
+                {{ scheduleLabel(client) }}
+              </span>
+              <span v-if="client.location">
+                <IonIcon :icon="locationOutline" aria-hidden="true" />
+                {{ client.location.name }}
+              </span>
+            </template>
+          </DataListCard>
         </div>
 
         <EmptyState
           v-else
-          title="Tidak ada permohonan"
-          body="Ubah filter atau tarik layar untuk memperbarui data."
+          :kind="search ? 'search' : 'empty'"
+          :title="search ? 'Permohonan tidak ditemukan' : 'Tidak ada permohonan'"
+          :body="
+            search
+              ? 'Coba nomor tiket, nama pemohon, atau nama perusahaan yang berbeda.'
+              : 'Ubah filter atau tarik layar untuk memperbarui data.'
+          "
         />
-      </main>
+
+        <PaginationControl
+          v-if="query.data.value && (items.length || page > 1 || meta.next_cursor)"
+          :page="page"
+          :item-count="items.length"
+          :has-previous="Boolean(meta.previous_cursor)"
+          :has-next="Boolean(meta.next_cursor)"
+          :loading="query.isFetching.value"
+          @previous="previousPage"
+          @next="nextPage"
+        />
+      </PageContainer>
     </IonContent>
   </IonPage>
 </template>
 
 <style scoped>
-.page-toolbar {
-  padding: 8px 18px;
+.requests-overview {
+  align-items: center;
+  background:
+    radial-gradient(circle at 100% 0, rgba(104, 230, 217, 0.22), transparent 45%),
+    linear-gradient(145deg, #0b3652, #0d6077);
+  border-radius: var(--app-radius-xl);
+  box-shadow: 0 16px 34px rgba(8, 43, 69, 0.2);
+  color: white;
+  display: grid;
+  gap: var(--app-space-4);
+  grid-template-columns: 1fr auto;
+  margin-bottom: var(--app-space-4);
+  overflow: hidden;
+  padding: var(--app-space-5);
 }
 
-.page-toolbar h1 {
-  color: var(--app-ink);
+.requests-overview .eyebrow {
+  color: #7de4da;
+}
+
+.requests-overview h2 {
   font-size: 1.25rem;
-  margin: 2px 0;
+  letter-spacing: -0.035em;
+  margin: var(--app-space-2) 0 var(--app-space-1);
 }
 
-.requests-shell {
-  padding-top: 14px;
+.requests-overview p {
+  color: rgba(255, 255, 255, 0.76);
+  font-size: var(--app-font-size-xs);
+  line-height: var(--app-line-height-body);
+  margin: 0;
+}
+
+.requests-overview__count {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--app-radius-lg);
+  display: grid;
+  min-width: 4.2rem;
+  padding: var(--app-space-3);
+  text-align: center;
+}
+
+.requests-overview__count strong {
+  font-size: 1.5rem;
+}
+
+.requests-overview__count small {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.6rem;
+}
+
+.list-controls {
+  display: grid;
+  gap: var(--app-space-3);
+  margin-bottom: var(--app-space-4);
+  padding: var(--app-space-3);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--app-radius-xl);
+  box-shadow: var(--app-shadow-sm);
 }
 
 .scope-switch {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  padding: 4px;
+  padding: var(--app-space-1);
 }
 
 .scope-switch button {
   background: transparent;
   border: 0;
-  border-radius: 14px;
-  color: var(--app-muted);
+  border-radius: var(--app-radius-md);
+  color: var(--app-color-text-secondary);
+  font-size: var(--app-font-size-sm);
   font-weight: 750;
-  padding: 11px;
+  min-height: var(--app-touch-target);
+  padding: var(--app-space-2) var(--app-space-3);
 }
 
 .scope-switch button.active {
@@ -181,69 +371,25 @@ function scheduleLabel(client: ClientSummary) {
   color: #fff;
 }
 
-.ticket-search {
-  --background: #fff;
-  --border-radius: 14px;
-  --box-shadow: none;
-  margin: 10px -8px 2px;
+.search-help {
+  color: var(--app-color-text-secondary);
+  font-size: var(--app-font-size-xs);
+  line-height: var(--app-line-height-body);
+  margin: calc(-1 * var(--app-space-1)) var(--app-space-1) 0;
 }
 
 ion-segment {
-  margin-bottom: 14px;
+  margin-top: var(--app-space-1);
 }
 
 .request-list {
   display: grid;
-  gap: 11px;
+  gap: var(--app-space-3);
 }
 
-.request-row {
-  color: inherit;
-  padding: 16px;
-  text-decoration: none;
-}
-
-.row-head {
-  align-items: center;
-  color: var(--app-muted);
-  display: flex;
-  font-size: 0.72rem;
-  font-weight: 750;
-  justify-content: space-between;
-}
-
-.request-row h2 {
-  color: var(--app-ink);
-  font-size: 1.05rem;
-  margin: 13px 0 4px;
-}
-
-.request-row p {
-  color: var(--app-muted);
-  font-size: 0.82rem;
-  margin: 0;
-}
-
-.row-meta {
-  align-items: center;
-  border-top: 1px solid #edf1f3;
-  color: var(--app-muted);
-  display: flex;
-  flex-wrap: wrap;
-  font-size: 0.74rem;
-  gap: 12px;
-  margin-top: 14px;
-  padding-top: 12px;
-}
-
-.row-meta span {
+.request-list span {
   align-items: center;
   display: inline-flex;
-  gap: 4px;
-}
-
-.row-meta .next {
-  color: var(--ion-color-primary);
-  margin-left: auto;
+  gap: var(--app-space-1);
 }
 </style>

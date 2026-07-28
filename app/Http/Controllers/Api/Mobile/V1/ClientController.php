@@ -8,6 +8,7 @@ use App\Services\MobileTransformer;
 use App\Support\EnsuresMobileVersion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class ClientController extends Controller
@@ -26,6 +27,7 @@ class ClientController extends Controller
             'date_from' => ['nullable', 'date'],
             'date_until' => ['nullable', 'date', 'after_or_equal:date_from'],
             'ticket' => ['nullable', 'string', 'max:100'],
+            'search' => ['nullable', 'string', 'min:2', 'max:100'],
             'cursor' => ['nullable', 'string'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
         ]);
@@ -48,7 +50,25 @@ class ClientController extends Controller
             ->when($request->filled('date_until'), fn ($query) => $query->whereHas(
                 'schedules',
                 fn ($scheduleQuery) => $scheduleQuery->whereDate('date', '<=', $request->input('date_until')),
-            ))
+            ));
+
+        if ($request->filled('search')) {
+            $needle = $this->normalizeSearch($request->string('search')->toString());
+            $matchingIds = (clone $query)
+                ->setEagerLoads([])
+                ->lazyById(250, 'clients.id')
+                ->filter(fn (Client $client): bool => collect([
+                    $client->ticket_number,
+                    $client->name,
+                    $client->instance,
+                ])->contains(fn ($value): bool => filled($value)
+                    && str_contains($this->normalizeSearch((string) $value), $needle)))
+                ->pluck('id');
+
+            $query->whereIn('clients.id', $matchingIds);
+        }
+
+        $query
             ->orderByDesc('updated_at')
             ->orderByDesc('id');
 
@@ -73,7 +93,7 @@ class ClientController extends Controller
             'consultationLocation',
             'schedules',
             'assignments.user',
-            'consultationReports',
+            'consultationReports.signer',
             'beritaAcara.attendees',
             'satisfactionSurvey',
         ]);
@@ -109,5 +129,10 @@ class ClientController extends Controller
         ]);
 
         return response()->json(['data' => $transformer->client($client)]);
+    }
+
+    private function normalizeSearch(string $value): string
+    {
+        return mb_strtolower(Str::ascii(trim($value)));
     }
 }
