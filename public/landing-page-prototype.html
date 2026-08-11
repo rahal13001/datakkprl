@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Portal layanan konsultasi LPRL Sorong untuk penataan ruang laut dan KKPRL.">
+  <title>Layanan Konsultasi LPRL Sorong — Prototype</title>
+  <link rel="icon" href="img/logokkp.jpg" type="image/jpeg">
+  <style>
+    :root {
+      --ink: #0d1b2a;
+      --muted: #657383;
+      --line: #dce4eb;
+      --surface: #f5f8fb;
+      --blue: #0057ff;
+      --blue-dark: #003db8;
+      --cyan: #08b8d6;
+      --white: #ffffff;
+      --radius-lg: 26px;
+      --radius-md: 16px;
+      --shadow-sm: 0 8px 24px rgba(13, 27, 42, .06);
+      --shadow-md: 0 22px 55px rgba(13, 27, 42, .10);
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--white);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    body.menu-open { overflow: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    img { max-width: 100%; }
+    :focus-visible { outline: 3px solid rgba(0, 87, 255, .35); outline-offset: 4px; }
+
+    .wrap { width: min(var(--max), calc(100% - 48px)); margin-inline: auto; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--blue);
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 24px;
+      height: 2px;
+      background: currentColor;
+    }
+    .section-heading { max-width: 690px; }
+    .section-heading h2 {
+      max-width: 620px;
+      margin: 14px 0 14px;
+      font-size: clamp(2rem, 4vw, 3.35rem);
+      line-height: 1.05;
+      letter-spacing: -.045em;
+    }
+    .section-heading p { margin: 0; color: var(--muted); font-size: 1.04rem; }
+
+    .notice {
+      border-bottom: 1px solid #d8e7f0;
+      color: #496071;
+      background: #eef8fb;
+      font-size: .76rem;
+    }
+    .notice .wrap { min-height: 34px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .notice strong { color: var(--ink); }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      border-bottom: 1px solid transparent;
+      background: rgba(255,255,255,.94);
+      transition: box-shadow .2s ease, border-color .2s ease;
+    }
+    .site-header.is-scrolled { border-color: var(--line); box-shadow: 0 12px 30px rgba(13,27,42,.07); }
+    .nav { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; min-width: max-content; }
+    .brand img { width: 43px; height: 43px; object-fit: contain; }
+    .brand-copy { display: grid; line-height: 1.05; }
+    .brand-copy strong { font-size: .98rem; letter-spacing: .06em; }
+    .brand-copy span { margin-top: 5px; color: var(--muted); font-size: .61rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+    .desktop-nav { display: flex; align-items: center; gap: clamp(14px, 2vw, 26px); }
+    .nav-link, .nav-menu-trigger { color: #526272; font-size: .82rem; font-weight: 700; white-space: nowrap; }
+    .nav-link:hover, .nav-menu-trigger:hover { color: var(--blue); }
+    .nav-menu { position: relative; }
+    .nav-menu-trigger { display: inline-flex; align-items: center; gap: 7px; border: 0; padding: 10px 0; background: transparent; }
+    .chevron { display: inline-block; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform .2s ease; }
+    .nav-menu.is-open .chevron { transform: rotate(225deg) translate(-2px, -1px); }
+    .dropdown { position: absolute; top: calc(100% + 8px); left: -18px; display: none; width: 220px; padding: 8px; border: 1px solid var(--line); border-radius: 14px; background: var(--white); box-shadow: var(--shadow-md); }
+    .nav-menu.is-open .dropdown { display: grid; }
+    .dropdown a { padding: 11px 12px; border-radius: 9px; color: #526272; font-size: .8rem; font-weight: 700; }
+    .dropdown a:hover { color: var(--blue); background: #f2f6fb; }
+    .nav-actions { display: flex; align-items: center; gap: 9px; margin-left: 4px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 42px; padding: 0 16px; border: 1px solid transparent; border-radius: 10px; font-size: .8rem; font-weight: 800; transition: transform .2s ease, background .2s ease, box-shadow .2s ease, border-color .2s ease; }
+    .button:hover { transform: translateY(-2px); }
+    .button-secondary { color: var(--ink); border-color: var(--line); background: var(--white); }
+    .button-secondary:hover { border-color: #aac3de; box-shadow: var(--shadow-sm); }
+    .button-primary { color: var(--white); background: var(--ink); box-shadow: 0 8px 18px rgba(13, 27, 42, .14); }
+    .button-primary:hover { background: var(--blue-dark); box-shadow: 0 12px 24px rgba(0,87,255,.2); }
+    .mobile-trigger { display: none; width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: var(--white); }
+
+    .hero { position: relative; overflow: hidden; padding: 88px 0 84px; background: #f5f9fc; }
+    .hero::after { content: ""; position: absolute; top: -180px; right: -100px; width: 560px; height: 560px; border: 1px solid rgba(0,87,255,.09); border-radius: 50%; box-shadow: 0 0 0 60px rgba(0,87,255,.025), 0 0 0 120px rgba(0,87,255,.016); pointer-events: none; }
+    .hero-grid { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1.03fr) minmax(360px, .97fr); align-items: center; gap: 76px; }
+    .hero h1 { max-width: 680px; margin: 20px 0 22px; font-size: clamp(3.2rem, 7vw, 6.15rem); line-height: .95; letter-spacing: -.075em; }
+    .hero h1 span { color: var(--blue); }
+    .hero-copy { max-width: 600px; margin: 0; color: #536576; font-size: 1.05rem; line-height: 1.8; }
+    .hero-ctas { display: flex; flex-wrap: wrap; gap: 11px; margin-top: 34px; }
+    .hero-ctas .button { min-height: 49px; padding-inline: 18px; }
+    .hero-note { display: flex; align-items: center; gap: 10px; margin-top: 25px; color: #718191; font-size: .76rem; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #16a674; box-shadow: 0 0 0 5px rgba(22,166,116,.12); }
+    .visual { position: relative; }
+    .poster-card { position: relative; overflow: hidden; max-width: 475px; margin-left: auto; border: 8px solid var(--white); border-radius: 24px; background: var(--white); box-shadow: var(--shadow-md); transform: rotate(1.2deg); }
+    .poster-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(13,27,42,.56)); pointer-events: none; }
+    .poster-card img { display: block; width: 100%; aspect-ratio: 4 / 4.7; object-fit: cover; object-position: center; }
+    .poster-label { position: absolute; z-index: 1; right: 22px; bottom: 19px; left: 22px; display: flex; align-items: end; justify-content: space-between; gap: 12px; color: var(--white); }
+    .poster-label strong { display: block; font-size: .82rem; letter-spacing: .08em; }
+    .poster-label span { display: block; margin-top: 4px; color: rgba(255,255,255,.76); font-size: .67rem; }
+    .poster-index { width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.45); border-radius: 50%; font-size: .74rem; }
+    .visual-tag { position: absolute; z-index: 2; top: 30px; left: -26px; display: grid; gap: 2px; padding: 13px 16px; border: 1px solid #cfe0ea; border-radius: 12px; background: rgba(255,255,255,.95); box-shadow: var(--shadow-sm); }
+    .visual-tag strong { font-size: .77rem; }
+    .visual-tag span { color: var(--muted); font-size: .66rem; }
+
+    .quick-links { position: relative; z-index: 2; margin-top: -26px; }
+    .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: 17px; background: var(--white); box-shadow: var(--shadow-sm); }
+    .quick-link { display: flex; align-items: center; gap: 14px; min-height: 94px; padding: 18px 22px; border-right: 1px solid var(--line); }
+    .quick-link:last-child { border-right: 0; }
+    .quick-link:hover .quick-arrow { color: var(--blue); transform: translateX(3px); }
+    .quick-icon { flex: 0 0 38px; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 11px; color: var(--blue); background: #eaf2ff; font-weight: 900; }
+    .quick-link:nth-child(2) .quick-icon { color: #008b9e; background: #e6f8fa; }
+    .quick-link:nth-child(3) .quick-icon { color: #8a5a00; background: #fff5dc; }
+    .quick-copy { display: grid; gap: 2px; min-width: 0; }
+    .quick-copy strong { font-size: .86rem; }
+    .quick-copy span { color: var(--muted); font-size: .72rem; }
+    .quick-arrow { margin-left: auto; color: #9caaba; font-size: 1.1rem; transition: transform .2s ease, color .2s ease; }
+
+    section { padding: 112px 0; }
+    .services { background: var(--white); }
+    .service-grid { display: grid; grid-template-columns: 1.15fr .85fr .85fr; gap: 16px; margin-top: 42px; }
+    .service-card { position: relative; min-height: 290px; display: flex; flex-direction: column; padding: 28px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--white); transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+    .service-card:hover { border-color: #a9c5df; box-shadow: var(--shadow-md); transform: translateY(-5px); }
+    .service-card.featured { color: var(--white); border-color: var(--ink); background: var(--ink); }
+    .service-card.featured:hover { border-color: var(--blue); }
+    .service-number { color: #a6b6c8; font-size: .72rem; font-weight: 800; letter-spacing: .13em; }
+    .featured .service-number { color: #83a0bb; }
+    .service-icon { width: 46px; height: 46px; display: grid; place-items: center; margin: 34px 0 22px; border-radius: 13px; color: var(--blue); background: #eaf2ff; font-size: 1.1rem; }
+    .featured .service-icon { color: var(--white); background: rgba(255,255,255,.13); }
+    .service-card h3 { margin: 0 0 11px; font-size: 1.36rem; line-height: 1.15; letter-spacing: -.03em; }
+    .service-card p { flex: 1; margin: 0; color: var(--muted); font-size: .84rem; line-height: 1.7; }
+    .featured p { color: #b7c6d3; }
+    .service-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 24px; color: var(--blue); font-size: .77rem; font-weight: 800; }
+    .featured .service-link { color: #84c9ff; }
+    .service-link span { transition: transform .2s ease; }
+    .service-link:hover span { transform: translateX(3px); }
+    .service-footnote { margin-top: 18px; color: var(--muted); font-size: .73rem; }
+
+    .public-data { border-block: 1px solid var(--line); background: var(--surface); }
+    .data-layout { display: grid; grid-template-columns: .76fr 1.24fr; align-items: stretch; gap: 56px; }
+    .data-layout .section-heading { align-self: center; }
+    .data-card { padding: 27px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--white); box-shadow: var(--shadow-sm); }
+    .data-card-top { display: flex; align-items: start; justify-content: space-between; gap: 18px; padding-bottom: 21px; border-bottom: 1px solid var(--line); }
+    .data-card-top strong { font-size: .95rem; }
+    .data-card-top span { color: var(--muted); font-size: .7rem; }
+    .chart { display: grid; grid-template-columns: 34px 1fr; align-items: end; gap: 13px; height: 198px; padding-top: 26px; }
+    .chart-y { height: 172px; display: flex; flex-direction: column; justify-content: space-between; color: #9aa8b5; font-size: .63rem; }
+    .bars { height: 172px; display: flex; align-items: end; gap: clamp(12px, 4vw, 34px); padding: 0 10px; border-bottom: 1px solid var(--line); background: repeating-linear-gradient(to bottom, transparent 0, transparent 42px, #eef2f5 43px); }
+    .bar-item { height: 100%; flex: 1; display: flex; flex-direction: column; justify-content: end; align-items: center; gap: 8px; min-width: 0; }
+    .bar { width: min(48px, 100%); min-height: 9px; border-radius: 7px 7px 0 0; background: var(--blue); }
+    .bar:nth-child(2) { background: #2a94d6; }
+    .bar:nth-child(3) { background: #5bb6cc; }
+    .bar:nth-child(4) { background: #a9c5d2; }
+    .bar-item span { color: var(--muted); font-size: .65rem; white-space: nowrap; }
+    .data-caption { display: flex; justify-content: space-between; gap: 10px; margin-top: 17px; color: var(--muted); font-size: .68rem; }
+    .data-caption em { color: #8b98a5; font-style: normal; }
+
+    .knowledge-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; }
+    .subheading { margin: 0 0 20px; font-size: 1.05rem; letter-spacing: -.02em; }
+    .document-list { display: grid; gap: 10px; }
+    .document { display: flex; align-items: center; gap: 14px; padding: 16px; border: 1px solid var(--line); border-radius: 13px; transition: border-color .2s ease, box-shadow .2s ease; }
+    .document:hover { border-color: #a9c5df; box-shadow: var(--shadow-sm); }
+    .file-icon { flex: 0 0 38px; width: 38px; height: 42px; display: grid; place-items: center; border-radius: 8px; color: #df4b55; background: #fff0f1; font-size: .72rem; font-weight: 900; }
+    .document-copy { min-width: 0; flex: 1; }
+    .document-copy strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .82rem; }
+    .document-copy span { display: block; margin-top: 3px; color: var(--muted); font-size: .69rem; }
+    .document-arrow { color: #9caaba; font-size: 1rem; }
+    .empty-state { padding: 25px 0; border-block: 1px dashed var(--line); color: var(--muted); font-size: .82rem; }
+    .faq-list { border-top: 1px solid var(--line); }
+    .faq { border-bottom: 1px solid var(--line); }
+    .faq button { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 0; border: 0; color: var(--ink); background: transparent; text-align: left; font-size: .84rem; font-weight: 750; }
+    .faq button span:last-child { flex: 0 0 22px; width: 22px; height: 22px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--muted); font-size: 1rem; font-weight: 400; transition: transform .2s ease, color .2s ease, background .2s ease; }
+    .faq.is-open button span:last-child { color: var(--white); border-color: var(--blue); background: var(--blue); transform: rotate(45deg); }
+    .faq-answer { display: none; padding: 0 39px 18px 0; color: var(--muted); font-size: .8rem; line-height: 1.7; }
+    .faq.is-open .faq-answer { display: block; }
+
+    .public-links { padding-top: 0; }
+    .link-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 38px; }
+    .link-card { display: flex; flex-direction: column; min-height: 185px; padding: 22px; border: 1px solid var(--line); border-radius: 15px; background: var(--white); transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+    .link-card:hover { border-color: #a9c5df; box-shadow: var(--shadow-sm); transform: translateY(-4px); }
+    .link-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .link-mark { width: 35px; height: 35px; display: grid; place-items: center; border-radius: 10px; color: var(--blue); background: #eaf2ff; font-size: .9rem; font-weight: 900; }
+    .link-card:nth-child(2) .link-mark { color: #5143a5; background: #eeedff; }
+    .link-card:nth-child(3) .link-mark { color: #008b76; background: #e7faf5; }
+    .link-card:nth-child(4) .link-mark { color: #008b9e; background: #e6f8fa; }
+    .link-card:nth-child(5) .link-mark { color: #b17500; background: #fff5dc; }
+    .link-card:nth-child(6) .link-mark { color: #7844a8; background: #f7edff; }
+    .link-card h3 { margin: 23px 0 7px; font-size: 1rem; letter-spacing: -.02em; }
+    .link-card p { flex: 1; margin: 0; color: var(--muted); font-size: .75rem; line-height: 1.65; }
+    .link-host { margin-top: 16px; overflow: hidden; color: #8492a0; font-size: .65rem; text-overflow: ellipsis; white-space: nowrap; }
+
+    .booking { border-top: 1px solid var(--line); background: var(--ink); color: var(--white); }
+    .booking-layout { display: grid; grid-template-columns: .82fr 1.18fr; gap: 70px; align-items: start; }
+    .booking .eyebrow { color: #7dc8ff; }
+    .booking .section-heading h2 { color: var(--white); }
+    .booking .section-heading p { color: #afbdc9; }
+    .booking-list { display: grid; gap: 20px; margin-top: 34px; }
+    .booking-step { display: grid; grid-template-columns: 30px 1fr; gap: 14px; align-items: start; }
+    .step-number { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid #506271; border-radius: 50%; color: #8dd2ff; font-size: .75rem; font-weight: 800; }
+    .booking-step strong { display: block; padding-top: 4px; font-size: .82rem; }
+    .booking-step p { margin: 5px 0 0; color: #9eafbd; font-size: .75rem; line-height: 1.6; }
+    .booking-card { padding: 28px; border-radius: var(--radius-lg); color: var(--ink); background: var(--white); }
+    .booking-card h3 { margin: 0 0 5px; font-size: 1.25rem; letter-spacing: -.03em; }
+    .booking-card > p { margin: 0 0 22px; color: var(--muted); font-size: .78rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field { display: grid; gap: 7px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { color: #536576; font-size: .7rem; font-weight: 800; }
+    .field input, .field select { width: 100%; height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 9px; color: var(--ink); background: #fbfcfd; font-size: .8rem; }
+    .field input:focus, .field select:focus { outline: 2px solid rgba(0,87,255,.22); border-color: var(--blue); }
+    .booking-submit { width: 100%; margin-top: 18px; }
+    .form-note { margin: 13px 0 0; color: #8997a3; font-size: .66rem; text-align: center; }
+
+    footer { padding: 30px 0; color: #768594; border-top: 1px solid var(--line); background: var(--white); font-size: .72rem; }
+    .footer-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .footer-row strong { color: var(--ink); }
+    .footer-links { display: flex; gap: 18px; }
+    .footer-links a:hover { color: var(--blue); }
+
+    @media (max-width: 1060px) {
+      .desktop-nav { gap: 13px; }
+      .nav-link, .nav-menu-trigger { font-size: .75rem; }
+      .nav-actions .button-secondary { display: none; }
+      .hero-grid { gap: 46px; }
+      .service-grid { grid-template-columns: 1fr 1fr; }
+      .service-card.featured { grid-column: 1 / -1; min-height: 245px; }
+      .data-layout, .booking-layout { gap: 36px; }
+    }
+    @media (max-width: 800px) {
+      .wrap { width: min(var(--max), calc(100% - 34px)); }
+      .notice .wrap { min-height: 42px; }
+      .notice .wrap span:last-child { display: none; }
+      .nav { min-height: 67px; }
+      .desktop-nav { position: absolute; top: 100%; right: 0; left: 0; display: none; padding: 13px 17px 20px; border-top: 1px solid var(--line); background: var(--white); box-shadow: 0 20px 26px rgba(13,27,42,.08); }
+      .desktop-nav.is-open { display: grid; }
+      .nav-link, .nav-menu-trigger { width: 100%; padding: 12px 0; font-size: .83rem; text-align: left; }
+      .nav-menu { display: grid; }
+      .dropdown { position: static; width: 100%; margin: 0 0 4px; border: 0; box-shadow: none; background: #f7f9fb; }
+      .nav-actions { display: grid; gap: 8px; margin: 4px 0 0; padding-top: 10px; border-top: 1px solid var(--line); }
+      .nav-actions .button-secondary { display: inline-flex; }
+      .mobile-trigger { display: grid; place-items: center; }
+      .hero { padding: 60px 0 74px; }
+      .hero-grid, .data-layout, .knowledge-layout, .booking-layout { grid-template-columns: 1fr; }
+      .hero-grid { gap: 48px; }
+      .hero h1 { font-size: clamp(3.25rem, 15vw, 5.2rem); }
+      .visual-tag { left: 8px; }
+      .poster-card { margin-inline: auto; }
+      .quick-grid { grid-template-columns: 1fr; }
+      .quick-link { min-height: 75px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .quick-link:last-child { border-bottom: 0; }
+      section { padding: 78px 0; }
+      .data-layout .section-heading { max-width: 640px; }
+      .link-grid { grid-template-columns: 1fr 1fr; }
+      .booking-layout { gap: 46px; }
+    }
+    @media (max-width: 520px) {
+      .brand-copy span { display: none; }
+      .hero-ctas { display: grid; }
+      .hero-ctas .button { width: 100%; }
+      .service-grid, .link-grid, .form-grid { grid-template-columns: 1fr; }
+      .service-card.featured { grid-column: auto; }
+      .field.full { grid-column: auto; }
+      .booking-card { padding: 22px; }
+      .footer-row { align-items: flex-start; flex-direction: column; gap: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="notice">
+    <div class="wrap">
+      <span><strong>Portal layanan publik LPRL Sorong</strong> · Informasi dan konsultasi penataan ruang laut</span>
+      <span>Transparan · Terarah · Terukur</span>
+    </div>
+  </div>
+
+  <header class="site-header" id="site-header">
+    <div class="wrap nav">
+      <a class="brand" href="#home" aria-label="LPRL Sorong, kembali ke Home">
+        <img src="img/logokkp.png" alt="Logo KKP">
+        <span class="brand-copy"><strong>LPRL SORONG</strong><span>Official Platform V2</span></span>
+      </a>
+
+      <button class="mobile-trigger" id="mobile-trigger" type="button" aria-label="Buka menu" aria-expanded="false">☰</button>
+
+      <nav class="desktop-nav" id="main-nav" aria-label="Navigasi utama">
+        <a class="nav-link" href="#home">Home</a>
+        <a class="nav-link" href="#services">Layanan</a>
+        <a class="nav-link" href="#knowledge">Regulasi</a>
+        <div class="nav-menu" id="results-menu">
+          <button class="nav-menu-trigger" type="button" aria-expanded="false">Hasil <i class="chevron" aria-hidden="true"></i></button>
+          <div class="dropdown" role="menu">
+            <a href="/hasil-survei-kepuasan" role="menuitem">Hasil SKM</a>
+            <a href="/hasil-kinerja-layanan" role="menuitem">Hasil Kinerja</a>
+          </div>
+        </div>
+        <a class="nav-link" href="/cek-status">Cek Status</a>
+        <a class="nav-link" href="/masukan-publik">Masukan Publik</a>
+        <div class="nav-actions">
+          <a class="button button-secondary" href="/belajar-kkprl">Belajar</a>
+          <a class="button button-primary" href="#booking">Reservasi <span aria-hidden="true">→</span></a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="wrap hero-grid">
+        <div>
+          <span class="eyebrow">Layanan ruang laut</span>
+          <h1>Tata kelola<br><span>ruang laut.</span></h1>
+          <p class="hero-copy">Transformasi digital layanan perizinan LPRL Sorong, Direktorat Jenderal Penataan Ruang Laut, Kementerian Kelautan &amp; Perikanan. Transparan dan presisi.</p>
+          <div class="hero-ctas">
+            <a class="button button-primary" href="#booking">Buat Janji Temu <span aria-hidden="true">→</span></a>
+            <a class="button button-secondary" href="/belajar-kkprl">Belajar KKPRL</a>
+            <a class="button button-secondary" href="#knowledge">Arsip Regulasi</a>
+          </div>
+          <p class="hero-note"><i class="status-dot" aria-hidden="true"></i> Portal publik siap membantu kebutuhan informasi Anda.</p>
+        </div>
+        <div class="visual">
+          <div class="visual-tag"><strong>KKP · LPRL Sorong</strong><span>Informasi layanan publik</span></div>
+          <figure class="poster-card">
+            <img src="img/newphoto.jpg" alt="Informasi media sosial dan layanan digital LPRL Sorong">
+            <figcaption class="poster-label"><span><strong>LPRL SORONG</strong><span>Penataan ruang laut</span></span><b class="poster-index">01</b></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="quick-links" aria-label="Akses cepat">
+      <div class="wrap quick-grid">
+        <a class="quick-link" href="#booking"><span class="quick-icon" aria-hidden="true">⌁</span><span class="quick-copy"><strong>Buat Janji Temu</strong><span>Reservasi konsultasi layanan KKPRL dengan petugas.</span></span><span class="quick-arrow" aria-hidden="true">→</span></a>
+        <a class="quick-link" href="/belajar-kkprl"><span class="quick-icon" aria-hidden="true">↗</span><span class="quick-copy"><strong>Belajar KKPRL</strong><span>Akses materi PDF dan video mengenai KKPRL.</span></span><span class="quick-arrow" aria-hidden="true">→</span></a>
+        <a class="quick-link" href="/cek-status"><span class="quick-icon" aria-hidden="true">✓</span><span class="quick-copy"><strong>Cek Status</strong><span>Periksa perkembangan layanan Anda dengan cepat.</span></span><span class="quick-arrow" aria-hidden="true">→</span></a>
+      </div>
+    </section>
+
+    <section class="services" id="services">
+      <div class="wrap">
+        <div class="section-heading">
+          <span class="eyebrow">Layanan kami</span>
+          <h2>Layanan utama untuk kebutuhan ruang laut.</h2>
+          <p>Solusi lengkap untuk kebutuhan perizinan pemanfaatan ruang laut Anda.</p>
+        </div>
+        <div class="service-grid">
+          <article class="service-card featured">
+            <span class="service-number">01 · LAYANAN UTAMA</span>
+            <span class="service-icon" aria-hidden="true">◎</span>
+            <h3>Konsultasi layanan KKPRL</h3>
+            <p>Reservasi konsultasi layanan KKPRL dengan petugas. Layanan resmi LPRL Sorong untuk kebutuhan penataan ruang laut.</p>
+            <a class="service-link" href="#booking">Reservasi sekarang <span aria-hidden="true">→</span></a>
+          </article>
+          <article class="service-card">
+            <span class="service-number">02 · REFERENSI</span>
+            <span class="service-icon" aria-hidden="true">▤</span>
+            <h3>Materi dan regulasi</h3>
+            <p>Akses materi PDF dan video mengenai KKPRL serta dokumen publik yang mendukung kebutuhan informasi Anda.</p>
+            <a class="service-link" href="#knowledge">Lihat referensi <span aria-hidden="true">→</span></a>
+          </article>
+          <article class="service-card">
+            <span class="service-number">03 · AKUNTABILITAS</span>
+            <span class="service-icon" aria-hidden="true">↗</span>
+            <h3>Hasil layanan</h3>
+            <p>Informasi kinerja layanan dan hasil survei kepuasan masyarakat LPRL Sorong dapat diakses secara terbuka.</p>
+            <a class="service-link" href="#public-links">Buka informasi <span aria-hidden="true">→</span></a>
+          </article>
+        </div>
+        <p class="service-footnote">Informasi layanan pada sistem utama tetap bersumber dari data dinamis. Bagian ini adalah tampilan statis untuk evaluasi UI/UX.</p>
+      </div>
+    </section>
+
+    <section class="public-data" id="activity-chart">
+      <div class="wrap data-layout">
+        <div class="section-heading">
+          <span class="eyebrow">Data publik</span>
+          <h2>Informasi yang mudah dibaca, bukan sekadar angka.</h2>
+          <p>Grafik publik untuk melihat distribusi pemohon berdasarkan sifat kegiatan. Tampilan visual ini memberi ruang yang cukup untuk data dinamis dari sistem.</p>
+        </div>
+        <div class="data-card" aria-label="Preview grafik distribusi pemohon">
+          <div class="data-card-top"><strong>Grafik Distribusi Pemohon</strong><span>Preview UI · data dinamis</span></div>
+          <div class="chart">
+            <div class="chart-y"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0</span></div>
+            <div class="bars">
+              <div class="bar-item"><div class="bar" style="height: 77%"></div><span>Berusaha</span></div>
+              <div class="bar-item"><div class="bar" style="height: 56%"></div><span>Non-berusaha</span></div>
+              <div class="bar-item"><div class="bar" style="height: 38%"></div><span>Pemerintah</span></div>
+              <div class="bar-item"><div class="bar" style="height: 22%"></div><span>Lainnya</span></div>
+            </div>
+          </div>
+          <div class="data-caption"><span>Distribusi sifat kegiatan</span><em>Data akan mengikuti filter sistem</em></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="knowledge">
+      <div class="wrap knowledge-layout">
+        <div>
+          <span class="eyebrow">Dokumen &amp; regulasi</span>
+          <h2 class="subheading" style="margin-top: 14px; font-size: 2rem;">Rujukan resmi untuk langkah yang lebih jelas.</h2>
+          <div class="document-list">
+            <a class="document" href="#knowledge"><span class="file-icon">PDF</span><span class="document-copy"><strong>Arsip regulasi LPRL Sorong</strong><span>Dokumen publik · tersedia dari sistem dinamis</span></span><span class="document-arrow">↓</span></a>
+            <a class="document" href="#knowledge"><span class="file-icon">PDF</span><span class="document-copy"><strong>Dokumen dan ketentuan KKPRL</strong><span>Dokumen publik · tersedia dari sistem dinamis</span></span><span class="document-arrow">↓</span></a>
+          </div>
+          <p class="empty-state">Daftar dokumen akan mengikuti regulasi yang dipublikasikan pada sistem utama.</p>
+        </div>
+        <div>
+          <span class="eyebrow">Pertanyaan umum</span>
+          <h2 class="subheading" style="margin-top: 14px; font-size: 2rem;">Temukan jawaban sebelum membuat janji.</h2>
+          <div class="faq-list">
+            <div class="faq"><button type="button"><span>Apa yang dapat dilakukan melalui portal ini?</span><span aria-hidden="true">+</span></button><div class="faq-answer">Portal ini membantu pengguna mengakses informasi layanan, materi KKPRL, kanal masukan publik, hasil layanan, dan reservasi konsultasi dengan petugas LPRL Sorong.</div></div>
+            <div class="faq"><button type="button"><span>Bagaimana cara membuat janji temu?</span><span aria-hidden="true">+</span></button><div class="faq-answer">Pilih tombol Reservasi, lengkapi informasi yang diminta, lalu ikuti proses penjadwalan konsultasi pada sistem.</div></div>
+            <div class="faq"><button type="button"><span>Di mana saya dapat memeriksa status layanan?</span><span aria-hidden="true">+</span></button><div class="faq-answer">Gunakan menu Cek Status untuk melihat perkembangan layanan berdasarkan tiket atau informasi akses yang Anda miliki.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="public-links" id="public-links">
+      <div class="wrap">
+        <div class="section-heading">
+          <span class="eyebrow">Informasi publik</span>
+          <h2>Tautan resmi terkait.</h2>
+          <p>Akses kanal informasi layanan publik, pengaduan masyarakat, dan website organisasi terkait untuk mendapatkan informasi tambahan yang terpercaya.</p>
+        </div>
+        <div class="link-grid">
+          <a class="link-card" href="/belajar-kkprl"><span class="link-card-top"><span class="link-mark">↗</span><span aria-hidden="true">→</span></span><h3>Belajar KKPRL</h3><p>Referensi pembelajaran publik tentang KKPRL dalam bentuk PDF dan video eksternal yang dikelompokkan per topik.</p><span class="link-host">listdatakkprl.test/belajar-kkprl</span></a>
+          <a class="link-card" href="/hasil-survei-kepuasan"><span class="link-card-top"><span class="link-mark">▥</span><span aria-hidden="true">→</span></span><h3>Hasil SKM</h3><p>Publikasi hasil survei kepuasan masyarakat LPRL Sorong per triwulan dan tahun.</p><span class="link-host">listdatakkprl.test/hasil-survei-kepuasan</span></a>
+          <a class="link-card" href="/hasil-kinerja-layanan"><span class="link-card-top"><span class="link-mark">↗</span><span aria-hidden="true">→</span></span><h3>Hasil Kinerja</h3><p>Informasi kinerja layanan per triwulan dengan rekap petugas yang ditampilkan sebagai inisial.</p><span class="link-host">listdatakkprl.test/hasil-kinerja-layanan</span></a>
+          <a class="link-card" href="/masukan-publik"><span class="link-card-top"><span class="link-mark">↗</span><span aria-hidden="true">→</span></span><h3>Masukan Publik</h3><p>Kanal saran dan umpan balik publik yang dapat dikirim secara anonim, dengan pilihan petugas satu, banyak, atau umum.</p><span class="link-host">listdatakkprl.test/masukan-publik</span></a>
+          <a class="link-card" href="https://e-sea.kkp.go.id/" target="_blank" rel="noopener"><span class="link-card-top"><span class="link-mark">≈</span><span aria-hidden="true">↗</span></span><h3>e-Sea</h3><p>Sistem elektronik KKP untuk pengajuan KKPRL bagi kegiatan non-berusaha melalui portal berbasis web.</p><span class="link-host">e-sea.kkp.go.id</span></a>
+          <a class="link-card" href="https://www.lapor.go.id/" target="_blank" rel="noopener"><span class="link-card-top"><span class="link-mark">!</span><span aria-hidden="true">↗</span></span><h3>LAPOR!</h3><p>Kanal pengaduan masyarakat resmi pemerintah Indonesia untuk aspirasi dan pelaporan publik.</p><span class="link-host">lapor.go.id</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="booking" id="booking">
+      <div class="wrap booking-layout">
+        <div>
+          <div class="section-heading"><span class="eyebrow">Reservasi online</span><h2>Mulai jadwalkan konsultasi.</h2><p>Silakan lengkapi formulir berikut untuk mendapatkan tiket antrian.</p></div>
+          <div class="booking-list">
+            <div class="booking-step"><span class="step-number">1</span><div><strong>Pilih layanan</strong><p>Tentukan kebutuhan konsultasi yang paling sesuai.</p></div></div>
+            <div class="booking-step"><span class="step-number">2</span><div><strong>Isi data kontak</strong><p>Gunakan informasi yang aktif agar petugas dapat menghubungi Anda.</p></div></div>
+            <div class="booking-step"><span class="step-number">3</span><div><strong>Dapatkan tiket</strong><p>Simpan tiket antrian dan gunakan untuk memeriksa status layanan.</p></div></div>
+          </div>
+        </div>
+        <div class="booking-card">
+          <h3>Buat janji temu</h3>
+          <p>Reservasi konsultasi layanan KKPRL dengan petugas.</p>
+          <form id="booking-form">
+            <div class="form-grid">
+              <div class="field full"><label for="service">Layanan</label><select id="service" required><option value="">Pilih layanan</option><option>Konsultasi layanan KKPRL</option><option>Informasi penataan ruang laut</option></select></div>
+              <div class="field"><label for="name">Nama lengkap</label><input id="name" type="text" placeholder="Nama Anda" required></div>
+              <div class="field"><label for="contact">Email / WhatsApp</label><input id="contact" type="text" placeholder="Kontak aktif" required></div>
+              <div class="field"><label for="date">Tanggal pilihan</label><input id="date" type="date" required></div>
+              <div class="field"><label for="mode">Metode konsultasi</label><select id="mode" required><option value="">Pilih metode</option><option>Daring</option><option>Tatap muka</option></select></div>
+            </div>
+            <button class="button button-primary booking-submit" type="submit">Lanjutkan reservasi <span aria-hidden="true">→</span></button>
+            <p class="form-note" id="form-note">Prototype UI statis — pengiriman tetap menggunakan sistem utama.</p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-row"><span><strong>LPRL Sorong</strong> · Kementerian Kelautan &amp; Perikanan</span><span class="footer-links"><a href="#home">Home</a><a href="#services">Layanan</a><a href="#booking">Reservasi</a></span></div>
+  </footer>
+
+  <script>
+    const header = document.querySelector('#site-header');
+    const trigger = document.querySelector('#mobile-trigger');
+    const nav = document.querySelector('#main-nav');
+    const resultsMenu = document.querySelector('#results-menu');
+    const resultsTrigger = resultsMenu.querySelector('.nav-menu-trigger');
+
+    window.addEventListener('scroll', () => header.classList.toggle('is-scrolled', window.scrollY > 12), { passive: true });
+    trigger.addEventListener('click', () => {
+      const open = nav.classList.toggle('is-open');
+      document.body.classList.toggle('menu-open', open);
+      trigger.setAttribute('aria-expanded', String(open));
+      trigger.setAttribute('aria-label', open ? 'Tutup menu' : 'Buka menu');
+    });
+    resultsTrigger.addEventListener('click', () => {
+      const open = resultsMenu.classList.toggle('is-open');
+      resultsTrigger.setAttribute('aria-expanded', String(open));
+    });
+    document.addEventListener('click', (event) => {
+      if (!resultsMenu.contains(event.target)) {
+        resultsMenu.classList.remove('is-open');
+        resultsTrigger.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.querySelectorAll('#main-nav a').forEach(link => link.addEventListener('click', () => {
+      nav.classList.remove('is-open');
+      document.body.classList.remove('menu-open');
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.setAttribute('aria-label', 'Buka menu');
+    }));
+    document.querySelectorAll('.faq button').forEach(button => button.addEventListener('click', () => {
+      const item = button.closest('.faq');
+      document.querySelectorAll('.faq.is-open').forEach(openItem => { if (openItem !== item) openItem.classList.remove('is-open'); });
+      item.classList.toggle('is-open');
+    }));
+    document.querySelector('#booking-form').addEventListener('submit', event => {
+      event.preventDefault();
+      document.querySelector('#form-note').textContent = 'Prototype tersimpan untuk evaluasi alur. Hubungkan tombol ini ke booking wizard pada sistem utama saat implementasi.';
+      document.querySelector('#form-note').style.color = '#008b76';
+    });
+  </script>
+</body>
+</html>

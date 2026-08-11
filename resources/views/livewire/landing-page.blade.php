@@ -77,19 +77,61 @@
             }
         }
         .hero-action {
-            min-height: 4rem;
-            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            position: relative;
+            min-height: 5.5rem;
+            height: 100%;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
         }
         .hero-action:hover {
             transform: translateY(-2px);
         }
-        .hero-secondary-action {
-            min-height: 3.25rem;
-            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        .hero-action:focus-visible {
+            outline: 3px solid rgba(0, 87, 255, 0.35);
+            outline-offset: 3px;
         }
-        .hero-secondary-action:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.07);
+        .hero-action-copy {
+            display: flex;
+            min-width: 0;
+            flex: 1;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8125rem;
+            line-height: 1.45;
+            letter-spacing: 0.015em;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        .hero-action-icon {
+            display: inline-flex;
+            width: 2.5rem;
+            height: 2.5rem;
+            flex: 0 0 auto;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        }
+        @media (max-width: 639px) {
+            .hero-action {
+                min-height: 7rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .hero-action-icon {
+                width: 2.25rem;
+                height: 2.25rem;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-action {
+                transition: none;
+            }
+            .hero-action:hover {
+                transform: none;
+            }
         }
         .hero-poster-shell {
             isolation: isolate;
@@ -145,18 +187,6 @@
                 max-width: 23rem;
                 margin-inline: auto;
             }
-        }
-        .learn-quick-band {
-            background: rgba(255, 255, 255, 0.82);
-            border-block: 1px solid #e2e8f0;
-            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.05);
-        }
-        .learn-quick-item {
-            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-        }
-        .learn-quick-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 20px 35px rgba(15, 23, 42, 0.08);
         }
     </style>
     <!-- Navbar (Minimalist Sticky) -->
@@ -254,7 +284,7 @@
             <div class="grid lg:grid-cols-12 gap-12 items-end">
                 
                 <!-- Typography Main -->
-                <div class="lg:col-span-6 relative z-10">
+                <div class="lg:col-span-7 relative z-10">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-slate-200 bg-white/50 backdrop-blur-sm mb-8">
                         <span class="w-2 h-2 rounded-full bg-brand-blue animate-pulse"></span>
                         <span class="text-xs font-mono font-medium text-slate-500 uppercase tracking-wide">System Online</span>
@@ -270,24 +300,52 @@
                         Transparan dan presisi.
                     </p>
 
-                    <div class="grid gap-4 sm:grid-cols-2 max-w-2xl">
-                        <a href="#booking" class="hero-action px-7 py-4 bg-brand-blue text-white rounded-xl font-semibold shadow-lg shadow-blue-500/30 hover:bg-blue-700 hover:shadow-xl flex items-center justify-center gap-3">
-                            <i class="fa-solid fa-calendar-check text-sm"></i>
-                            <span>Buat Janji Temu</span>
+                    <div class="grid auto-rows-fr gap-4 sm:grid-cols-2 max-w-2xl">
+                        <a href="#booking" class="hero-action flex w-full items-center justify-center gap-3 rounded-xl border border-blue-400/30 bg-brand-blue px-4 py-4 font-semibold text-white shadow-lg shadow-blue-500/20 hover:bg-blue-700 hover:shadow-xl">
+                            <span class="hero-action-icon" aria-hidden="true">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </span>
+                            <span class="hero-action-copy">
+                                <span>Buat Janji Temu</span>
+                                <span>Asistensi/Konsultasi Proposal</span>
+                            </span>
                         </a>
-                        <a href="{{ route('belajar-kkprl') }}" class="hero-action px-7 py-4 bg-brand-black text-white rounded-xl font-semibold shadow-lg shadow-slate-300 hover:bg-slate-800 hover:shadow-xl flex items-center justify-center gap-3">
-                            <i class="fa-solid fa-graduation-cap text-sm"></i>
-                            <span>Belajar KKPRL</span>
+                        <a href="{{ route('belajar-kkprl') }}" class="hero-action flex w-full items-center justify-center gap-3 rounded-xl border border-slate-700 bg-brand-black px-4 py-4 font-semibold text-white shadow-lg shadow-slate-400/30 hover:bg-blue-950 hover:shadow-xl">
+                            <span class="hero-action-icon" aria-hidden="true">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </span>
+                            <span class="hero-action-copy">
+                                <span>Belajar KKPRL</span>
+                            </span>
                         </a>
-                        <a href="#knowledge" class="hero-secondary-action sm:col-span-2 w-full sm:w-fit px-6 py-3 bg-white/80 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:border-brand-blue hover:text-brand-blue transition-all flex items-center justify-center gap-3 shadow-sm">
-                            <i class="fa-solid fa-book-open text-slate-400"></i>
-                            <span>Arsip Regulasi</span>
+                        <a href="#knowledge" class="hero-action flex w-full items-center justify-center gap-3 rounded-xl border border-blue-700 bg-blue-800 px-4 py-4 font-semibold text-white shadow-lg shadow-blue-800/20 hover:bg-blue-900 hover:shadow-xl">
+                            <span class="hero-action-icon" aria-hidden="true">
+                                <i class="fa-solid fa-book-open"></i>
+                            </span>
+                            <span class="hero-action-copy">
+                                <span>Arsip Regulasi KKPRL</span>
+                            </span>
+                        </a>
+                        <a
+                            href="https://kawanruanglaut.timurbersinar.com/belajar-kkprl/materi/panduan-perolehan-data-oseanografi-ekosistem-pesisir-batimetri-dan-pemetaan-dasar-bagi-sektor-perikanan-skala-kecil-serta-tingkat-resiko-rendah?access_uuid=7e7441a4-08f7-4aed-a473-64f8bcc396da"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Pedoman Perolehan Data Proposal KKPRL Skala Kecil (dibuka di tab baru)"
+                            class="hero-action flex w-full items-center justify-center gap-3 rounded-xl border border-sky-600 bg-sky-700 px-4 py-4 font-semibold text-white shadow-lg shadow-sky-700/20 hover:bg-sky-800 hover:shadow-xl"
+                        >
+                            <span class="hero-action-icon" aria-hidden="true">
+                                <i class="fa-solid fa-compass-drafting"></i>
+                            </span>
+                            <span class="hero-action-copy">
+                                <span>Pedoman Perolehan Data</span>
+                                <span>Proposal KKPRL Skala Kecil</span>
+                            </span>
                         </a>
                     </div>
                 </div>
 
                 <!-- Promotional Visual (Right) -->
-                <div class="lg:col-span-6 relative h-full min-h-[300px] flex items-end justify-end lg:justify-center">
+                <div class="lg:col-span-5 relative h-full min-h-[300px] flex items-end justify-end lg:justify-center">
                     <div class="hero-poster-shell relative w-full transition-transform hover:-translate-y-1 duration-500 ease-out">
                         <div class="hero-poster-frame">
                             <img src="{{ asset('img/newphoto.jpg') }}"
@@ -298,44 +356,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="belajar-highlight" class="learn-quick-band py-10">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <div class="grid gap-5 lg:grid-cols-2">
-                <a href="#booking" class="learn-quick-item rounded-lg border border-slate-200 bg-white p-6 md:p-7 flex items-center justify-between gap-5">
-                    <div class="flex items-center gap-5">
-                        <div class="w-14 h-14 rounded-2xl bg-blue-50 text-brand-blue flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-calendar-check"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Layanan</p>
-                            <h2 class="mt-1 text-2xl font-bold text-slate-950">Buat Janji Temu</h2>
-                            <p class="mt-1 text-sm leading-relaxed text-slate-500">Reservasi konsultasi layanan KKPRL dengan petugas.</p>
-                        </div>
-                    </div>
-                    <div class="hidden sm:flex w-10 h-10 rounded-full bg-brand-blue text-white items-center justify-center">
-                        <i class="fa-solid fa-arrow-right text-sm"></i>
-                    </div>
-                </a>
-
-                <a href="{{ route('belajar-kkprl') }}" class="learn-quick-item rounded-lg border border-blue-100 bg-white p-6 md:p-7 flex items-center justify-between gap-5">
-                    <div class="flex items-center gap-5">
-                        <div class="w-14 h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs font-bold uppercase tracking-widest text-brand-blue">Referensi Publik</p>
-                            <h2 class="mt-1 text-2xl font-bold text-slate-950">Belajar KKPRL</h2>
-                            <p class="mt-1 text-sm leading-relaxed text-slate-500">Akses materi PDF dan video mengenai KKPRL.</p>
-                        </div>
-                    </div>
-                    <div class="hidden sm:flex w-10 h-10 rounded-full bg-slate-900 text-white items-center justify-center">
-                        <i class="fa-solid fa-arrow-right text-sm"></i>
-                    </div>
-                </a>
             </div>
         </div>
     </section>
