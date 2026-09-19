@@ -112,7 +112,7 @@ return new class extends Migration
             $table->string('status', 24)->default('active')->index();
             $table->timestamp('session_started_at')->useCurrent();
             $table->timestamp('session_finished_at')->nullable();
-            $table->timestamp('expires_at');
+            $table->timestamp('expires_at')->nullable();
             $table->timestamp('ended_at')->nullable();
             $table->string('end_reason', 48)->nullable();
             $table->timestamps();
