@@ -86,6 +86,12 @@ class ClientsTable
                         default => 'gray',
                     }),
                 
+                TextColumn::make('estimated_cost_savings')
+                    ->label('Efisiensi Biaya')
+                    ->money('IDR', locale: 'id')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                
                 TextColumn::make('schedule_dates')
                     ->label('Tgl. Konsultasi')
                     ->getStateUsing(function ($record) {
@@ -399,6 +405,10 @@ class ClientsTable
                                         'non_business' => 'Non Berusaha',
                                         default => $record->activity_type,
                                     }),
+                                    
+                                \pxlrbt\FilamentExcel\Columns\Column::make('estimated_cost_savings')
+                                    ->heading('Estimasi Efisiensi Biaya')
+                                    ->formatStateUsing(fn ($state) => $state ? 'Rp ' . number_format($state, 0, ',', '.') : '-'),
 
                                 \pxlrbt\FilamentExcel\Columns\Column::make('metadata_string')
                                     ->heading('Data Teknis')
@@ -476,6 +486,10 @@ class ClientsTable
                                             'non_business' => 'Non Berusaha',
                                             default => $record->activity_type,
                                         }),
+                                        
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('estimated_cost_savings')
+                                        ->heading('Estimasi Efisiensi Biaya')
+                                        ->formatStateUsing(fn ($state) => $state ? 'Rp ' . number_format($state, 0, ',', '.') : '-'),
     
                                     \pxlrbt\FilamentExcel\Columns\Column::make('metadata_string')
                                         ->heading('Data Teknis')

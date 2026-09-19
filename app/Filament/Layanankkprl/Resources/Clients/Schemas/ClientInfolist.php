@@ -94,6 +94,10 @@ class ClientInfolist
                             ->formatStateUsing(fn (?bool $state): string => $state ? 'Telah Menyetujui' : 'Tidak / Belum')
                             ->color(fn (?bool $state): string => $state ? 'success' : 'danger')
                             ->icon(fn (?bool $state): string => $state ? 'heroicon-m-check-badge' : 'heroicon-m-x-circle'),
+                        \Filament\Infolists\Components\TextEntry::make('estimated_cost_savings')
+                            ->label('Estimasi Efisiensi Biaya')
+                            ->money('IDR', locale: 'id')
+                            ->placeholder('Belum diisi'),
                         \Filament\Infolists\Components\RepeatableEntry::make('metadata.data_teknis')
                             ->label('Data Teknis')
                             ->schema([

@@ -29,6 +29,9 @@ class ClientStatsOverview extends BaseWidget
         // 2. Total Schedules (for the filtered clients)
         $totalSchedules = (clone $query)->withCount('schedules')->get()->sum('schedules_count');
 
+        // Total Cost Savings
+        $totalSavings = (clone $query)->sum('estimated_cost_savings');
+
         // 3. Breakdown by Service
         $clientsByService = (clone $query)
             ->reorder() // Clear default table ordering to prevent SQL strict mode error
@@ -45,9 +48,14 @@ class ClientStatsOverview extends BaseWidget
                 ->color('primary'),
             
             Stat::make('Total Jadwal', $totalSchedules)
-                ->description('Dari klien terpilih')
+                ->description('Dari pemohon terpilih')
                 ->descriptionIcon('heroicon-m-calendar')
                 ->color('info'),
+                
+            Stat::make('Nilai Total Efisiensi', 'Rp ' . number_format($totalSavings, 0, ',', '.'))
+                ->description('Dari pemohon terpilih')
+                ->descriptionIcon('heroicon-m-banknotes')
+                ->color('warning'),
         ];
 
         // Ensure we load all active services to show even those with 0 count

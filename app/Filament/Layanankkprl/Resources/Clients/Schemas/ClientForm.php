@@ -111,6 +111,11 @@ class ClientForm
                                 'business' => 'Berusaha',
                                 'non_business' => 'Non Berusaha',
                             ]),
+                        TextInput::make('estimated_cost_savings')
+                            ->label('Estimasi Efisiensi Biaya')
+                            ->prefix('Rp')
+                            ->numeric()
+                            ->nullable(),
                         \Filament\Forms\Components\Repeater::make('metadata.data_teknis')
                             ->label('Data Teknis')
                             ->schema([
