@@ -2,7 +2,32 @@
 
 namespace App\Providers;
 
+use App\Contracts\KkprlProposalAccessVerifier;
+use App\Filament\Layanankkprl\Resources\Clients\Pages\ViewClient;
+use App\Models\Activity;
+use App\Models\Assignment;
+use App\Models\BeritaAcara;
+use App\Models\Client;
+use App\Models\ConsultationReport;
+use App\Models\Faq;
+use App\Models\PublicFeedback;
+use App\Models\Regulation;
+use App\Models\SatisfactionSurvey;
+use App\Models\Schedule;
+use App\Observers\ActivityObserver;
+use App\Observers\AssignmentObserver;
+use App\Observers\BeritaAcaraObserver;
+use App\Observers\ClientObserver;
+use App\Observers\ConsultationReportObserver;
+use App\Observers\FaqObserver;
+use App\Observers\PublicFeedbackObserver;
+use App\Observers\RegulationObserver;
+use App\Observers\SatisfactionSurveyObserver;
+use App\Observers\ScheduleObserver;
+use App\Services\KkprlTicketPhoneAccessVerifier;
 use App\Support\WindowsSafeFilesystem;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\Compilers\BladeCompiler;
@@ -15,6 +40,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(KkprlProposalAccessVerifier::class, KkprlTicketPhoneAccessVerifier::class);
+
         $this->app->forgetInstance('files');
         $this->app->forgetInstance(Filesystem::class);
 
@@ -33,21 +60,21 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \App\Models\Activity::observe(\App\Observers\ActivityObserver::class);
-        \App\Models\Faq::observe(\App\Observers\FaqObserver::class);
-        \App\Models\Regulation::observe(\App\Observers\RegulationObserver::class);
-        \App\Models\Client::observe(\App\Observers\ClientObserver::class);
-        \App\Models\Assignment::observe(\App\Observers\AssignmentObserver::class);
-        \App\Models\ConsultationReport::observe(\App\Observers\ConsultationReportObserver::class);
-        \App\Models\BeritaAcara::observe(\App\Observers\BeritaAcaraObserver::class);
-        \App\Models\Schedule::observe(\App\Observers\ScheduleObserver::class);
-        \App\Models\SatisfactionSurvey::observe(\App\Observers\SatisfactionSurveyObserver::class);
-        \App\Models\PublicFeedback::observe(\App\Observers\PublicFeedbackObserver::class);
+        Activity::observe(ActivityObserver::class);
+        Faq::observe(FaqObserver::class);
+        Regulation::observe(RegulationObserver::class);
+        Client::observe(ClientObserver::class);
+        Assignment::observe(AssignmentObserver::class);
+        ConsultationReport::observe(ConsultationReportObserver::class);
+        BeritaAcara::observe(BeritaAcaraObserver::class);
+        Schedule::observe(ScheduleObserver::class);
+        SatisfactionSurvey::observe(SatisfactionSurveyObserver::class);
+        PublicFeedback::observe(PublicFeedbackObserver::class);
 
-        \Filament\Support\Facades\FilamentView::registerRenderHook(
-            \Filament\View\PanelsRenderHook::PAGE_START,
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::PAGE_START,
             fn (): string => '<div wire:poll.5s="refreshRecord" class="hidden"></div>',
-            scopes: [\App\Filament\Layanankkprl\Resources\Clients\Pages\ViewClient::class],
+            scopes: [ViewClient::class],
         );
     }
 }

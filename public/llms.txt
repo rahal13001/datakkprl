@@ -1,0 +1,19 @@
+# Layanan Konsultasi LPRL Sorong
+
+Sistem pendukung penyusunan dan review proposal KKPRL. Sistem ini bukan OSS, e-Sea, sistem perizinan utama, penerbit izin resmi, atau keputusan hukum/administratif.
+
+## Public pages
+
+- [Buat proposal KKPRL](/buat-proposal-kkprl): membuat draft tanpa login dengan nomor HP.
+- [Lanjutkan proposal KKPRL](/lanjutkan-proposal-kkprl): melanjutkan dengan nomor tiket dan nomor HP.
+
+## Scope
+
+- Pemohon mengisi draft bertahap, mengunggah lampiran privat, dan mengekspor bab aktif ke Word/PDF.
+- Petugas berwenang meninjau proposal melalui panel internal Filament.
+- Proposal submitted hanya dokumen pendukung review dan tidak menandakan izin diterbitkan.
+
+## Privacy
+
+- Proposal, lampiran, dan dokumen hasil generate tidak disajikan melalui public storage.
+- Nomor tiket saja bukan credential yang cukup untuk membuka proposal.

@@ -21,3 +21,7 @@ Schedule::call(function (): void {
         ->where('last_seen_at', '<', $deviceCutoff)
         ->update(['disabled_at' => now(), 'updated_at' => now()]);
 })->dailyAt('02:30')->name('mobile-notification-maintenance')->withoutOverlapping();
+
+Schedule::call(function (): void {
+    app(\App\Services\KkprlProposalEditApprovalService::class)->expireActiveSessions();
+})->everyMinute()->name('kkprl-expire-edit-sessions')->withoutOverlapping();

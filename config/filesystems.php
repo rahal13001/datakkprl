@@ -38,6 +38,15 @@ return [
             'report' => false,
         ],
 
+        'kkprl_private' => [
+            'driver' => 'local',
+            'root' => storage_path('app/kkprl-private'),
+            'serve' => false,
+            'visibility' => 'private',
+            'throw' => false,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

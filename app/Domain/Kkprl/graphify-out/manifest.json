@@ -1,0 +1,112 @@
+{
+  "ActiveRevisionExists.php": {
+    "mtime": 1787546869.0126758,
+    "ast_hash": "f564046b9f03b0d71c911f8c1016b42c",
+    "semantic_hash": "f564046b9f03b0d71c911f8c1016b42c"
+  },
+  "AttachmentQuota.php": {
+    "mtime": 1787543658.9003248,
+    "ast_hash": "b5c2dcc3b54b4cdf4011853c7d116494",
+    "semantic_hash": "b5c2dcc3b54b4cdf4011853c7d116494"
+  },
+  "AttachmentQuotaViolation.php": {
+    "mtime": 1787543658.5602143,
+    "ast_hash": "d4e48f60467df23e071716c25d115f36",
+    "semantic_hash": "d4e48f60467df23e071716c25d115f36"
+  },
+  "EditApprovalDenied.php": {
+    "mtime": 1787547517.0835965,
+    "ast_hash": "949d637d4ff16be0884d14099223a862",
+    "semantic_hash": "949d637d4ff16be0884d14099223a862"
+  },
+  "EditApprovalUsed.php": {
+    "mtime": 1787547517.3895643,
+    "ast_hash": "caf507b86b5ca98325dcb4d2d4355958",
+    "semantic_hash": "caf507b86b5ca98325dcb4d2d4355958"
+  },
+  "EditScopeDenied.php": {
+    "mtime": 1787547517.6606572,
+    "ast_hash": "45b54a5f574a0566e56a712712ab3ec7",
+    "semantic_hash": "45b54a5f574a0566e56a712712ab3ec7"
+  },
+  "EditSessionExpired.php": {
+    "mtime": 1787547517.8887174,
+    "ast_hash": "a026c0970518c964e1669002eeb66702",
+    "semantic_hash": "a026c0970518c964e1669002eeb66702"
+  },
+  "InvalidAttachmentFile.php": {
+    "mtime": 1787545460.2237685,
+    "ast_hash": "23937a5280d4dfeab340229d7306cbd6",
+    "semantic_hash": "23937a5280d4dfeab340229d7306cbd6"
+  },
+  "InvalidProposalCredentials.php": {
+    "mtime": 1787544392.7338495,
+    "ast_hash": "a14887963f3add6d5b48e4cb0b87c7e9",
+    "semantic_hash": "a14887963f3add6d5b48e4cb0b87c7e9"
+  },
+  "KkprlPhoneNormalizer.php": {
+    "mtime": 1787544249.343198,
+    "ast_hash": "16b5a393e55579a2f99c9964ec809a0f",
+    "semantic_hash": "16b5a393e55579a2f99c9964ec809a0f"
+  },
+  "PdfAttachmentRenderFailed.php": {
+    "mtime": 1787566191.9282892,
+    "ast_hash": "dd4cc43344ddac38e97ad822f7673711",
+    "semantic_hash": "dd4cc43344ddac38e97ad822f7673711"
+  },
+  "ProposalAccessDenied.php": {
+    "mtime": 1787544393.1964371,
+    "ast_hash": "39377b101f8b3c9e326ae59536086dcf",
+    "semantic_hash": "39377b101f8b3c9e326ae59536086dcf"
+  },
+  "ProposalAccessRateLimited.php": {
+    "mtime": 1787544393.4236937,
+    "ast_hash": "7b0b208f8cbd269a31eb16a64395fada",
+    "semantic_hash": "7b0b208f8cbd269a31eb16a64395fada"
+  },
+  "ProposalChapterRules.php": {
+    "mtime": 1787560280.4484584,
+    "ast_hash": "f979ecf07a43cab175bbb9a1fc057d48",
+    "semantic_hash": "f979ecf07a43cab175bbb9a1fc057d48"
+  },
+  "ProposalDocumentSectionCatalog.php": {
+    "mtime": 1787667933.36263,
+    "ast_hash": "ac9545f9720cf37877726a267c29aaa5",
+    "semantic_hash": "ac9545f9720cf37877726a267c29aaa5"
+  },
+  "ProposalFieldCatalog.php": {
+    "mtime": 1787550360.098863,
+    "ast_hash": "298b051a17833bf4c025fc7eb4773e07",
+    "semantic_hash": "298b051a17833bf4c025fc7eb4773e07"
+  },
+  "ProposalInlineAnchorResolver.php": {
+    "mtime": 1787559954.7985115,
+    "ast_hash": "301c31c777bef9876430c58e909c5da2",
+    "semantic_hash": "301c31c777bef9876430c58e909c5da2"
+  },
+  "ProposalLocked.php": {
+    "mtime": 1787544838.2578604,
+    "ast_hash": "9b534760e08a8a0c87a5c626151350a3",
+    "semantic_hash": "9b534760e08a8a0c87a5c626151350a3"
+  },
+  "ProposalPayloadSanitizer.php": {
+    "mtime": 1787559789.6035063,
+    "ast_hash": "fd44e4aa8804204b2f630de94eaae9e2",
+    "semantic_hash": "fd44e4aa8804204b2f630de94eaae9e2"
+  },
+  "ProposalProgress.php": {
+    "mtime": 1787560280.5919724,
+    "ast_hash": "8c973ab4532ca3f21c56a35e72a8d3fc",
+    "semantic_hash": "8c973ab4532ca3f21c56a35e72a8d3fc"
+  },
+  "ProposalProgressResult.php": {
+    "mtime": 1787560280.6031072,
+    "ast_hash": "0f9ca03e0bd0d428bd069c803d4b7b95",
+    "semantic_hash": "0f9ca03e0bd0d428bd069c803d4b7b95"
+  },
+  "ProposalSnapshot.php": {
+    "mtime": 1787560280.610107,
+    "ast_hash": "7ba93c180aa5f50bc08af5f80ea1d6b3",
+    "semantic_hash": "7ba93c180aa5f50bc08af5f80ea1d6b3"
+  }
+}

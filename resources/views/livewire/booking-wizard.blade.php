@@ -522,6 +522,37 @@
                     </div>
 
                     @error('consultation_location_id') <p class="text-red-500 text-sm mt-4 text-center">{{ $message }}</p> @enderror
+
+                    @if($selectedLocation && $selectedLocation->requires_cost_savings_estimate)
+                    <div class="mt-8 bg-blue-50/50 p-6 rounded-2xl border border-blue-100" 
+                         x-data="{ 
+                             formatRupiah(value) {
+                                 if (!value) return '';
+                                 let number_string = value.toString().replace(/[^,\d]/g, '');
+                                 let split = number_string.split(',');
+                                 let sisa  = split[0].length % 3;
+                                 let rupiah  = split[0].substr(0, sisa);
+                                 let ribuan  = split[0].substr(sisa).match(/\d{3}/gi);
+                                 if(ribuan){
+                                     let separator = sisa ? '.' : '';
+                                     rupiah += separator + ribuan.join('.');
+                                 }
+                                 rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+                                 return rupiah ? 'Rp ' + rupiah : '';
+                             }
+                         }">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Estimasi Efisiensi Biaya <span class="text-red-500">*</span></label>
+                        <p class="text-xs text-slate-500 mb-3">Masukkan perkiraan nilai (dalam Rupiah) yang berhasil Anda hemat dengan memanfaatkan layanan di lokasi ini (contoh: hemat biaya transport, dsb).</p>
+                        
+                        <input type="text" 
+                            wire:model="estimasi_efisiensi_biaya"
+                            x-on:input="$event.target.value = formatRupiah($event.target.value)"
+                            x-init="$el.value = formatRupiah($wire.estimasi_efisiensi_biaya)"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-blue focus:ring-2 focus:ring-blue-100 outline-none transition-all font-semibold text-slate-700"
+                            placeholder="Rp 0">
+                        @error('estimasi_efisiensi_biaya') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                    </div>
+                    @endif
                 </div>
             @endif
 

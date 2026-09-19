@@ -2,11 +2,16 @@
 
 use App\Http\Controllers\LearningMaterialController;
 use App\Http\Controllers\LearningTrackingController;
+use App\Http\Controllers\KkprlProposalDocumentDownloadController;
+use App\Http\Controllers\KkprlProposalAttachmentDownloadController;
 use App\Livewire\AttendeeSign;
 use App\Livewire\BelajarKkprl;
 use App\Livewire\BelajarKkprlGroup;
 use App\Livewire\CheckStatus;
 use App\Livewire\LandingPage;
+use App\Livewire\KkprlProposalResume;
+use App\Livewire\KkprlProposalStart;
+use App\Livewire\KkprlProposalWizard;
 use App\Livewire\PublicAttendance;
 // Assuming we might need this or use closure
 use App\Livewire\PublicFeedbackPage;
@@ -47,6 +52,11 @@ Route::group($routingConfig, function () {
     Route::get('/hasil-kinerja-layanan', ServicePerformanceResults::class)->name('service-performance-results');
     Route::get('/masukan-publik', PublicFeedbackPage::class)->name('public-feedback');
     Route::get('/cek-status', CheckStatus::class)->name('check-status');
+    Route::get('/buat-proposal-kkprl', KkprlProposalStart::class)->name('kkprl.proposal.start');
+    Route::get('/lanjutkan-proposal-kkprl', KkprlProposalResume::class)->name('kkprl.proposal.resume');
+    Route::get('/proposal-kkprl', KkprlProposalWizard::class)->name('kkprl.proposal.wizard');
+    Route::get('/proposal-kkprl/documents/{document}', KkprlProposalDocumentDownloadController::class)->name('kkprl.proposal.document.download');
+    Route::get('/proposal-kkprl/attachments/{attachment}', KkprlProposalAttachmentDownloadController::class)->name('kkprl.proposal.attachment.download');
     Route::get('/belajar-kkprl', BelajarKkprl::class)->name('belajar-kkprl');
     Route::get('/belajar-kkprl/materi/{material:slug}', [LearningMaterialController::class, 'show'])->name('belajar-kkprl.material.show');
     Route::get('/belajar-kkprl/materi/{material:slug}/pdf', [LearningMaterialController::class, 'pdf'])->name('belajar-kkprl.material.pdf');

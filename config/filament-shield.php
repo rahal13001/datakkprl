@@ -236,6 +236,12 @@ return [
         'DeleteAssignment',
         'RestoreAssignment',
         'ForceDeleteAssignment',
+        'Review:KkprlProposal',
+        'RequestEdit:KkprlProposal',
+        'ApproveEdit:KkprlProposal',
+        'RunEditSession:KkprlProposal',
+        'Download:KkprlProposalDocument',
+        'Download:KkprlProposalAttachment',
     ],
 
     /*

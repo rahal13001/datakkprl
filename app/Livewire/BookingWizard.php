@@ -42,6 +42,7 @@ class BookingWizard extends Component
     // Step 3: Location
     public $consultation_location_id;
     public $selectedLocation;
+    public $estimasi_efisiensi_biaya;
 
     // Step 4: Schedule (Multi-select)
     public $date;
@@ -235,10 +236,19 @@ class BookingWizard extends Component
             }
         }
         elseif ($this->step == 3) {
-            if (!$this->consultation_location_id) {
-                $this->addError('consultation_location_id', 'Silakan pilih lokasi konsultasi.');
-                return;
+            $rules = [
+                'consultation_location_id' => 'required',
+            ];
+            $messages = [
+                'consultation_location_id.required' => 'Silakan pilih lokasi konsultasi.',
+            ];
+
+            if ($this->selectedLocation?->requires_cost_savings_estimate) {
+                $rules['estimasi_efisiensi_biaya'] = 'required';
+                $messages['estimasi_efisiensi_biaya.required'] = 'Estimasi efisiensi biaya wajib diisi untuk lokasi ini.';
             }
+
+            $this->validate($rules, $messages);
         }
         elseif ($this->step == 4) {
             $this->validate([
@@ -270,14 +280,20 @@ class BookingWizard extends Component
     public function submit()
     {
         // Final validation
-        $this->validate([
+        $rules = [
             'schedules_list' => 'required|array|min:1',
             'technical_data' => 'required|array|min:1',
             'service_id' => 'required|exists:services,id',
             'consultation_location_id' => 'required|exists:consultation_locations,id',
             'tanda_tangan' => 'required|string',
             'agreed_to_terms' => 'accepted',
-        ]);
+        ];
+
+        if ($this->selectedLocation?->requires_cost_savings_estimate) {
+            $rules['estimasi_efisiensi_biaya'] = 'required';
+        }
+
+        $this->validate($rules);
 
         if ($this->selectedService?->requires_documents) {
             $this->validateSupportingDocuments();
@@ -299,6 +315,7 @@ class BookingWizard extends Component
                     'service_id' => $this->service_id,
                     'consultation_location_id' => $this->consultation_location_id,
                     'agreed_to_terms' => $this->agreed_to_terms,
+                    'estimated_cost_savings' => $this->estimasi_efisiensi_biaya ? (int) preg_replace('/[^0-9]/', '', $this->estimasi_efisiensi_biaya) : null,
                 ]);
 
                 // 2. Upload supporting documents if any

@@ -41,6 +41,7 @@ class Client extends Model
         'access_token_hash',
         'email_hash',
         'whatsapp_hash',
+        'estimated_cost_savings',
     ];
 
     public function getRouteKeyName(): string

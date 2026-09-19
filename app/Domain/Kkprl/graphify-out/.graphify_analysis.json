@@ -1,0 +1,221 @@
+{
+  "communities": {
+    "0": [
+      "proposalfieldcatalog",
+      "proposalfieldcatalog_proposalfieldcatalog",
+      "proposalfieldcatalog_proposalfieldcatalog_definitions",
+      "proposalfieldcatalog_proposalfieldcatalog_definitionsforpayload",
+      "proposalfieldcatalog_proposalfieldcatalog_fields",
+      "proposalfieldcatalog_proposalfieldcatalog_fieldsforpayload",
+      "proposalfieldcatalog_proposalfieldcatalog_label",
+      "proposalinlineanchorresolver",
+      "proposalinlineanchorresolver_proposalinlineanchorresolver",
+      "proposalinlineanchorresolver_proposalinlineanchorresolver_resolve",
+      "proposalinlineanchorresolver_proposalinlineanchorresolver_valuesforchapter",
+      "proposalprogress_proposalprogress_requiredfields"
+    ],
+    "1": [
+      "proposalprogress",
+      "proposalprogress_proposalprogress",
+      "proposalprogress_proposalprogress_evaluate",
+      "proposalprogress_proposalprogress_fieldsforchapter",
+      "proposalprogress_proposalprogress_filled",
+      "proposalprogress_proposalprogress_issuesforchapter",
+      "proposalprogress_proposalprogress_truthy",
+      "proposalprogress_proposalprogress_valuefor",
+      "proposalprogressresult_php_proposalprogressresult",
+      "proposalprogressresult_proposalprogressresult",
+      "proposalprogressresult_proposalprogressresult_construct"
+    ],
+    "2": [
+      "proposalchapterrules_php_proposalchapterrules",
+      "proposalchapterrules_proposalchapterrules",
+      "proposalchapterrules_proposalchapterrules_isrelevant",
+      "proposalchapterrules_proposalchapterrules_relevantchapters",
+      "proposalchapterrules_proposalchapterrules_truthy",
+      "proposalprogress_proposalprogress_construct"
+    ],
+    "3": [
+      "proposaldocumentsectioncatalog",
+      "proposaldocumentsectioncatalog_proposaldocumentsectioncatalog",
+      "proposaldocumentsectioncatalog_proposaldocumentsectioncatalog_heading",
+      "proposaldocumentsectioncatalog_proposaldocumentsectioncatalog_label",
+      "proposaldocumentsectioncatalog_proposaldocumentsectioncatalog_orderedfields",
+      "proposaldocumentsectioncatalog_proposaldocumentsectioncatalog_roman"
+    ],
+    "4": [
+      "proposalpayloadsanitizer",
+      "proposalpayloadsanitizer_proposalpayloadsanitizer",
+      "proposalpayloadsanitizer_proposalpayloadsanitizer_allfields",
+      "proposalpayloadsanitizer_proposalpayloadsanitizer_sanitize",
+      "proposalpayloadsanitizer_proposalpayloadsanitizer_sanitizechapter"
+    ],
+    "5": [
+      "proposalaccessdenied",
+      "proposalaccessdenied_proposalaccessdenied",
+      "proposalaccessdenied_proposalaccessdenied_construct",
+      "runtimeexception"
+    ],
+    "6": [
+      "activerevisionexists",
+      "activerevisionexists_activerevisionexists",
+      "activerevisionexists_activerevisionexists_construct"
+    ],
+    "7": [
+      "attachmentquota",
+      "attachmentquota_attachmentquota",
+      "attachmentquota_attachmentquota_assertwithin"
+    ],
+    "8": [
+      "attachmentquotaviolation",
+      "attachmentquotaviolation_attachmentquotaviolation",
+      "attachmentquotaviolation_attachmentquotaviolation_construct"
+    ],
+    "9": [
+      "editapprovaldenied",
+      "editapprovaldenied_editapprovaldenied",
+      "editapprovaldenied_editapprovaldenied_construct"
+    ],
+    "10": [
+      "editapprovalused",
+      "editapprovalused_editapprovalused",
+      "editapprovalused_editapprovalused_construct"
+    ],
+    "11": [
+      "editscopedenied",
+      "editscopedenied_editscopedenied",
+      "editscopedenied_editscopedenied_construct"
+    ],
+    "12": [
+      "editsessionexpired",
+      "editsessionexpired_editsessionexpired",
+      "editsessionexpired_editsessionexpired_construct"
+    ],
+    "13": [
+      "invalidattachmentfile",
+      "invalidattachmentfile_invalidattachmentfile",
+      "invalidattachmentfile_invalidattachmentfile_construct"
+    ],
+    "14": [
+      "invalidproposalcredentials",
+      "invalidproposalcredentials_invalidproposalcredentials",
+      "invalidproposalcredentials_invalidproposalcredentials_construct"
+    ],
+    "15": [
+      "kkprlphonenormalizer",
+      "kkprlphonenormalizer_kkprlphonenormalizer",
+      "kkprlphonenormalizer_kkprlphonenormalizer_normalize"
+    ],
+    "16": [
+      "pdfattachmentrenderfailed",
+      "pdfattachmentrenderfailed_pdfattachmentrenderfailed",
+      "pdfattachmentrenderfailed_pdfattachmentrenderfailed_construct"
+    ],
+    "17": [
+      "proposalaccessratelimited",
+      "proposalaccessratelimited_proposalaccessratelimited",
+      "proposalaccessratelimited_proposalaccessratelimited_construct"
+    ],
+    "18": [
+      "proposallocked",
+      "proposallocked_proposallocked",
+      "proposallocked_proposallocked_construct"
+    ],
+    "19": [
+      "proposalsnapshot",
+      "proposalsnapshot_proposalsnapshot",
+      "proposalsnapshot_proposalsnapshot_construct"
+    ]
+  },
+  "cohesion": {
+    "0": 0.21212121212121213,
+    "1": 0.3090909090909091,
+    "2": 0.4666666666666667,
+    "3": 0.3333333333333333,
+    "4": 0.6,
+    "5": 0.6666666666666666,
+    "6": 0.6666666666666666,
+    "7": 0.6666666666666666,
+    "8": 0.6666666666666666,
+    "9": 0.6666666666666666,
+    "10": 0.6666666666666666,
+    "11": 0.6666666666666666,
+    "12": 0.6666666666666666,
+    "13": 0.6666666666666666,
+    "14": 0.6666666666666666,
+    "15": 0.6666666666666666,
+    "16": 0.6666666666666666,
+    "17": 0.6666666666666666,
+    "18": 0.6666666666666666,
+    "19": 0.6666666666666666
+  },
+  "gods": [
+    {
+      "id": "proposalfieldcatalog_proposalfieldcatalog",
+      "label": "ProposalFieldCatalog",
+      "degree": 10
+    },
+    {
+      "id": "proposalprogress_proposalprogress",
+      "label": "ProposalProgress",
+      "degree": 10
+    },
+    {
+      "id": "proposalchapterrules_proposalchapterrules",
+      "label": "ProposalChapterRules",
+      "degree": 6
+    },
+    {
+      "id": "proposaldocumentsectioncatalog_proposaldocumentsectioncatalog",
+      "label": "ProposalDocumentSectionCatalog",
+      "degree": 5
+    },
+    {
+      "id": "proposalpayloadsanitizer_proposalpayloadsanitizer",
+      "label": "ProposalPayloadSanitizer",
+      "degree": 4
+    },
+    {
+      "id": "activerevisionexists_activerevisionexists",
+      "label": "ActiveRevisionExists",
+      "degree": 3
+    },
+    {
+      "id": "attachmentquotaviolation_attachmentquotaviolation",
+      "label": "AttachmentQuotaViolation",
+      "degree": 3
+    },
+    {
+      "id": "editapprovaldenied_editapprovaldenied",
+      "label": "EditApprovalDenied",
+      "degree": 3
+    },
+    {
+      "id": "editapprovalused_editapprovalused",
+      "label": "EditApprovalUsed",
+      "degree": 3
+    },
+    {
+      "id": "editscopedenied_editscopedenied",
+      "label": "EditScopeDenied",
+      "degree": 3
+    }
+  ],
+  "surprises": [
+    {
+      "source": "ProposalProgress",
+      "target": "ProposalChapterRules",
+      "source_files": [
+        "ProposalProgress.php",
+        "ProposalChapterRules.php"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories; bridges separate communities"
+    }
+  ],
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
+}
