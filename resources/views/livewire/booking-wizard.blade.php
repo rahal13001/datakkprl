@@ -542,7 +542,7 @@
                              }
                          }">
                         <label class="block text-sm font-semibold text-slate-700 mb-2">Estimasi Efisiensi Biaya <span class="text-red-500">*</span></label>
-                        <p class="text-xs text-slate-500 mb-3">Masukkan perkiraan nilai (dalam Rupiah) yang berhasil Anda hemat dengan memanfaatkan layanan di lokasi ini (contoh: hemat biaya transport, dsb).</p>
+                        <p class="text-xs text-slate-500 mb-3">Masukkan perkiraan nilai (dalam Rupiah) yang dapat Bapak/Ibu hemat dengan memanfaatkan layanan konsultasi/asistensi secara online tanpa harus ke kantor Loka PRL Sorong (misal: hemat biaya transport darat/laut/udara, penginapan, dsb).</p>
                         
                         <input type="text" 
                             wire:model="estimasi_efisiensi_biaya"
