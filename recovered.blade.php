@@ -21,11 +21,12 @@
                     <p class="text-slate-500 mt-2 max-w-2xl text-sm leading-relaxed">
                         Draft disimpan secara otomatis. Dokumen ini merupakan bahan pendukung pra-review petugas LPRL, bukan izin resmi. Lanjutkan proses ke OSS/e-Sea setelah draft final Anda disetujui.
                     </p>
-                    @if ($lastSavedAt)
+                    @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif@if($lastSavedAt)
                         <p class="text-xs font-medium text-emerald-600 mt-3 flex items-center gap-1.5">
                             <i class="fa-solid fa-cloud-arrow-up"></i> Terakhir tersimpan: {{ $lastSavedAt }}
+
                         </p>
-                    @endif
+                    @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
                 </div>
                 <div class="text-right">
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-500/30">
@@ -36,48 +37,50 @@
             </div>
 
             <!-- Progress Bar -->
-            @php
+            <?php
                 $chaptersCount = count($relevantChapters);
                 $currentIndex = array_search($currentChapter, $relevantChapters);
                 $progressPercent = $chaptersCount > 1 ? ($currentIndex / ($chaptersCount - 1)) * 100 : 0;
-            @endphp
+            ?>
             <div class="relative pt-4">
                 <div class="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
                     <div class="h-full bg-blue-600 transition-all duration-500 ease-out" style="width: {{ $progressPercent }}%"></div>
                 </div>
                 
                 <div class="flex justify-between mt-4">
-                    @foreach ($relevantChapters as $idx => $chapter)
-                        @php
+                    @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?>@endif<?php $__currentLoopData = $relevantChapters; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $idx => $chapter): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?>@endif
+                        <?php
                             $state = $chapterProgress[$chapter]['status'] ?? 'incomplete';
                             $isActive = $chapter === $currentChapter;
                             $isPast = $idx < $currentIndex;
-                        @endphp
+                        ?>
                         <div class="flex flex-col items-center cursor-pointer transition-transform hover:scale-105" wire:click="$set('currentStep', {{ $idx + 1 }})">
                             <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 mb-2 transition-colors
                                 {{ $isActive ? 'border-blue-600 bg-blue-600 text-white shadow-md' : 
                                    ($isPast ? 'border-blue-600 bg-white text-blue-600' : 'border-slate-300 bg-white text-slate-400') }}">
                                 {{ $idx + 1 }}
+
                             </div>
                             <span class="text-xs font-bold uppercase tracking-wider hidden sm:block
                                 {{ $isActive ? 'text-blue-700' : ($isPast ? 'text-slate-600' : 'text-slate-400') }}">
                                 Bab {{ $idx + 1 }}
+
                             </span>
                             
-                            @if($state === 'complete')
+                            @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif@if($state === 'complete')
                                 <span class="text-[10px] text-emerald-500 mt-1 font-medium"><i class="fa-solid fa-check"></i> Selesai</span>
                             @elseif($state === 'error')
                                 <span class="text-[10px] text-red-500 mt-1 font-medium"><i class="fa-solid fa-triangle-exclamation"></i> Error</span>
-                            @endif
+                            @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
                         </div>
-                    @endforeach
+                    @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?>@endif@endforeach@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?>@endif
                 </div>
             </div>
         </div>
     </div>
 
     <!-- System Notifications -->
-    @if ($locked)
+    @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif@if($locked)
         <div class="mb-8 bg-emerald-50 border border-emerald-200 rounded-2xl p-5 flex items-start gap-4">
             <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
                 <i class="fa-solid fa-lock text-lg"></i>
@@ -89,9 +92,9 @@
                 </p>
             </div>
         </div>
-    @endif
+    @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
 
-    @if ($revisionNote)
+    @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif@if($revisionNote)
         <div class="mb-8 bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-start gap-4 shadow-sm">
             <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
                 <i class="fa-solid fa-comment-dots text-lg"></i>
@@ -101,31 +104,39 @@
                 <p class="text-sm text-amber-800 mt-2 p-3 bg-white/60 rounded-xl whitespace-pre-wrap font-medium">{{ $revisionNote }}</p>
             </div>
         </div>
-    @endif
+    @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
 
-    @error('draft')
+    @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif<?php $__errorArgs = ['draft'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
         <div class="mb-8 bg-red-50 border border-red-200 text-red-600 px-5 py-4 rounded-xl text-sm font-medium flex items-center shadow-sm">
             <i class="fa-solid fa-circle-exclamation mr-3 text-lg"></i> {{ $message }}
+
         </div>
-    @enderror
-    @if ($errors->any())
+    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
+    @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif@if($errors->any())
         <div class="mb-8 bg-red-50 border border-red-200 rounded-2xl p-5 shadow-sm">
             <h4 class="font-bold text-red-800 flex items-center mb-3">
                 <i class="fa-solid fa-triangle-exclamation mr-2"></i> Perhatian! Mohon periksa isian Anda:
             </h4>
             <ul class="list-disc list-inside text-sm text-red-700 space-y-1 ml-2 font-medium">
-                @foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach
+                @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?>@endif<?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?>@endif<li>{{ $error }}</li>@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?>@endif@endforeach@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?>@endif
             </ul>
         </div>
-    @endif
+    @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
 
-    @unless ($locked)
+    @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif<?php if (! ($locked)): ?>
     <form wire:submit="saveDraft" class="space-y-8">
         
         <!-- ==============================
              BAB 1: FORM STATIS
         =============================== -->
-        @if ($currentChapter === 'bag-1')
+        @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif@if($currentChapter === 'bag-1')
             <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden relative">
                 <div class="bg-gradient-to-r from-blue-700 to-indigo-800 p-8 text-white relative overflow-hidden">
                     <div class="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-white opacity-5 rounded-full blur-3xl"></div>
@@ -194,12 +205,12 @@
                             <h3 class="text-xl font-bold text-slate-800 tracking-tight">Lokasi Administratif</h3>
                         </div>
                         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                            @foreach (['province' => 'Provinsi', 'regency' => 'Kabupaten / Kota', 'subdistrict' => 'Kecamatan', 'village' => 'Desa / Kelurahan'] as $field => $label)
+                            @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?>@endif<?php $__currentLoopData = ['province' => 'Provinsi', 'regency' => 'Kabupaten / Kota', 'subdistrict' => 'Kecamatan', 'village' => 'Desa / Kelurahan']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $field => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?>@endif
                                 <div>
                                     <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">{{ $label }}</label>
                                     <input wire:model.blur="payload.bag-1.{{ $field }}" type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                                 </div>
-                            @endforeach
+                            @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?>@endif@endforeach@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?>@endif
                         </div>
                     </div>
 
@@ -241,7 +252,7 @@
                                 </div>
                             </div>
                             
-                            <div x-data="coordinateManager(@js($payload['bag-1']['coordinates_raw'] ?? '[]'), @js($payload['bag-1']['shape_type'] ?? 'polygon'), $wire)" class="border border-slate-200 rounded-xl bg-slate-50 p-5 shadow-sm">
+                            <div x-data="coordinateManager({!! \Illuminate\Support\Js::from($payload['bag-1']['coordinates_raw'] ?? '[]')->toHtml() ?>, <?php echo \Illuminate\Support\Js::from($payload['bag-1']['shape_type'] ?? 'polygon')->toHtml() ?>, $wire)" class="border border-slate-200 rounded-xl bg-slate-50 p-5 shadow-sm">
                                 <div class="flex justify-between items-center mb-4">
                                     <div>
                                         <h4 class="text-[14px] font-bold text-slate-700 uppercase tracking-wider flex items-center">
@@ -500,14 +511,14 @@
                                                     this.editorInstance = editor;
                                                     
                                                     // Set initial value
-                                                    const existing = @this.get('payload.bag-1.site_plan_description');
+                                                    const existing = window.Livewire.find('{{ $_instance->getId() }}').get('payload.bag-1.site_plan_description');
                                                     if (existing) {
                                                         editor.setData(existing);
                                                     }
                                                     
                                                     // Sync with Livewire
                                                     editor.model.document.on('change:data', () => {
-                                                        @this.set('payload.bag-1.site_plan_description', editor.getData());
+                                                        window.Livewire.find('{{ $_instance->getId() }}').set('payload.bag-1.site_plan_description', editor.getData());
                                                     });
                                                 })
                                                 .catch(error => {
@@ -570,7 +581,7 @@
         <!-- ==============================
              BAB 2-5: AI CHATBOT
         =============================== -->
-        @elseif (in_array($currentChapter, ['bag-2', 'bag-3', 'bag-4', 'bag-5']))
+        @elseif(in_array($currentChapter, ['bag-2', 'bag-3', 'bag-4', 'bag-5']))
             <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden relative p-6 md:p-8">
                 <div class="text-center mb-8">
                     <h2 class="text-2xl font-extrabold text-slate-900">
@@ -582,10 +593,34 @@
                 </div>
                 
                 <div class="w-full">
-                    @livewire('kkprl-ai-chat', ['proposalId' => $proposalId, 'chapter' => $currentChapter], key('chat-'.$currentChapter))
+                    <?php
+$__split = function ($name, $params = []) {
+    return [$name, $params];
+};
+[$__name, $__params] = $__split('kkprl-ai-chat', ['proposalId' => $proposalId, 'chapter' => $currentChapter]);
+
+$__keyOuter = $__key ?? null;
+
+$__key = 'chat-'.$currentChapter;
+$__componentSlots = [];
+
+$__key ??= \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::generateKey('lw-1374602930-0', $__key);
+
+$__html = app('livewire')->mount($__name, $__params, $__key, $__componentSlots);
+
+echo $__html;
+
+unset($__html);
+unset($__key);
+$__key = $__keyOuter;
+unset($__keyOuter);
+unset($__name);
+unset($__params);
+unset($__componentSlots);
+unset($__split) !!}
                 </div>
             </div>
-        @endif
+        @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
 
         <!-- ==============================
              LAMPIRAN (ATTACHMENTS)
@@ -614,19 +649,19 @@
                 </div>
 
                 <!-- Preview Selected Files -->
-                @if($pendingFiles)
+                @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif@if($pendingFiles)
                     <div class="bg-blue-50 rounded-xl p-4 border border-blue-100">
                         <h4 class="text-xs font-bold text-blue-800 uppercase tracking-wider mb-3"><i class="fa-solid fa-list-check mr-2"></i>File Siap Diunggah</h4>
                         <div class="flex flex-wrap gap-2">
-                            @foreach($pendingFiles as $file)
+                            @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?>@endif<?php $__currentLoopData = $pendingFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $file): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?>@endif
                                 <div class="bg-white px-3 py-2 rounded-lg shadow-sm border border-blue-100 text-sm font-medium text-slate-700 flex items-center">
                                     <i class="fa-solid fa-file-lines text-blue-400 mr-2"></i>
                                     <span class="truncate max-w-[200px]">{{ is_string($file) ? $file : $file->getClientOriginalName() }}</span>
                                 </div>
-                            @endforeach
+                            @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?>@endif@endforeach@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?>@endif
                         </div>
                     </div>
-                @endif
+                @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
 
                 <!-- Attachment Settings Form -->
                 <div class="grid md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
@@ -645,9 +680,9 @@
                         <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Teks Rujukan (Jika Inline)</label>
                         <select wire:model="attachmentAnchor" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-blue-500 outline-none text-sm font-medium transition-all shadow-sm" {{ $attachmentPlacement !== 'inline' ? 'disabled' : '' }}>
                             <option value="">-- Pilih Form Tempat Menyisipkan --</option>
-                            @foreach (\App\Domain\Kkprl\ProposalFieldCatalog::definitionsForPayload($attachmentChapter, $payload) as $anchorDefinition)
+                            @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?>@endif<?php $__currentLoopData = \App\Domain\Kkprl\ProposalFieldCatalog::definitionsForPayload($attachmentChapter, $payload); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $anchorDefinition): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?>@endif
                                 <option value="{{ $anchorDefinition['key'] }}">{{ $anchorDefinition['label'] }}</option>
-                            @endforeach
+                            @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?>@endif@endforeach@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?>@endif
                         </select>
                         <p class="text-[11px] text-slate-400 mt-1">Pilih form ini hanya jika Anda memilih Penempatan File: Inline.</p>
                     </div>
@@ -658,8 +693,15 @@
                     </div>
                 </div>
 
-                @error('attachments') <p class="text-sm font-bold text-red-600 bg-red-50 p-3 rounded-lg"><i class="fa-solid fa-triangle-exclamation mr-1"></i> {{ $message }}</p> @enderror
-                @if ($attachmentMessage) <p class="text-sm font-bold text-emerald-600 bg-emerald-50 p-3 rounded-lg"><i class="fa-solid fa-check mr-1"></i> {{ $attachmentMessage }}</p> @endif
+                @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif<?php $__errorArgs = ['attachments'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <p class="text-sm font-bold text-red-600 bg-red-50 p-3 rounded-lg"><i class="fa-solid fa-triangle-exclamation mr-1"></i> {{ $message }}</p> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
+                @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif@if($attachmentMessage) <p class="text-sm font-bold text-emerald-600 bg-emerald-50 p-3 rounded-lg"><i class="fa-solid fa-check mr-1"></i> {{ $attachmentMessage }}</p> @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
 
                 <div class="flex justify-end">
                     <button type="button" wire:click="uploadAttachments" wire:loading.attr="disabled" wire:target="uploadAttachments, pendingFiles" class="px-8 py-3.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 flex items-center">
@@ -671,12 +713,12 @@
                 </div>
 
                 <!-- Uploaded Files List -->
-                @if ($chapterAttachments->isNotEmpty())
+                @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif@if($chapterAttachments->isNotEmpty())
                     <div class="pt-8 border-t border-slate-200">
                         <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4"><i class="fa-solid fa-folder-open mr-2 text-slate-400"></i> File Terunggah</h3>
                         <div class="grid sm:grid-cols-2 gap-4">
-                            @foreach ($chapterAttachments as $attachment)
-                                <div wire:key="chapter-attachment-{{ $attachment->id }}" class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-slate-300 transition-colors">
+                            @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?>@endif<?php $__currentLoopData = $chapterAttachments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $attachment): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?>@endif
+                                <div <?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::$currentLoop['key'] = 'chapter-attachment-'.e($attachment->id).''; ?>wire:key="chapter-attachment-{{ $attachment->id }}" class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-slate-300 transition-colors">
                                     <div class="flex items-center gap-3 overflow-hidden">
                                         <div class="w-10 h-10 rounded bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
                                             <i class="fa-solid fa-file-pdf"></i>
@@ -692,10 +734,10 @@
                                         <i class="fa-solid fa-trash-can text-sm"></i>
                                     </button>
                                 </div>
-                            @endforeach
+                            @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?>@endif@endforeach@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?>@endif
                         </div>
                     </div>
-                @endif
+                @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
             </div>
         </div>
 
@@ -703,7 +745,7 @@
              NAVIGATION FOOTER
         =============================== -->
         <div class="flex flex-col-reverse md:flex-row items-center justify-between gap-4 pt-8">
-            <button type="button" wire:click="previous" @disabled($currentStep === 1) class="w-full md:w-auto px-6 py-4 bg-white border-2 border-slate-200 text-slate-600 font-bold rounded-2xl hover:bg-slate-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+            <button type="button" wire:click="previous" @if($currentStep === 1): echo 'disabled'; endif; ?> class="w-full md:w-auto px-6 py-4 bg-white border-2 border-slate-200 text-slate-600 font-bold rounded-2xl hover:bg-slate-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
                 <i class="fa-solid fa-arrow-left mr-2"></i> Halaman Sebelumnya
             </button>
             
@@ -715,29 +757,29 @@
                     <span wire:loading>Menyimpan...</span>
                 </button>
                 
-                <button type="button" wire:click="next" @disabled($currentStep === count($relevantChapters)) class="w-full md:w-auto px-8 py-4 bg-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed">
+                <button type="button" wire:click="next" <?php if($currentStep === count($relevantChapters)): echo 'disabled'; endif; ?> class="w-full md:w-auto px-8 py-4 bg-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed">
                     Selanjutnya <i class="fa-solid fa-arrow-right ml-2"></i>
                 </button>
                 
-                @if ($currentStep === count($relevantChapters))
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif@if($currentStep === count($relevantChapters))
                     <button type="button" wire:click="submitProposal" wire:loading.attr="disabled" wire:target="submitProposal" class="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/30 hover:from-emerald-600 hover:to-green-700 transition-all flex items-center justify-center">
                         <i class="fa-solid fa-paper-plane mr-2" wire:loading.remove wire:target="submitProposal"></i>
                         <i class="fa-solid fa-circle-notch fa-spin mr-2" wire:loading wire:target="submitProposal"></i>
                         <span wire:loading.remove wire:target="submitProposal">Kirim ke Petugas</span>
                         <span wire:loading wire:target="submitProposal">Memproses...</span>
                     </button>
-                @endif
+                @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
             </div>
         </div>
         
-        @if ($saved)
+        @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif@if($saved)
             <div class="fixed bottom-6 right-6 bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center animate-bounce z-50">
                 <i class="fa-solid fa-check-circle text-emerald-400 mr-3 text-xl"></i>
                 <span class="font-medium text-sm">Draft berhasil disimpan otomatis.</span>
             </div>
-        @endif
+        @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
     </form>
-    @endunless
+    @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
 
     <!-- ==============================
          DOWNLOAD DOCUMENTS SECTION
@@ -754,55 +796,62 @@
         </div>
         
         <div class="p-6 md:p-8">
-            @error('documents') <p class="mb-4 text-sm font-bold text-red-600 bg-red-50 p-3 rounded-lg">{{ $message }}</p> @enderror
-            @if ($documentMessage) <p class="mb-4 text-sm font-bold text-emerald-600 bg-emerald-50 p-3 rounded-lg">{{ $documentMessage }}</p> @endif
+            @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif<?php $__errorArgs = ['documents'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <p class="mb-4 text-sm font-bold text-red-600 bg-red-50 p-3 rounded-lg">{{ $message }}</p> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
+            @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif@if($documentMessage) <p class="mb-4 text-sm font-bold text-emerald-600 bg-emerald-50 p-3 rounded-lg">{{ $documentMessage }}</p> @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
             
             <div class="grid md:grid-cols-2 gap-4">
-                @foreach ($relevantChapters as $chapter)
-                    @php($chapterState = $chapterProgress[$chapter] ?? ['status' => 'incomplete'])
+                @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?>@endif<?php $__currentLoopData = $relevantChapters; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $chapter): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?>@endif
+                    <?php ($chapterState = $chapterProgress[$chapter] ?? ['status' => 'incomplete']); ?>
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-slate-200 p-5 hover:border-amber-300 transition-colors bg-white">
                         <div class="text-center sm:text-left">
                             <div class="font-bold text-slate-800 text-lg">{{ str_replace('bag-', 'Bab ', $chapter) }}</div>
-                            @if($chapterState['status'] === 'complete')
+                            @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif@if($chapterState['status'] === 'complete')
                                 <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md inline-block mt-1">Data Lengkap</span>
                             @else
                                 <span class="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-md inline-block mt-1">Data Belum Lengkap</span>
-                            @endif
+                            @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
                         </div>
                         
-                        @if ($chapterState['status'] === 'complete')
+                        @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif@if($chapterState['status'] === 'complete')
                             <button type="button" wire:click="generateChapterDocuments('{{ $chapter }}')" wire:loading.attr="disabled" wire:target="generateChapterDocuments" class="w-full sm:w-auto px-5 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold rounded-xl transition-colors flex items-center justify-center disabled:opacity-50">
                                 <i class="fa-solid fa-gears mr-2" wire:loading.remove wire:target="generateChapterDocuments"></i>
                                 <i class="fa-solid fa-circle-notch fa-spin mr-2" wire:loading wire:target="generateChapterDocuments"></i>
                                 <span wire:loading.remove wire:target="generateChapterDocuments">Buat Dokumen</span>
                                 <span wire:loading wire:target="generateChapterDocuments">Membuat...</span>
                             </button>
-                        @endif
+                        @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
                     </div>
-                @endforeach
+                @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?>@endif@endforeach@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?>@endif
             </div>
 
-            @if ($generatedDocuments->isNotEmpty())
+            @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif@if($generatedDocuments->isNotEmpty())
                 <div class="mt-8 pt-8 border-t border-slate-200">
                     <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">File Siap Unduh</h3>
                     <div class="flex flex-wrap gap-3">
-                        @foreach ($generatedDocuments as $document)
+                        @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?>@endif<?php $__currentLoopData = $generatedDocuments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $document): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?>@endif
                             <a href="{{ route('kkprl.proposal.document.download', $document) }}" class="inline-flex items-center px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-amber-400 hover:shadow-md transition-all group">
-                                @if($document->format === 'pdf')
+                                @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if BLOCK]><![endif]-->@endif@if($document->format === 'pdf')
                                     <i class="fa-solid fa-file-pdf text-red-500 text-xl mr-3 group-hover:scale-110 transition-transform"></i>
                                 @else
                                     <i class="fa-solid fa-file-word text-blue-600 text-xl mr-3 group-hover:scale-110 transition-transform"></i>
-                                @endif
+                                @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
                                 <div>
                                     <p class="font-bold text-slate-700 text-sm">{{ str_replace('bag-', 'Bab ', $document->chapter) }}</p>
                                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">{{ $document->format }}</p>
                                 </div>
                                 <i class="fa-solid fa-download ml-4 text-slate-300 group-hover:text-amber-600"></i>
                             </a>
-                        @endforeach
+                        @if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?>@endif@endforeach@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?>@endif
                     </div>
                 </div>
-            @endif
+            @endif@if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent())<!--[if ENDBLOCK]><![endif]-->@endif
         </div>
     </div>
 </main>
@@ -1031,3 +1080,4 @@
         }
     }
 </script>
+<?php /**PATH C:\laragon\www\listdatakkprl\resources\views/livewire/kkprl-proposal-wizard.blade.php ENDPATH**/ ?>

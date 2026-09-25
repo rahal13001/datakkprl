@@ -49,6 +49,35 @@
                 </nav>
             @endif
         </header>
+
+        @php
+            // Mengambil pesan aktif dari database
+            $runningTexts = [];
+            try {
+                if (class_exists(\App\Models\RunningText::class)) {
+                    $runningTexts = \App\Models\RunningText::where('is_active', true)->orderBy('order_column')->pluck('message')->toArray();
+                }
+            } catch (\Exception $e) {
+                // Abaikan jika tabel belum di-migrate
+            }
+
+            // Pesan default jika kosong
+            if (empty($runningTexts)) {
+                $runningTexts = ['Selamat Datang, kami menghimbau kepada seluruh Pemrakarsa PKKPRL agar WASPADA terhadap potensi PENIPUAN, Layanan kami tidak dipungut biaya.'];
+            }
+            
+            // Menggabungkan dengan simbol pemisah
+            $runningTextString = implode(' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ', $runningTexts);
+        @endphp
+
+        <div style="background-color: #FFFF00; color: #FF0000; font-weight: bold; padding: 8px 0; width: 100%; font-size: 1.1rem; margin-bottom: 24px; display: flex; justify-content: center; overflow: hidden;">
+            <div style="width: 100%; max-width: 1200px;">
+                <marquee behavior="scroll" direction="left" scrollamount="6">
+                    {!! $runningTextString !!}
+                </marquee>
+            </div>
+        </div>
+
         <div class="flex items-center justify-center w-full transition-opacity opacity-100 duration-750 lg:grow starting:opacity-0">
             <main class="flex max-w-[335px] w-full flex-col-reverse lg:max-w-4xl lg:flex-row">
                 <div class="text-[13px] leading-[20px] flex-1 p-6 pb-12 lg:p-20 bg-white dark:bg-[#161615] dark:text-[#EDEDEC] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d] rounded-bl-lg rounded-br-lg lg:rounded-tl-lg lg:rounded-br-none">

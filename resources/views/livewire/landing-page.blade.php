@@ -280,6 +280,133 @@
 
     <!-- Hero Section (Swiss Style Layout) -->
     <section id="home" class="landing-hero relative pt-32 lg:pt-40 overflow-hidden">
+
+        @php
+            // Mengambil pesan aktif dari database
+            $runningTexts = [];
+            try {
+                if (class_exists(\App\Models\RunningText::class)) {
+                    $runningTexts = \App\Models\RunningText::where('is_active', true)->orderBy('order_column')->pluck('message')->toArray();
+                }
+            } catch (\Exception $e) {
+                // Abaikan jika tabel belum di-migrate
+            }
+            if (empty($runningTexts)) {
+                $runningTexts = ['Selamat Datang, kami menghimbau kepada seluruh Pemrakarsa PKKPRL agar <span class="text-rose-600 font-bold">WASPADA</span> terhadap potensi <span class="text-rose-600 font-bold">PENIPUAN</span>, Layanan kami tidak dipungut biaya.'];
+            }
+            
+            // Pemisah bergaya modern dengan spasi ekstra luas (40px)
+            $separator = '<span class="text-slate-300 text-[10px]" style="margin: 0 60px;"><i class="fa-solid fa-circle"></i></span>';
+            $singleText = implode($separator, $runningTexts);
+            
+            // Gandakan teks agar scroll-nya mulus tanpa putus (seamless loop)
+            $runningTextString = $singleText . $separator . $singleText . $separator;
+        @endphp
+        
+        <style>
+            .modern-marquee-wrapper {
+                position: fixed; /* Berubah menjadi fixed agar ikut scroll */
+                left: 0;
+                width: 100%;
+                z-index: 45; /* Di bawah navbar (z-50) tapi di atas hero (z-10) */
+                padding: 0 1.5rem;
+                pointer-events: none; /* Biar klik bisa tembus ke bawahnya kecuali di badgenya */
+                transition: top 0.3s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease; /* Transisi menyeluruh */
+            }
+            .modern-marquee-inner {
+                max-width: 1100px;
+                margin: 0 auto;
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(245, 158, 11, 0.4);
+                border-radius: 100px;
+                box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+                display: flex;
+                align-items: center;
+                padding: 6px 6px 6px 18px;
+                gap: 16px;
+                pointer-events: auto; /* Aktifkan kembali pointer events untuk box ini */
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .modern-marquee-inner:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 15px 30px -5px rgba(245, 158, 11, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+            }
+            .modern-marquee-badge {
+                background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+                color: white;
+                font-size: 0.7rem;
+                font-weight: 800;
+                padding: 6px 14px;
+                border-radius: 50px;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                flex-shrink: 0;
+                box-shadow: 0 2px 10px rgba(234, 88, 12, 0.3);
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                position: relative;
+                z-index: 2;
+            }
+            .modern-marquee-container {
+                display: flex;
+                overflow: hidden;
+                white-space: nowrap;
+                width: 100%;
+                /* Efek fade out di kanan kiri */
+                mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent);
+                -webkit-mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent);
+            }
+            .modern-marquee-content {
+                display: flex;
+                align-items: center;
+                font-weight: 500;
+                color: #475569;
+                font-size: 0.95rem;
+                animation: scroll-text-modern 80s linear infinite; /* Kecepatan diperlambat (awalnya 40s jadi 80s) */
+            }
+            /* Pause saat cursor di atas */
+            .modern-marquee-inner:hover .modern-marquee-content {
+                animation-play-state: paused;
+            }
+            @keyframes scroll-text-modern {
+                from { transform: translateX(0); }
+                to { transform: translateX(-50%); }
+            }
+        </style>
+
+        <div class="modern-marquee-wrapper"
+             x-data="{ 
+                 scrolled: false,
+                 hideMarquee: false,
+                 checkBookingVisibility() {
+                     let target = document.getElementById('booking');
+                     if (target) {
+                         let rect = target.getBoundingClientRect();
+                         // Sembunyikan ketika #booking menguasai tengah layar (top < 60% viewport)
+                         // dan munculkan lagi jika discroll melewatinya (bottom < 150px dari atas)
+                         this.hideMarquee = (rect.top < window.innerHeight * 0.6) && (rect.bottom > 150);
+                     }
+                 }
+             }"
+             @scroll.window="scrolled = (window.pageYOffset > 20); checkBookingVisibility();"
+             x-init="setTimeout(() => checkBookingVisibility(), 100)"
+             :style="(scrolled ? 'top: 74px;' : 'top: 96px;') + (hideMarquee ? ' transform: translateY(-150%); opacity: 0; pointer-events: none;' : ' transform: translateY(0); opacity: 1;')">
+            <div class="modern-marquee-inner">
+                <div class="modern-marquee-badge">
+                    <i class="fa-solid fa-bullhorn animate-pulse"></i>
+                    Informasi
+                </div>
+                <div class="modern-marquee-container">
+                    <div class="modern-marquee-content">
+                        {!! $runningTextString !!}
+                        {!! $runningTextString !!}
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <div class="grid lg:grid-cols-12 gap-12 items-end">
                 

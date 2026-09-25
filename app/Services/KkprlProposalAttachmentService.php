@@ -264,7 +264,8 @@ final class KkprlProposalAttachmentService
         $realPath = $file->getRealPath();
 
         if (! is_string($realPath) || ! is_file($realPath)) {
-            throw new InvalidAttachmentFile;
+            \Illuminate\Support\Facades\Log::error('Upload failed: not a file. Path: ' . json_encode($realPath));
+            throw new InvalidAttachmentFile('Path bukan file valid.');
         }
 
         $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($realPath);
@@ -272,7 +273,13 @@ final class KkprlProposalAttachmentService
         $size = filesize($realPath);
 
         if (! is_string($mime) || ! isset(self::MIME_EXTENSIONS[$mime]) || ! is_string($signature) || $size === false) {
-            throw new InvalidAttachmentFile;
+            \Illuminate\Support\Facades\Log::error('Upload failed: mime/signature/size issue.', [
+                'mime' => $mime,
+                'is_mime_supported' => is_string($mime) ? isset(self::MIME_EXTENSIONS[$mime]) : false,
+                'has_signature' => is_string($signature),
+                'size' => $size
+            ]);
+            throw new InvalidAttachmentFile("Tipe file tidak didukung: {$mime}");
         }
 
         $validSignature = match ($mime) {
@@ -285,7 +292,10 @@ final class KkprlProposalAttachmentService
         };
 
         if (! $validSignature) {
-            throw new InvalidAttachmentFile;
+            \Illuminate\Support\Facades\Log::error("Upload failed: Invalid signature for $mime", [
+                'hex_signature' => bin2hex($signature)
+            ]);
+            throw new InvalidAttachmentFile("Format internal file tidak cocok dengan ekstensinya (File Corrupt/Palsu).");
         }
 
         return [$mime, self::MIME_EXTENSIONS[$mime], $size, hash_file('sha256', $realPath) ?: ''];

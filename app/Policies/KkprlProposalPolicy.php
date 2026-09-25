@@ -14,12 +14,12 @@ class KkprlProposalPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('Review:KkprlProposal');
+        return $authUser->can('ViewAny:KkprlProposal');
     }
 
     public function view(AuthUser $authUser, KkprlProposal $kkprlProposal): bool
     {
-        return $authUser->can('Review:KkprlProposal');
+        return $authUser->can('View:KkprlProposal');
     }
 
     public function create(AuthUser $authUser): bool

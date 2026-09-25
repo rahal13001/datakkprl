@@ -20,6 +20,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -88,6 +89,16 @@ class KkprlProposalWizard extends Component
         $this->refreshProgress($progress);
         $this->normalizeStep();
         $this->syncAttachmentChapter();
+    }
+
+    #[On('draft-saved')]
+    public function refreshState(): void
+    {
+        $proposal = KkprlProposal::find($this->proposalId);
+        if ($proposal) {
+            $this->payload = $proposal->payload ?? [];
+            $this->lastSavedAt = $proposal->last_saved_at?->format('d-m-Y H:i:s') ?? '';
+        }
     }
 
     public function updatedPayload(ProposalProgress $progress): void
@@ -174,8 +185,12 @@ class KkprlProposalWizard extends Component
                 ? 'Jumlah lampiran melebihi maksimum 10 file per bab.'
                 : 'Total ukuran lampiran melebihi 15 MiB per bab.';
             $this->addError('attachments', $message);
-        } catch (InvalidAttachmentFile) {
-            $this->addError('attachments', 'File ditolak. Gunakan PDF, JPG/JPEG, PNG, atau WebP dan anchor inline yang valid.');
+        } catch (InvalidAttachmentFile $exception) {
+            $msg = $exception->getMessage();
+            if (empty($msg)) {
+                $msg = 'File ditolak. Gunakan PDF, JPG/JPEG, PNG, atau WebP dan anchor inline yang valid.';
+            }
+            $this->addError('attachments', $msg);
         } catch (ProposalLocked) {
             $this->addError('attachments', 'Proposal sudah terkunci dan lampiran tidak dapat diubah.');
         } catch (ProposalAccessDenied) {
@@ -227,8 +242,12 @@ class KkprlProposalWizard extends Component
                 ? 'Jumlah lampiran melebihi maksimum 10 file per bab.'
                 : 'Total ukuran lampiran melebihi 15 MiB per bab.';
             $this->addError('attachments', $message);
-        } catch (InvalidAttachmentFile) {
-            $this->addError('attachments', 'File pengganti ditolak. Gunakan PDF, JPG/JPEG, PNG, atau WebP.');
+        } catch (InvalidAttachmentFile $exception) {
+            $msg = $exception->getMessage();
+            if (empty($msg)) {
+                $msg = 'File ditolak. Gunakan PDF, JPG/JPEG, PNG, atau WebP dan anchor inline yang valid.';
+            }
+            $this->addError('attachments', $msg);
         } catch (ProposalLocked) {
             $this->addError('attachments', 'Proposal sudah terkunci dan lampiran tidak dapat diubah.');
         } catch (ProposalAccessDenied) {
@@ -318,6 +337,17 @@ class KkprlProposalWizard extends Component
         ]);
     }
 
+    public function updateCoordinates(string $raw, string $text, string $shapeType = 'polygon'): void
+    {
+        \Illuminate\Support\Facades\Log::info('updateCoordinates CALLED', ['raw' => $raw, 'shape' => $shapeType]);
+        
+        $bag = $this->payload['bag-1'] ?? [];
+        $bag['coordinates_raw'] = $raw;
+        $bag['coordinates'] = $text;
+        $bag['shape_type'] = $shapeType;
+        $this->payload['bag-1'] = $bag;
+    }
+
     private function persist(
         KkprlProposalDraftService $drafts,
         ProposalProgress $progress,
@@ -326,7 +356,13 @@ class KkprlProposalWizard extends Component
         try {
             $proposal = KkprlProposal::query()->findOrFail($this->proposalId);
             ($access ?? app(KkprlProposalAccessService::class))->assertCanAccess($proposal);
+            
+            \Illuminate\Support\Facades\Log::info('BEFORE SAVE', ['bag-1' => $this->payload['bag-1'] ?? []]);
+            
             $saved = $drafts->save($proposal, $this->payload, $this->currentStep);
+            
+            \Illuminate\Support\Facades\Log::info('AFTER SAVE', ['bag-1' => $saved->payload['bag-1'] ?? []]);
+            
             $this->payload = $saved->payload ?? [];
             $this->lastSavedAt = $saved->last_saved_at?->format('d-m-Y H:i:s') ?? '';
             $this->refreshProgress($progress);

@@ -50,6 +50,12 @@ final class ProposalPayloadSanitizer
             default => ProposalFieldCatalog::fields($chapter),
         };
         $fields = array_values(array_diff($fields, self::CONDITIONS));
+        
+        // Preserve hidden UI states that shouldn't render in documents
+        if ($chapter === 'bag-1') {
+            $fields[] = 'coordinates_raw';
+        }
+        
         $sanitized = array_intersect_key($chapterPayload, array_flip($fields));
 
         if (array_key_exists('reclamation_schedule_rows', $sanitized) && is_array($sanitized['reclamation_schedule_rows'])) {

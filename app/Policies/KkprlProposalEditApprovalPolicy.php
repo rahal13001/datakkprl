@@ -14,14 +14,12 @@ class KkprlProposalEditApprovalPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('Review:KkprlProposal')
-            || $authUser->can('ApproveEdit:KkprlProposal');
+        return $authUser->can('ViewAny:KkprlProposalEditApproval');
     }
 
     public function view(AuthUser $authUser, KkprlProposalEditApproval $kkprlProposalEditApproval): bool
     {
-        return $authUser->can('Review:KkprlProposal')
-            || $authUser->can('ApproveEdit:KkprlProposal');
+        return $authUser->can('View:KkprlProposalEditApproval');
     }
 
     public function create(AuthUser $authUser): bool

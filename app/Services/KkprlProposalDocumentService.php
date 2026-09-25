@@ -710,8 +710,9 @@ final class KkprlProposalDocumentService
 
     private function paragraph(string $text, bool $bold = false): string
     {
-        $run = '<w:r>'.($bold ? '<w:rPr><w:b/></w:rPr>' : '').'<w:t xml:space="preserve">'.htmlspecialchars($text, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</w:t></w:r>';
-
+        $escaped = htmlspecialchars($text, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+        $withBreaks = str_replace("\n", '</w:t><w:br/><w:t xml:space="preserve">', $escaped);
+        $run = '<w:r>'.($bold ? '<w:rPr><w:b/></w:rPr>' : '').'<w:t xml:space="preserve">'.$withBreaks.'</w:t></w:r>';
         return '<w:p>'.$run.'</w:p>';
     }
 

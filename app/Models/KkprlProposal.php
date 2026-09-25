@@ -152,6 +152,11 @@ class KkprlProposal extends Model
         return $this->hasMany(KkprlProposalEditSession::class, 'proposal_id');
     }
 
+    public function chats(): HasMany
+    {
+        return $this->hasMany(KkprlProposalChat::class, 'proposal_id');
+    }
+
     public function isLocked(): bool
     {
         return in_array($this->status, ['submitted', 'needs_revision'], true);

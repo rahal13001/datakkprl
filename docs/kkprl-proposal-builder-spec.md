@@ -2,7 +2,7 @@
 
 ## Status Dokumen
 
-- Status: Draft untuk review sebelum implementasi
+- Status: Disetujui (Updated with AI Integration Plan)
 - Tanggal: 2026-08-24
 - Produk: Laravel + Livewire + Filament
 - Sumber format: `docs/template/*.docx`
@@ -28,8 +28,9 @@ Fitur ini adalah sistem pendukung penyusunan dan review dokumen. Fitur ini bukan
 | `proposal-form` | Form Bag 1–5, validasi, kondisi bagian, upload lampiran | `proposal-draft` |
 | `proposal-document` | Render proposal ke Word/PDF berdasarkan snapshot data | `proposal-draft`, `proposal-form` |
 | `proposal-review` | Daftar, detail, filter, dan peninjauan petugas di Filament | `proposal-draft`, `proposal-document` |
+| `proposal-ai-chat` | Asisten AI (Gemini Flash) per bab untuk tanya jawab, ekstraksi payload JSON, baca lampiran non-sensitif | `proposal-draft` |
 
-Urutan build: `proposal-access` → `proposal-draft` → `proposal-form` → `proposal-document` → `proposal-review`.
+Urutan build: `proposal-access` → `proposal-draft` → `proposal-form` (Bab 1) & `proposal-ai-chat` (Bab 2-5) → `proposal-document` → `proposal-review`.
 
 ## 3. Keputusan Produk yang Sudah Disetujui
 
@@ -46,6 +47,11 @@ Urutan build: `proposal-access` → `proposal-draft` → `proposal-form` → `pr
 11. Setelah pengisian selesai, pemohon dapat mengunduh Word dan PDF.
 12. Petugas dapat meninjau proposal melalui Filament.
 13. Dokumen dapat diekspor dan diunduh per bab, bukan hanya sebagai satu file gabungan.
+14. **Integrasi AI:** Pengisian Bab 2, 3, 4, dan 5 dibantu oleh AI Agent (Gemini Flash) dengan antarmuka Chatbot (Blended UI).
+15. **Pemisahan Data Sensitif:** Bab 1 (Identitas, NIK, NPWP) murni form statis tanpa campur tangan AI.
+16. **Otorisasi AI:** AI hanya menyarankan *draft payload* JSON. Pengguna wajib menekan konfirmasi sebelum AI menyimpan data ke database.
+17. **AI Vision:** Lampiran non-sensitif (Peta, Foto) dapat dianalisis AI untuk membantu melengkapi narasi, lampiran sensitif (KTP) *bypass* AI.
+18. **Persistensi Chat:** Riwayat percakapan AI disimpan agar pengguna dapat melanjutkan sesi sebelumnya tanpa mengulang.
 
 ## 4. Asumsi yang Dipakai
 
@@ -393,6 +399,15 @@ Model final harus mengikuti pola migrasi dan encryption yang sudah ada. Rancanga
 - `template_version`.
 - `created_at`, `updated_at`.
 
+### `kkprl_proposal_chats`
+Tabel baru untuk menyimpan persistensi obrolan AI per proposal/bab:
+- `id`.
+- `proposal_id`.
+- `chapter` (bag-2, bag-3, dst).
+- `messages` (JSON/Array berisi riwayat pesan pengguna & AI).
+- `last_interaction_at`.
+- `created_at`, `updated_at`.
+
 ### `kkprl_proposal_attachments`
 
 - `id`.
@@ -648,7 +663,18 @@ MVP berhasil jika:
 14. Akses silang, file publik, dan percobaan akses berulang ditolak.
 15. Test akses, draft, kondisi form, upload, dan generator per bab lulus.
 
-## 18. Pertanyaan Terbuka
+
+## 18. Integrasi AI Agent (Gemini Flash)
+
+Fitur pengisian form statis untuk Bab 2, 3, 4, dan 5 digantikan dengan **Blended UI (Chatbot + Preview Card)**.
+- **AI Engine:** Gemini Flash 1.5/2.0 via API. Dipilih karena biaya murah, *context window* besar, dan *native vision*.
+- **Blended UI:** Layar dibagi menjadi porsi Obrolan (Chat) dan Kartu Pratinjau (Preview). AI mewawancarai pengguna, mengekstrak jawaban menjadi JSON, lalu meng-update Kartu Pratinjau.
+- **Konfirmasi Manual (Anti-Halusinasi):** AI tidak menyimpan data secara diam-diam. Pengguna harus mengklik "Konfirmasi & Simpan" pada Kartu Pratinjau agar data masuk ke `payload` di tabel `kkprl_proposals`.
+- **Klasifikasi Lampiran:** Saat pengguna upload file, sistem memilah:
+  - *Sensitive* (KTP, NIB): Disimpan via `KkprlProposalAttachmentService` murni, AI tidak memiliki akses.
+  - *Non-Sensitive* (Foto Ekosistem, Peta): Dikirim ke API Gemini Vision bersama prompt untuk mendeskripsikan kondisi lokasi, hasilnya ditambahkan ke Kartu Pratinjau.
+
+## 19. Pertanyaan Terbuka
 
 Pertanyaan berikut harus dijawab sebelum implementasi bagian terkait:
 
@@ -659,7 +685,7 @@ Pertanyaan berikut harus dijawab sebelum implementasi bagian terkait:
 5. Apakah nomor KTP wajib untuk semua pemohon atau kategori tertentu?
 6. Apakah notifikasi email/WhatsApp diperlukan setelah draft dibuat atau dokumen selesai?
 
-## 19. Referensi
+## 20. Referensi
 
 - `docs/template/SURAT PERMOHONAN PERIZINAN NON BERUSAHA_KHUSUS SUBMIT MELALUI E-SEA KKP.docx`
 - `docs/template/Bag 1. Proposal KKPRL_RENCANA BANGUNAN DAN INSTALASI LAUT.docx`
