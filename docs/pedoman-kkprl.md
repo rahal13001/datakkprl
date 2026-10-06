@@ -70,3 +70,7 @@ Perintah pembaruan graph aplikasi dijalankan dari direktori `app` agar lokasi su
 rtk proxy graphify update . --no-cluster
 rtk proxy graphify cluster-only . --no-label
 ```
+
+Graph tambahan menghasilkan **2.304 node, 6.212 relasi terarah, 108 komunitas, dan satu hyperedge**, dari 342 file. JSON memakai multigraph sehingga 128 relasi paralel tidak hilang. Analisis komunitas pada laporan menggunakan proyeksi sederhana. Pemeriksaan endpoint/hyperedge lulus; 15 hasil resolusi panggilan PHP berbasis nama ditandai `AMBIGUOUS` (confidence 0,2), bukan dinyatakan sebagai rekursi yang terbukti. Biaya AST nol; jumlah token subagent semantik tidak tersedia dari host dan tidak dilaporkan sebagai nol.
+
+Hasil disimpan sebagai `graph.json`, `graph.html`, `GRAPH_REPORT.md`, `manifest.json`, dan `pedoman-audit.json`. Cache dan berkas ekstraksi sementara merupakan data kerja generator. Graph aplikasi mencatat 2.251 node, 5.947 relasi, dan 104 komunitas. Implementasi fitur tercatat pada commit `59717e4`; pembaruan dokumentasi dan graph dicatat terpisah.

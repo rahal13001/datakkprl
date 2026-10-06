@@ -1,0 +1,94 @@
+{
+  "source_commit": "59717e47efeb75c216a99345fbad5b6bd5526b08",
+  "files": 342,
+  "nodes": 2304,
+  "edges": 6212,
+  "communities": 108,
+  "hyperedges": 1,
+  "dangling_edges": 0,
+  "parallel_edges_preserved": 128,
+  "ambiguous_self_calls": [
+    {
+      "source": "app_http_controllers_api_mobile_v1_assignmentcontroller_assignmentcontroller_update",
+      "source_file": "app/Http/Controllers/Api/Mobile/V1/AssignmentController.php",
+      "source_location": "L70"
+    },
+    {
+      "source": "app_http_controllers_api_mobile_v1_clientcontroller_clientcontroller_update",
+      "source_file": "app/Http/Controllers/Api/Mobile/V1/ClientController.php",
+      "source_location": "L125"
+    },
+    {
+      "source": "app_http_controllers_api_mobile_v1_consultationreportcontroller_consultationreportcontroller_update",
+      "source_file": "app/Http/Controllers/Api/Mobile/V1/ConsultationReportController.php",
+      "source_location": "L68"
+    },
+    {
+      "source": "app_http_controllers_api_mobile_v1_mobilefilecontroller_mobilefilecontroller_beritaacara",
+      "source_file": "app/Http/Controllers/Api/Mobile/V1/MobileFileController.php",
+      "source_location": "L45"
+    },
+    {
+      "source": "app_http_controllers_api_mobile_v1_schedulecontroller_schedulecontroller_update",
+      "source_file": "app/Http/Controllers/Api/Mobile/V1/ScheduleController.php",
+      "source_location": "L38"
+    },
+    {
+      "source": "app_http_controllers_learningmaterialcontroller_learningmaterialcontroller_download",
+      "source_file": "app/Http/Controllers/LearningMaterialController.php",
+      "source_location": "L69"
+    },
+    {
+      "source": "app_http_controllers_learningtrackingcontroller_learningtrackingcontroller_startsession",
+      "source_file": "app/Http/Controllers/LearningTrackingController.php",
+      "source_location": "L66"
+    },
+    {
+      "source": "app_http_controllers_proposalguidecontroller_proposalguidecontroller_download",
+      "source_file": "app/Http/Controllers/ProposalGuideController.php",
+      "source_location": "L32"
+    },
+    {
+      "source": "app_services_kkprlproposalaccessservice_kkprlproposalaccessservice_forget",
+      "source_file": "app/Services/KkprlProposalAccessService.php",
+      "source_location": "L132"
+    },
+    {
+      "source": "app_services_kkprlproposalattachmentservice_kkprlproposalattachmentservice_delete",
+      "source_file": "app/Services/KkprlProposalAttachmentService.php",
+      "source_location": "L169"
+    },
+    {
+      "source": "app_services_kkprlproposaldraftservice_kkprlproposaldraftservice_save",
+      "source_file": "app/Services/KkprlProposalDraftService.php",
+      "source_location": "L50"
+    },
+    {
+      "source": "app_services_mobilecapabilityservice_mobilecapabilityservice_can",
+      "source_file": "app/Services/MobileCapabilityService.php",
+      "source_location": "L74"
+    },
+    {
+      "source": "app_services_privatefileservice_privatefileservice_exists",
+      "source_file": "app/Services/PrivateFileService.php",
+      "source_location": "L24"
+    },
+    {
+      "source": "app_services_privatefileservice_privatefileservice_get",
+      "source_file": "app/Services/PrivateFileService.php",
+      "source_location": "L32"
+    },
+    {
+      "source": "app_services_signatureservice_signatureservice_delete",
+      "source_file": "app/Services/SignatureService.php",
+      "source_location": "L88"
+    }
+  ],
+  "cost": {
+    "ast_input_tokens": 0,
+    "ast_output_tokens": 0,
+    "semantic_usage_available": false,
+    "note": "Semantic extraction used a host subagent; host did not expose token counters. Total LLM usage is unknown, not zero."
+  },
+  "scope": "app PHP plus Pedoman KKPRL route, configuration, migration, views, tests and documentation"
+}
