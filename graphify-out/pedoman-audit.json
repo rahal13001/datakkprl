@@ -90,5 +90,46 @@
     "semantic_usage_available": false,
     "note": "Semantic extraction used a host subagent; host did not expose token counters. Total LLM usage is unknown, not zero."
   },
-  "scope": "app PHP plus Pedoman KKPRL route, configuration, migration, views, tests and documentation"
+  "scope": "app PHP plus Pedoman KKPRL route, configuration, migration, views, tests and documentation",
+  "incremental_navbar_update": {
+    "updated_at": "2026-10-06T03:36:30.307959+00:00",
+    "pre_change_head": "0e220e6",
+    "source_commit": "3605056",
+    "source_state": "Selected navbar/view/document/assets committed at 3605056; not a full extraction of HEAD.",
+    "files": 345,
+    "reclustered": false,
+    "community_assignment": "Existing assignments retained; new nodes attached to Landing Page Blade Components (106).",
+    "semantic_token_usage": "Unavailable from host; unknown, not zero.",
+    "nodes": 2312,
+    "edges": 6231,
+    "communities": 108,
+    "hyperedges": 1,
+    "parallel_edges_preserved": 128,
+    "ambiguous_self_calls": 15,
+    "dangling_edges": 0,
+    "added_nodes": 8,
+    "added_edges": 19,
+    "new_manifest_rows": 3,
+    "preserved_original_nodes": 2304,
+    "preserved_original_edges": 6212,
+    "checks": {
+      "existing_node_metadata": true,
+      "existing_parallel_edge_metadata": true,
+      "edge_endpoints": true,
+      "hyperedges_unchanged": true,
+      "source_files_exist": true,
+      "DJPRL_reachable_from_landing": true,
+      "unchanged_manifest_rows_retained": true,
+      "DJPRL_cli_query": {
+        "command": "rtk proxy graphify query DJPRL --budget 700",
+        "exit_code": 0,
+        "matched_start_nodes": [
+          "DJPRL logo — Direktorat Jenderal Penataan Ruang Laut",
+          "DJPRL transparent-canvas CSS framing"
+        ],
+        "nodes_found": 13,
+        "edges_found": 22
+      }
+    }
+  }
 }

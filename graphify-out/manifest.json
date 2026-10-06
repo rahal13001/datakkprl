@@ -2040,15 +2040,33 @@
     "semantic_hash": "d3effb2526c447d0ded9d872a51dc0cd"
   },
   "resources/views/livewire/landing-page.blade.php": {
-    "mtime": 1791255766.7795792,
-    "seen": 1791256761.2856622,
-    "ast_hash": "36e537bfa34447aee0560243549a956c",
-    "semantic_hash": "36e537bfa34447aee0560243549a956c"
+    "mtime": 1791257549.3381565,
+    "seen": 1791257790.9482312,
+    "ast_hash": "dba00e64d9eb1216bc0dd155868a31bb",
+    "semantic_hash": "dba00e64d9eb1216bc0dd155868a31bb"
   },
   "docs/pedoman-kkprl.md": {
-    "mtime": 1791256839.3801723,
-    "seen": 1791256844.6222072,
-    "ast_hash": "1e73842bbdb053e35761228d26989bf6",
-    "semantic_hash": "1e73842bbdb053e35761228d26989bf6"
+    "mtime": 1791257623.7956505,
+    "seen": 1791257790.961106,
+    "ast_hash": "1ce27ab5dfce1c00f32816fccb2f144a",
+    "semantic_hash": "1ce27ab5dfce1c00f32816fccb2f144a"
+  },
+  "docs/landing-navbar-branding.md": {
+    "mtime": 1791257623.6443925,
+    "seen": 1791257790.979549,
+    "ast_hash": "f9c19bf094e554d5804532c5e1099356",
+    "semantic_hash": "f9c19bf094e554d5804532c5e1099356"
+  },
+  "public/img/logokkp.png": {
+    "mtime": 1782100407.2638798,
+    "seen": 1791257790.9959779,
+    "ast_hash": "8f18aa915539852e1ade47852b0f391d",
+    "semantic_hash": "8f18aa915539852e1ade47852b0f391d"
+  },
+  "public/img/djprl.png": {
+    "mtime": 1791256659.2733974,
+    "seen": 1791257791.0085096,
+    "ast_hash": "19ef177840a89d19325e838bb15454ad",
+    "semantic_hash": "19ef177840a89d19325e838bb15454ad"
   }
 }

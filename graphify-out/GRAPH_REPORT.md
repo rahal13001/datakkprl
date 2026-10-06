@@ -1,18 +1,22 @@
 # Graph Report - listdatakkprl  (2026-10-06)
 
 ## Corpus Check
-- 342 files · ~68,329 words
+- Original extraction corpus: 342 files · ~68,329 words; incremental manifest: 345 files (word count not recomputed).
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2304 nodes · 6079 edges · 108 communities (65 shown, 43 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 127 edges (avg confidence: 0.85)
-- Token cost: AST 0; semantic host usage unavailable (not reported as zero).
+- 2312 nodes · 6231 directed multigraph edges · 108 retained communities · 1 hyperedge.
+- Current confidence counts: 6089 EXTRACTED, 127 INFERRED, 15 AMBIGUOUS.
+- Token cost: original AST 0; semantic host usage for both original and incremental extraction unavailable (unknown, not zero).
 
 ## Graph Freshness
-- Built from commit: `59717e47`
-- Run `git rev-parse HEAD` and compare to check if the graph is stale.
-- Run `graphify update .` after code changes (no API cost).
+- Original Pedoman build: `59717e47`; original source audit retained.
+- Navbar update reads selected view/docs/assets committed at `3605056` (pre-change HEAD `0e220e6`); this is not a full extraction of the repository at that commit.
+- Manifest now contains 345 rows: five selected source hashes refreshed, three rows added, all other rows retained.
+- Community membership and labels were retained, with eight new navbar nodes attached to community 106. No reclustering occurred.
+
+## Original community analytics
+The hubs, cohesion scores, connections, community lists and knowledge gaps below describe the original 2,304-node Pedoman snapshot using its 6,079-edge simple undirected projection. They were not recomputed for the navbar update. The current directed multigraph counts appear above and in the incremental audit below.
 
 ## Community Hubs (Navigation)
 - Admin Resources and Relations
@@ -450,7 +454,7 @@ Nodes (3): AuthenticateMobile, Illuminate\Auth\AuthenticationException, Illumina
 - **4 isolated node(s):** `landing: GET /`, `public-dashboard-charts`, `booking-wizard`, `Livewire\trigger`
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 402 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **43 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
-## Pedoman KKPRL extraction audit
+## Original Pedoman KKPRL extraction audit
 
 - Durable JSON: 2304 nodes, 6212 directed edges, 108 communities and 1 hyperedge.
 - Parallel relations/call sites are preserved in MultiDiGraph JSON; community analytics above use a simple undirected projection.
@@ -458,3 +462,13 @@ Nodes (3): AuthenticateMobile, Illuminate\Auth\AuthenticationException, Illumina
 - Four recursive methods remain structurally extracted; external Livewire\trigger import retains its declaration at ActivityStatsOverview.php:17.
 - All edge endpoints and hyperedge members resolve. Source locations are evidence of extraction, not a complete PHP type analysis.
 - Corpus scope: app PHP plus Pedoman KKPRL boundaries; other project documents/mobile sources are outside this additional graph.
+
+## Incremental navbar branding audit
+
+- Current durable graph: **2312 nodes, 6231 directed edges, 108 retained communities, 1 preserved hyperedge**. Added 8 nodes and 19 EXTRACTED relations.
+- Existing 2,304 nodes and 6,212 edges retain their metadata and confidence; all 128 parallel edges and 15 AMBIGUOUS name-only self calls remain.
+- Navbar graph links KKP and DJPRL PNGs, LPRL Sorong text, transparent-canvas framing, responsive navigation, mobile accessibility, and `docs/landing-navbar-branding.md`; original Pedoman documentation links to that separate follow-up.
+- Both original PNGs were visually inspected; their dimensions are 400×364 and 2,000×2,000. DJPRL artwork bounds are cited to branding documentation, not claimed as fresh pixel analysis.
+- Endpoint, hyperedge, source-file, unchanged metadata, retained manifest-row and DJPRL reachability checks pass. Graph JSON and HTML were exported with graphify libraries as a MultiDiGraph.
+- Only five selected sources were hash-stamped. App graph and extraction caches were untouched. Browser/build/test evidence is recorded in the branding document; this graph update does not independently rerun those checks.
+- CLI query `rtk proxy graphify query DJPRL --budget 700` passes: logo and CSS frame match as starting entities; traversal finds 13 nodes and 22 relations with source citations.
