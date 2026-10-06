@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\KkprlProposal;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Foundation\Auth\User as AuthUser;
 
 class KkprlProposalPolicy
 {
     use HandlesAuthorization;
-    
+
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:KkprlProposal');
+        return $authUser->can('Review:KkprlProposal');
     }
 
     public function view(AuthUser $authUser, KkprlProposal $kkprlProposal): bool
     {
-        return $authUser->can('View:KkprlProposal');
+        return $authUser->can('Review:KkprlProposal');
     }
 
     public function create(AuthUser $authUser): bool
@@ -66,5 +66,4 @@ class KkprlProposalPolicy
     {
         return $authUser->can('Reorder:KkprlProposal');
     }
-
 }

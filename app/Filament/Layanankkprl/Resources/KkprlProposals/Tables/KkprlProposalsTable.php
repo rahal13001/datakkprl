@@ -60,7 +60,7 @@ final class KkprlProposalsTable
                     ->visible(fn (KkprlProposal $record): bool => auth()->user()?->can('RequestEdit:KkprlProposal') === true && $record->revisions()->where('status', 'draft')->exists())
                     ->form([
                         Textarea::make('reason')->label('Alasan edit darurat')->required()->minLength(5),
-                        Textarea::make('scope_fields')->label('Field yang diizinkan')->helperText('Satu field per baris, misalnya bag-1.latitude.')->required(),
+                        Textarea::make('scope_fields')->label('Field yang diizinkan')->helperText('Satu field per baris, misalnya bag-1.depth.')->required(),
                     ])
                     ->requiresConfirmation()
                     ->action(function (KkprlProposal $record, array $data): void {
@@ -83,7 +83,7 @@ final class KkprlProposalsTable
                         ->exists() && auth()->user()?->can('RunEditSession:KkprlProposal') === true)
                     ->form([
                         Repeater::make('changes')->label('Perubahan scoped')->minItems(1)->schema([
-                            TextInput::make('field')->label('Field')->required()->placeholder('bag-1.latitude'),
+                            TextInput::make('field')->label('Field')->required()->placeholder('bag-1.depth'),
                             Textarea::make('value')->label('Nilai baru')->required(),
                         ])->columns(2)->required(),
                         Textarea::make('reason')->label('Alasan perubahan')->required()->minLength(5),

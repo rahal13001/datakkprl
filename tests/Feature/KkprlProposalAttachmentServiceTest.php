@@ -13,6 +13,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\KkprlPayloadFixture;
 use Tests\TestCase;
 
 class KkprlProposalAttachmentServiceTest extends TestCase
@@ -261,7 +262,7 @@ class KkprlProposalAttachmentServiceTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         $proposal->update(['payload' => $payload]);

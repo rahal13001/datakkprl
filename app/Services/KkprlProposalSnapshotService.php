@@ -57,6 +57,7 @@ final class KkprlProposalSnapshotService
                 'mime_type' => $attachment->mime_type,
                 'size' => $attachment->size,
                 'checksum' => $attachment->checksum,
+                ...($attachment->source_metadata ? ['source_metadata' => $attachment->source_metadata] : []),
             ])
             ->values()
             ->all();

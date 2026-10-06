@@ -40,6 +40,12 @@ Filament Shield yang sudah tersedia menjadi sumber kebenaran role dan permission
 
 Role dan permission actor pada saat request, approval, dan edit disimpan sebagai snapshot metadata audit agar konteks riwayat tetap jelas jika konfigurasi Shield berubah.
 
+## Penyelarasan permission — 2026-10-04
+
+Policy proposal memetakan `viewAny` dan `view` ke `Review:KkprlProposal`. Daftar/detail approval memakai `Review:KkprlProposal` atau `ApproveEdit:KkprlProposal`. Izin melihat daftar tidak memberi hak menjalankan aksi approval, edit, atau download; service tetap memeriksa permission khusus dan pemisahan actor.
+
+Dua resource KKPRL dikecualikan dari generator resource-policy Shield agar policy workflow tidak ditimpa dengan permission CRUD generik. Permission KKPRL tetap tersedia di `custom_permissions` dan seeder. Contoh scope petugas memakai field katalog aktif, seperti `bag-1.depth`, bukan field koordinat lama.
+
 ## Alternatives Considered
 
 ### Memberi semua petugas hak edit

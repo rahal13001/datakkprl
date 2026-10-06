@@ -11,6 +11,7 @@ use App\Models\KkprlProposal;
 use App\Models\KkprlProposalAttachment;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -126,6 +127,7 @@ final class KkprlProposalAttachmentService
                         'anchor_key' => $metadata['anchor_key'] ?? null,
                         'display_order' => (int) ($metadata['display_order'] ?? 0),
                         'caption' => $metadata['caption'] ?? null,
+                        'source_metadata' => $metadata['source_metadata'] ?? null,
                         'original_name' => $this->displayName($file->getClientOriginalName()),
                         'storage_disk' => $this->disk(),
                         'storage_path' => $path,
@@ -230,10 +232,11 @@ final class KkprlProposalAttachmentService
                 $lockedAttachment->update([
                     'section' => $metadata['section'] ?? $lockedAttachment->section,
                     'field' => $metadata['field'] ?? ($placement === 'inline' ? ($metadata['anchor_key'] ?? $lockedAttachment->anchor_key) : $lockedAttachment->field),
-                    'attachment_role' => $metadata['attachment_role'] ?? $lockedAttachment->attachment_role,
+                    'attachment_role' => $metadata['attachment_role'] ?? ($lockedAttachment->source_metadata ? 'supporting' : $lockedAttachment->attachment_role),
                     'placement' => $placement,
                     'anchor_key' => $metadata['anchor_key'] ?? ($placement === 'inline' ? $lockedAttachment->anchor_key : null),
-                    'caption' => $metadata['caption'] ?? $lockedAttachment->caption,
+                    'caption' => $metadata['caption'] ?? ($lockedAttachment->source_metadata ? null : $lockedAttachment->caption),
+                    'source_metadata' => $metadata['source_metadata'] ?? null,
                     'original_name' => $this->displayName($file->getClientOriginalName()),
                     'storage_disk' => $this->disk(),
                     'storage_path' => $path,
@@ -264,7 +267,7 @@ final class KkprlProposalAttachmentService
         $realPath = $file->getRealPath();
 
         if (! is_string($realPath) || ! is_file($realPath)) {
-            \Illuminate\Support\Facades\Log::error('Upload failed: not a file. Path: ' . json_encode($realPath));
+            Log::error('Upload failed: not a file. Path: '.json_encode($realPath));
             throw new InvalidAttachmentFile('Path bukan file valid.');
         }
 
@@ -273,11 +276,11 @@ final class KkprlProposalAttachmentService
         $size = filesize($realPath);
 
         if (! is_string($mime) || ! isset(self::MIME_EXTENSIONS[$mime]) || ! is_string($signature) || $size === false) {
-            \Illuminate\Support\Facades\Log::error('Upload failed: mime/signature/size issue.', [
+            Log::error('Upload failed: mime/signature/size issue.', [
                 'mime' => $mime,
                 'is_mime_supported' => is_string($mime) ? isset(self::MIME_EXTENSIONS[$mime]) : false,
                 'has_signature' => is_string($signature),
-                'size' => $size
+                'size' => $size,
             ]);
             throw new InvalidAttachmentFile("Tipe file tidak didukung: {$mime}");
         }
@@ -292,10 +295,10 @@ final class KkprlProposalAttachmentService
         };
 
         if (! $validSignature) {
-            \Illuminate\Support\Facades\Log::error("Upload failed: Invalid signature for $mime", [
-                'hex_signature' => bin2hex($signature)
+            Log::error("Upload failed: Invalid signature for $mime", [
+                'hex_signature' => bin2hex($signature),
             ]);
-            throw new InvalidAttachmentFile("Format internal file tidak cocok dengan ekstensinya (File Corrupt/Palsu).");
+            throw new InvalidAttachmentFile('Format internal file tidak cocok dengan ekstensinya (File Corrupt/Palsu).');
         }
 
         return [$mime, self::MIME_EXTENSIONS[$mime], $size, hash_file('sha256', $realPath) ?: ''];

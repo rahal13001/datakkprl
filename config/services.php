@@ -39,6 +39,11 @@ return [
         'key' => env('GROQ_API_KEY'),
     ],
 
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-3.8-flash'),
+    ],
+
     'summary' => [
         'login_url' => env('SUMMARY_LOGIN_URL', 'https://summary.timurbersinar.com/api/login'),
         'timeout' => (int) env('SUMMARY_LOGIN_TIMEOUT', 15),

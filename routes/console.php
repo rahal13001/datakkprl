@@ -1,5 +1,7 @@
 <?php
 
+use App\Services\KkprlAiService;
+use App\Services\KkprlProposalEditApprovalService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -8,6 +10,11 @@ use Illuminate\Support\Facades\Schedule;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+Artisan::command('kkprl:ai-reset-cooldown', function (): void {
+    app(KkprlAiService::class)->resetCooldown();
+    $this->info('Penundaan lokal permintaan AI dibersihkan. Batas kuota dari Google tetap berlaku.');
+})->purpose('Hapus penundaan Gemini setelah pengelola memperbarui kuota atau konfigurasi proyek');
 
 Schedule::call(function (): void {
     $notificationCutoff = now()->subDays(config('mobile.notifications.inbox_retention_days'));
@@ -23,5 +30,5 @@ Schedule::call(function (): void {
 })->dailyAt('02:30')->name('mobile-notification-maintenance')->withoutOverlapping();
 
 Schedule::call(function (): void {
-    app(\App\Services\KkprlProposalEditApprovalService::class)->expireActiveSessions();
+    app(KkprlProposalEditApprovalService::class)->expireActiveSessions();
 })->everyMinute()->name('kkprl-expire-edit-sessions')->withoutOverlapping();

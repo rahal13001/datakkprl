@@ -78,6 +78,7 @@ class KkprlProposalWizard extends Component
 
         $this->proposalId = $proposal->id;
         $this->payload = $proposal->payload ?? [];
+        $this->normalizeConditionInputs();
         $this->lastSavedAt = $proposal->last_saved_at?->format('d-m-Y H:i:s') ?? '';
         $this->currentStep = max(1, $proposal->current_step);
         $this->locked = $proposal->isLocked();
@@ -92,18 +93,35 @@ class KkprlProposalWizard extends Component
     }
 
     #[On('draft-saved')]
-    public function refreshState(): void
+    public function refreshState(ProposalProgress $progress): void
     {
         $proposal = KkprlProposal::find($this->proposalId);
         if ($proposal) {
+            try {
+                app(KkprlProposalAccessService::class)->assertCanAccess($proposal);
+            } catch (ProposalAccessDenied) {
+                return;
+            }
             $this->payload = $proposal->payload ?? [];
+            $this->normalizeConditionInputs();
             $this->lastSavedAt = $proposal->last_saved_at?->format('d-m-Y H:i:s') ?? '';
+            $this->locked = $proposal->isLocked();
+            $this->refreshProgress($progress);
+            $this->syncAttachmentChapter();
         }
     }
 
     public function updatedPayload(ProposalProgress $progress): void
     {
+        $this->normalizeConditionInputs();
         $this->persist(app(KkprlProposalDraftService::class), $progress);
+    }
+
+    public function updatedCurrentStep(): void
+    {
+        $this->normalizeStep();
+        $this->syncAttachmentChapter();
+        $this->saved = false;
     }
 
     public function saveDraft(
@@ -337,15 +355,23 @@ class KkprlProposalWizard extends Component
         ]);
     }
 
-    public function updateCoordinates(string $raw, string $text, string $shapeType = 'polygon'): void
-    {
-        \Illuminate\Support\Facades\Log::info('updateCoordinates CALLED', ['raw' => $raw, 'shape' => $shapeType]);
-        
+    public function updateCoordinates(
+        string $raw,
+        string $text,
+        string $shapeType = 'polygon',
+    ): void {
+        $proposal = KkprlProposal::query()->findOrFail($this->proposalId);
+        app(KkprlProposalAccessService::class)->assertCanAccess($proposal);
+        if ($proposal->isLocked()) {
+            throw new ProposalLocked;
+        }
+
         $bag = $this->payload['bag-1'] ?? [];
         $bag['coordinates_raw'] = $raw;
         $bag['coordinates'] = $text;
         $bag['shape_type'] = $shapeType;
         $this->payload['bag-1'] = $bag;
+        $this->persist(app(KkprlProposalDraftService::class), app(ProposalProgress::class));
     }
 
     private function persist(
@@ -356,13 +382,9 @@ class KkprlProposalWizard extends Component
         try {
             $proposal = KkprlProposal::query()->findOrFail($this->proposalId);
             ($access ?? app(KkprlProposalAccessService::class))->assertCanAccess($proposal);
-            
-            \Illuminate\Support\Facades\Log::info('BEFORE SAVE', ['bag-1' => $this->payload['bag-1'] ?? []]);
-            
+
             $saved = $drafts->save($proposal, $this->payload, $this->currentStep);
-            
-            \Illuminate\Support\Facades\Log::info('AFTER SAVE', ['bag-1' => $saved->payload['bag-1'] ?? []]);
-            
+
             $this->payload = $saved->payload ?? [];
             $this->lastSavedAt = $saved->last_saved_at?->format('d-m-Y H:i:s') ?? '';
             $this->refreshProgress($progress);
@@ -387,6 +409,17 @@ class KkprlProposalWizard extends Component
     private function normalizeStep(): void
     {
         $this->currentStep = min(max(1, $this->currentStep), max(1, count($this->relevantChapters)));
+    }
+
+    private function normalizeConditionInputs(): void
+    {
+        foreach (['includes_reclamation', 'has_existing_permits'] as $field) {
+            if (in_array($this->payload[$field] ?? null, [true, 1, '1', 'true'], true)) {
+                $this->payload[$field] = '1';
+            } elseif (in_array($this->payload[$field] ?? null, [false, 0, '0', 'false'], true)) {
+                $this->payload[$field] = '0';
+            }
+        }
     }
 
     private function syncAttachmentChapter(): void

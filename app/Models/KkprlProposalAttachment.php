@@ -22,6 +22,7 @@ class KkprlProposalAttachment extends Model
         'anchor_key',
         'display_order',
         'caption',
+        'source_metadata',
         'original_name',
         'storage_disk',
         'storage_path',
@@ -35,6 +36,7 @@ class KkprlProposalAttachment extends Model
     {
         return [
             'uploaded_at' => 'datetime',
+            'source_metadata' => 'array',
         ];
     }
 

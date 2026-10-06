@@ -14,10 +14,12 @@ use App\Services\KkprlProposalSubmissionService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Permission;
+use Tests\Support\KkprlPayloadFixture;
 use Tests\TestCase;
 
 class KkprlProposalRevisionTest extends TestCase
@@ -32,7 +34,7 @@ class KkprlProposalRevisionTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         app(KkprlProposalDraftService::class)->save($proposal, $payload, 3);
@@ -64,7 +66,7 @@ class KkprlProposalRevisionTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         app(KkprlProposalDraftService::class)->save($proposal, $payload, 3);
@@ -85,7 +87,7 @@ class KkprlProposalRevisionTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         app(KkprlProposalDraftService::class)->save($proposal, $payload, 3);
@@ -108,7 +110,7 @@ class KkprlProposalRevisionTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         app(KkprlProposalDraftService::class)->save($proposal, $payload, 3);
@@ -130,12 +132,13 @@ class KkprlProposalRevisionTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         app(KkprlProposalDraftService::class)->save($proposal, $payload, 3);
         $originalAttachment = app(KkprlProposalAttachmentService::class)->store(
             $proposal->fresh(), 'bag-1', UploadedFile::fake()->image('original.png'),
+            ['source_metadata' => ['source' => 'field_photo', 'period' => '2026-10-05']],
         );
         $submitted = app(KkprlProposalSubmissionService::class)->submit($proposal->fresh());
 
@@ -146,6 +149,7 @@ class KkprlProposalRevisionTest extends TestCase
         Storage::disk('kkprl_private')->assertExists($originalAttachment->storage_path);
         Storage::disk('kkprl_private')->assertExists($copied->storage_path);
         $this->assertSame($originalAttachment->checksum, $copied->checksum);
+        $this->assertSame($originalAttachment->source_metadata, $copied->source_metadata);
     }
 
     #[Test]
@@ -157,7 +161,7 @@ class KkprlProposalRevisionTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         app(KkprlProposalDraftService::class)->save($proposal, $payload, 3);
@@ -200,13 +204,13 @@ class KkprlProposalRevisionTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         app(KkprlProposalDraftService::class)->save($proposal, $payload, 3);
         $submitted = app(KkprlProposalSubmissionService::class)->submit($proposal->fresh());
 
-        \Illuminate\Support\Facades\DB::table('kkprl_proposal_attachments')->insert([
+        DB::table('kkprl_proposal_attachments')->insert([
             'proposal_id' => $submitted->id,
             'chapter' => 'bag-1',
             'attachment_role' => 'supporting',

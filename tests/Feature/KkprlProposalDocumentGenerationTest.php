@@ -11,10 +11,12 @@ use App\Services\KkprlProposalDocumentService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use PHPUnit\Framework\Attributes\Test;
 use Smalot\PdfParser\Parser;
+use Tests\Support\KkprlPayloadFixture;
 use Tests\TestCase;
 use ZipArchive;
 
@@ -30,7 +32,7 @@ class KkprlProposalDocumentGenerationTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : ($field === 'site_plan_description' ? 'Uraian site plan panjang.' : 'Terisi'));
+                $payload[$field] = KkprlPayloadFixture::value($field, $field === 'site_plan_description' ? 'Uraian site plan panjang.' : 'Terisi');
             }
         }
         $proposal->update(['payload' => $payload]);
@@ -222,8 +224,7 @@ class KkprlProposalDocumentGenerationTest extends TestCase
         $payload = [];
         foreach (ProposalProgress::requiredFields('bag-1') as $field) {
             $payload[$field] = match ($field) {
-                'latitude' => '-6.2',
-                'longitude' => '106.8',
+                'shape_type', 'coordinates' => KkprlPayloadFixture::value($field),
                 default => 'Terisi',
             };
         }
@@ -247,8 +248,7 @@ class KkprlProposalDocumentGenerationTest extends TestCase
         $payload = [];
         foreach (ProposalProgress::requiredFields('bag-1') as $field) {
             $payload[$field] = match ($field) {
-                'latitude' => '-6.2',
-                'longitude' => '106.8',
+                'shape_type', 'coordinates' => KkprlPayloadFixture::value($field),
                 default => 'Terisi',
             };
         }
@@ -272,14 +272,13 @@ class KkprlProposalDocumentGenerationTest extends TestCase
         $payload = [];
         foreach (ProposalProgress::requiredFields('bag-1') as $field) {
             $payload[$field] = match ($field) {
-                'latitude' => '-6.2',
-                'longitude' => '106.8',
+                'shape_type', 'coordinates' => KkprlPayloadFixture::value($field),
                 default => 'Terisi',
             };
         }
         $proposal->update(['payload' => $payload]);
 
-        \Illuminate\Support\Facades\DB::table('kkprl_proposal_attachments')->insert([
+        DB::table('kkprl_proposal_attachments')->insert([
             'proposal_id' => $proposal->id,
             'chapter' => 'bag-1',
             'attachment_role' => 'supporting',
@@ -293,7 +292,7 @@ class KkprlProposalDocumentGenerationTest extends TestCase
             'updated_at' => now(),
         ]);
 
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectException(ValidationException::class);
         app(KkprlProposalDocumentService::class)->generateChapterFormats($proposal->fresh(), 'bag-1');
     }
 
@@ -305,8 +304,7 @@ class KkprlProposalDocumentGenerationTest extends TestCase
         $payload = [];
         foreach (ProposalProgress::requiredFields('bag-1') as $field) {
             $payload[$field] = match ($field) {
-                'latitude' => '-6.2',
-                'longitude' => '106.8',
+                'shape_type', 'coordinates' => KkprlPayloadFixture::value($field),
                 'includes_reclamation' => false,
                 'land_relation' => 'not_adjacent',
                 'has_existing_permits' => false,
@@ -363,7 +361,7 @@ class KkprlProposalDocumentGenerationTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         $proposal->update(['payload' => $payload]);
@@ -395,7 +393,7 @@ class KkprlProposalDocumentGenerationTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         $proposal->update(['payload' => $payload]);
@@ -437,7 +435,7 @@ class KkprlProposalDocumentGenerationTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         $proposal->update(['payload' => $payload]);
@@ -467,7 +465,7 @@ class KkprlProposalDocumentGenerationTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         $payload['includes_reclamation'] = true;
@@ -586,7 +584,7 @@ class KkprlProposalDocumentGenerationTest extends TestCase
 
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
 

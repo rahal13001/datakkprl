@@ -16,6 +16,7 @@ use App\Services\KkprlProposalSubmissionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Permission;
+use Tests\Support\KkprlPayloadFixture;
 use Tests\TestCase;
 
 class KkprlProposalEditApprovalTest extends TestCase
@@ -63,15 +64,15 @@ class KkprlProposalEditApprovalTest extends TestCase
 
         $approved = $service->approve($approval, $approver, now()->addHour());
         $session = $service->startSession($approved, $requester);
-        $changed = $service->applyChanges($session, $requester, ['bag-1.latitude' => '1.234'], 'Correct latitude.');
+        $changed = $service->applyChanges($session, $requester, ['bag-1.depth' => '1.234'], 'Correct depth.');
 
-        $this->assertSame('1.234', $changed->payload['bag-1']['latitude']);
+        $this->assertSame('1.234', $changed->payload['bag-1']['depth']);
         $event = KkprlProposalReviewEvent::query()
             ->where('event_type', 'staff_edit')
             ->latest('id')
             ->firstOrFail();
         $this->assertSame([], $event->before_payload);
-        $this->assertSame('1.234', $event->after_payload['bag-1']['latitude']);
+        $this->assertSame('1.234', $event->after_payload['bag-1']['depth']);
         $this->assertDatabaseHas('kkprl_proposal_review_events', ['event_type' => 'staff_edit', 'actor_id' => $requester->id]);
         $this->assertDatabaseHas('kkprl_proposal_review_events', ['event_type' => 'edit_approval_requested', 'actor_id' => $requester->id]);
         $this->assertDatabaseHas('kkprl_proposal_review_events', ['event_type' => 'edit_approved', 'actor_id' => $approver->id]);
@@ -95,7 +96,7 @@ class KkprlProposalEditApprovalTest extends TestCase
         $session = $service->startSession($approved, $requester);
 
         $this->expectException(EditScopeDenied::class);
-        $service->applyChanges($session, $requester, ['bag-2.narrative' => 'not allowed'], 'Wrong scope.');
+        $service->applyChanges($session, $requester, ['bag-2.marine_space_use_narrative' => 'not allowed'], 'Wrong scope.');
     }
 
     #[Test]
@@ -124,7 +125,7 @@ class KkprlProposalEditApprovalTest extends TestCase
             $revision,
             $requester,
             'Correct location.',
-            ['fields' => ['bag-1.latitude']],
+            ['fields' => ['bag-1.depth']],
         );
 
         $this->expectException(EditApprovalDenied::class);
@@ -132,8 +133,8 @@ class KkprlProposalEditApprovalTest extends TestCase
             $proposal,
             $revision,
             $requester,
-            'Correct longitude.',
-            ['fields' => ['bag-1.longitude']],
+            'Correct water area.',
+            ['fields' => ['bag-1.water_area']],
         );
     }
 
@@ -146,8 +147,8 @@ class KkprlProposalEditApprovalTest extends TestCase
             $proposal,
             $revision,
             $requester,
-            'Correct latitude.',
-            ['fields' => ['bag-1.latitude']],
+            'Correct depth.',
+            ['fields' => ['bag-1.depth']],
         );
         $approver = User::factory()->create();
         $approver->givePermissionTo(Permission::findOrCreate('ApproveEdit:KkprlProposal', 'web'));
@@ -158,8 +159,8 @@ class KkprlProposalEditApprovalTest extends TestCase
             $proposal,
             $revision,
             $requester,
-            'Correct longitude.',
-            ['fields' => ['bag-1.longitude']],
+            'Correct water area.',
+            ['fields' => ['bag-1.water_area']],
         );
 
         $this->assertSame('expired', $approved->fresh()->status);
@@ -181,7 +182,7 @@ class KkprlProposalEditApprovalTest extends TestCase
             $revision,
             $requester,
             'Attempt to widen a field path.',
-            ['fields' => ['bag-1.latitude.internal']],
+            ['fields' => ['bag-1.depth.internal']],
         );
     }
 
@@ -270,7 +271,7 @@ class KkprlProposalEditApprovalTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         $revision->update(['payload' => $payload]);
@@ -289,7 +290,7 @@ class KkprlProposalEditApprovalTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         $revision->update(['payload' => $payload]);
@@ -346,7 +347,7 @@ class KkprlProposalEditApprovalTest extends TestCase
             $revision,
             $requester,
             'Correct location.',
-            ['fields' => ['bag-1.latitude']],
+            ['fields' => ['bag-1.depth']],
         );
 
         return [$requester, $approval];

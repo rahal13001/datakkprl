@@ -76,7 +76,7 @@ final class KkprlProposalRevisionService
                     $revision->attachments()->create($attachment->only([
                         'chapter', 'section', 'field', 'attachment_role', 'placement', 'anchor_key',
                         'display_order', 'caption', 'original_name', 'storage_disk', 'mime_type',
-                        'size', 'checksum', 'uploaded_at',
+                        'size', 'checksum', 'uploaded_at', 'source_metadata',
                     ]) + ['storage_path' => $newPath]);
                 }
 

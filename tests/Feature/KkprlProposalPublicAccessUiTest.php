@@ -33,7 +33,7 @@ class KkprlProposalPublicAccessUiTest extends TestCase
 
         $this->get(route('kkprl.proposal.wizard'))
             ->assertOk()
-            ->assertSee('Pengisian Proposal')
+            ->assertSee('Formulir Penyusunan')
             ->assertSee('data-kkprl-wizard', false)
             ->assertSee('pb-32', false)
             ->assertSee('for="kkprl-pending-files"', false)

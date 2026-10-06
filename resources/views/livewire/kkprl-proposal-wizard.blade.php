@@ -39,11 +39,12 @@
             @php
                 $chaptersCount = count($relevantChapters);
                 $currentIndex = array_search($currentChapter, $relevantChapters);
-                $progressPercent = $chaptersCount > 1 ? ($currentIndex / ($chaptersCount - 1)) * 100 : 0;
+                $totalFields = collect($chapterProgress)->sum('total');
+                $overallProgress = $totalFields > 0 ? (int) floor(collect($chapterProgress)->sum('completed') / $totalFields * 100) : 0;
             @endphp
             <div class="relative pt-4">
-                <div class="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
-                    <div class="h-full bg-blue-600 transition-all duration-500 ease-out" style="width: {{ $progressPercent }}%"></div>
+                <div role="progressbar" aria-label="Kelengkapan proposal" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $overallProgress }}" class="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                    <div class="h-full bg-blue-600 transition-all duration-500 ease-out" style="width: {{ $overallProgress }}%"></div>
                 </div>
                 
                 <div class="flex justify-between mt-4">
@@ -53,7 +54,7 @@
                             $isActive = $chapter === $currentChapter;
                             $isPast = $idx < $currentIndex;
                         @endphp
-                        <div class="flex flex-col items-center cursor-pointer transition-transform hover:scale-105" wire:click="$set('currentStep', {{ $idx + 1 }})">
+                        <button type="button" aria-label="Buka Bab {{ str_replace('bag-', '', $chapter) }}" class="flex flex-col items-center cursor-pointer transition-transform hover:scale-105" wire:click="$set('currentStep', {{ $idx + 1 }})">
                             <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 mb-2 transition-colors
                                 {{ $isActive ? 'border-blue-600 bg-blue-600 text-white shadow-md' : 
                                    ($isPast ? 'border-blue-600 bg-white text-blue-600' : 'border-slate-300 bg-white text-slate-400') }}">
@@ -61,7 +62,7 @@
                             </div>
                             <span class="text-xs font-bold uppercase tracking-wider hidden sm:block
                                 {{ $isActive ? 'text-blue-700' : ($isPast ? 'text-slate-600' : 'text-slate-400') }}">
-                                Bab {{ $idx + 1 }}
+                                Bab {{ str_replace('bag-', '', $chapter) }}
                             </span>
                             
                             @if($state === 'complete')
@@ -69,7 +70,7 @@
                             @elseif($state === 'error')
                                 <span class="text-[10px] text-red-500 mt-1 font-medium"><i class="fa-solid fa-triangle-exclamation"></i> Error</span>
                             @endif
-                        </div>
+                        </button>
                     @endforeach
                 </div>
             </div>
@@ -140,92 +141,92 @@
                     </div>
                 </div>
                 
-                <div class="p-8 lg:p-10 space-y-12 bg-slate-50/50">
+                <div class="p-4 sm:p-8 lg:p-10 space-y-12 bg-slate-50/50">
                     <!-- Kelompok Identitas -->
-                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 hover:border-blue-100 transition-colors">
+                    <div class="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 hover:border-blue-100 transition-colors">
                         <div class="flex items-center mb-8 pb-4 border-b border-slate-100">
                             <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-bold mr-4 shrink-0 shadow-inner">
                                 <i class="fa-regular fa-id-card"></i>
                             </div>
                             <h3 class="text-xl font-bold text-slate-800 tracking-tight">Identitas Pemohon</h3>
                         </div>
-                        <div class="grid gap-6 sm:grid-cols-2">
+                        <div class="grid [&>*]:min-w-0 gap-6 sm:grid-cols-2">
                             <div>
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Nama Pemohon Lengkap</label>
-                                <input type="text" wire:model.blur="payload.bag-1.applicant_name" placeholder="Sesuai KTP" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <input type="text" wire:model.live.blur="payload.bag-1.applicant_name" placeholder="Sesuai KTP" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
                             <div>
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Jabatan</label>
-                                <input type="text" wire:model.blur="payload.bag-1.applicant_position" placeholder="Cth: Direktur Utama" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <input type="text" wire:model.live.blur="payload.bag-1.applicant_position" placeholder="Cth: Direktur Utama" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
                             <div>
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Instansi / Perusahaan</label>
-                                <input type="text" wire:model.blur="payload.bag-1.institution_name" placeholder="Nama PT/CV/Koperasi" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <input type="text" wire:model.live.blur="payload.bag-1.institution_name" placeholder="Nama PT/CV/Koperasi" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
                             <div>
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Nomor KTP (NIK)</label>
-                                <input type="text" wire:model.blur="payload.bag-1.identity_number" placeholder="16 digit NIK" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <input type="text" wire:model.live.blur="payload.bag-1.identity_number" placeholder="16 digit NIK" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
                             <div>
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">NPWP</label>
-                                <input type="text" wire:model.blur="payload.bag-1.tax_number" placeholder="Nomor Pokok Wajib Pajak" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <input type="text" wire:model.live.blur="payload.bag-1.tax_number" placeholder="Nomor Pokok Wajib Pajak" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
                             <div>
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Email Aktif</label>
-                                <input type="email" wire:model.blur="payload.bag-1.email" placeholder="email@domain.com" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <input type="email" wire:model.live.blur="payload.bag-1.email" placeholder="email@domain.com" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
                             <div>
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Telepon / WhatsApp</label>
-                                <input type="text" wire:model.blur="payload.bag-1.phone_alternative" placeholder="0812..." class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <input type="text" wire:model.live.blur="payload.bag-1.phone_alternative" placeholder="0812..." class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Alamat Lengkap</label>
-                                <textarea wire:model.blur="payload.bag-1.address" rows="3" placeholder="Jl. Raya..." class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700"></textarea>
+                                <textarea wire:model.live.blur="payload.bag-1.address" rows="3" placeholder="Jl. Raya..." class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700"></textarea>
                             </div>
                         </div>
                     </div>
 
                     <!-- Kelompok Lokasi -->
-                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 hover:border-blue-100 transition-colors">
+                    <div class="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 hover:border-blue-100 transition-colors">
                         <div class="flex items-center mb-8 pb-4 border-b border-slate-100">
                             <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-bold mr-4 shrink-0 shadow-inner">
                                 <i class="fa-solid fa-map-location-dot"></i>
                             </div>
                             <h3 class="text-xl font-bold text-slate-800 tracking-tight">Lokasi Administratif</h3>
                         </div>
-                        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                        <div class="grid [&>*]:min-w-0 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                             @foreach (['province' => 'Provinsi', 'regency' => 'Kabupaten / Kota', 'subdistrict' => 'Kecamatan', 'village' => 'Desa / Kelurahan'] as $field => $label)
                                 <div>
                                     <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">{{ $label }}</label>
-                                    <input wire:model.blur="payload.bag-1.{{ $field }}" type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                    <input wire:model.live.blur="payload.bag-1.{{ $field }}" type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                                 </div>
                             @endforeach
                         </div>
                     </div>
 
                     <!-- Kelompok Perairan -->
-                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 hover:border-blue-100 transition-colors">
+                    <div class="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 hover:border-blue-100 transition-colors">
                         <div class="flex items-center mb-8 pb-4 border-b border-slate-100">
                             <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-bold mr-4 shrink-0 shadow-inner">
                                 <i class="fa-solid fa-water"></i>
                             </div>
                             <h3 class="text-xl font-bold text-slate-800 tracking-tight">Dimensi Perairan & Koordinat</h3>
                         </div>
-                        <div class="grid gap-6">
+                        <div class="grid [&>*]:min-w-0 gap-6">
                             <!-- Baris 1: Nama Perairan -->
                             <div>
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Nama Perairan / Laut</label>
-                                <input wire:model.blur="payload.bag-1.water_name" type="text" placeholder="Cth: Perairan Teluk Bintuni" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <input wire:model.live.blur="payload.bag-1.water_name" type="text" placeholder="Cth: Perairan Teluk Bintuni" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
                             
                             <!-- Baris 2: Luas & Kedalaman (Bersebelahan di layar lebar) -->
-                            <div class="grid md:grid-cols-2 gap-6">
+                            <div class="grid [&>*]:min-w-0 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center justify-between">Dimensi (Luas / Panjang) <span class="text-[10px] font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded">Gunakan Titik</span></label>
+                                    <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex flex-wrap gap-2 items-center justify-between">Dimensi (Luas / Panjang) <span class="text-[10px] font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded">Gunakan Titik</span></label>
                                     <div class="flex gap-2">
-                                        <input wire:model.blur="payload.bag-1.water_area" type="text" placeholder="Cth: 12.5" class="w-2/3 px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                        <input wire:model.live.blur="payload.bag-1.water_area" type="text" placeholder="Cth: 12.5" class="w-2/3 px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                                         <div class="relative w-1/3">
-                                            <select wire:model.blur="payload.bag-1.water_area_unit" class="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                            <select wire:model.live.blur="payload.bag-1.water_area_unit" class="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                                                 <option value="">-- Satuan --</option>
                                                 <option value="Hektar (Ha)">Hektar (Ha)</option>
                                                 <option value="Kilometer (Km)">Kilometer (Km)</option>
@@ -236,13 +237,13 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center justify-between">Kedalaman (Meter) <span class="text-[10px] font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded">Gunakan Titik</span></label>
-                                    <input wire:model.blur="payload.bag-1.depth" type="text" placeholder="Cth: -5.2" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                    <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex flex-wrap gap-2 items-center justify-between">Kedalaman (Meter) <span class="text-[10px] font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded">Gunakan Titik</span></label>
+                                    <input wire:model.live.blur="payload.bag-1.depth" type="text" placeholder="Cth: -5.2" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                                 </div>
                             </div>
                             
-                            <div x-data="coordinateManager(@js($payload['bag-1']['coordinates_raw'] ?? '[]'), @js($payload['bag-1']['shape_type'] ?? 'polygon'), $wire)" class="border border-slate-200 rounded-xl bg-slate-50 p-5 shadow-sm">
-                                <div class="flex justify-between items-center mb-4">
+                            <div wire:ignore x-data="coordinateManager(@js($payload['bag-1']['coordinates_raw'] ?? '[]'), @js($payload['bag-1']['shape_type'] ?? 'polygon'), $wire)" class="border border-slate-200 rounded-xl bg-slate-50 p-3 sm:p-5 shadow-sm">
+                                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                                     <div>
                                         <h4 class="text-[14px] font-bold text-slate-700 uppercase tracking-wider flex items-center">
                                             <i class="fa-solid fa-map-location-dot mr-2 text-blue-500"></i> Koordinat Lokasi
@@ -291,7 +292,7 @@
                                                 <span class="bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mr-2" x-text="'Titik ' + (index + 1)"></span>
                                             </div>
 
-                                            <div class="grid lg:grid-cols-2 gap-4">
+                                            <div class="grid [&>*]:min-w-0 lg:grid-cols-2 gap-4">
                                                 <!-- LATITUDE -->
                                                 <div class="space-y-3 bg-white border border-slate-100 p-4 rounded-xl shadow-sm">
                                                     <h5 class="text-[11px] font-bold text-blue-600 uppercase tracking-wider border-b border-slate-100 pb-2"><i class="fa-solid fa-arrows-up-down mr-1"></i> Latitude (Lintang Y)</h5>
@@ -303,7 +304,7 @@
                                                     
                                                     <div class="pt-1">
                                                         <label class="block text-[10px] uppercase text-slate-400 mb-1">Derajat Menit Detik (DMS)</label>
-                                                        <div class="grid grid-cols-4 gap-2">
+                                                        <div class="grid [&>*]:min-w-0 grid-cols-4 gap-2">
                                                             <div class="relative">
                                                                 <input type="number" x-model="point.lat_d" @input="syncFromDMS(index, true)" class="w-full px-2 py-2.5 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 outline-none text-sm font-mono text-center pr-4">
                                                                 <span class="absolute right-2 top-2.5 text-slate-400 font-bold">°</span>
@@ -337,7 +338,7 @@
                                                     
                                                     <div class="pt-1">
                                                         <label class="block text-[10px] uppercase text-slate-400 mb-1">Derajat Menit Detik (DMS)</label>
-                                                        <div class="grid grid-cols-4 gap-2">
+                                                        <div class="grid [&>*]:min-w-0 grid-cols-4 gap-2">
                                                             <div class="relative">
                                                                 <input type="number" x-model="point.lng_d" @input="syncFromDMS(index, false)" class="w-full px-2 py-2.5 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 outline-none text-sm font-mono text-center pr-4">
                                                                 <span class="absolute right-2 top-2.5 text-slate-400 font-bold">°</span>
@@ -368,7 +369,7 @@
                     </div>
 
                     <!-- Kelompok Rencana Kegiatan -->
-                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 hover:border-blue-100 transition-colors">
+                    <div class="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 hover:border-blue-100 transition-colors">
                         <div class="flex items-center mb-8 pb-4 border-b border-slate-100">
                             <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-bold mr-4 shrink-0 shadow-inner">
                                 <i class="fa-solid fa-industry"></i>
@@ -376,20 +377,20 @@
                             <h3 class="text-xl font-bold text-slate-800 tracking-tight">Rencana Kegiatan Usaha</h3>
                         </div>
                         
-                        <div class="grid gap-6 sm:grid-cols-2">
+                        <div class="grid [&>*]:min-w-0 gap-6 sm:grid-cols-2">
                             <div>
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Kegiatan Utama</label>
-                                <input wire:model.blur="payload.bag-1.main_activity" type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <input wire:model.live.blur="payload.bag-1.main_activity" type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
                             <div>
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Kegiatan Penunjang</label>
-                                <input wire:model.blur="payload.bag-1.supporting_activity" type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <input wire:model.live.blur="payload.bag-1.supporting_activity" type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
                             
                             <div>
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Sifat Usaha</label>
                                 <div class="relative">
-                                    <select wire:model.blur="payload.bag-1.business_status" class="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                    <select wire:model.live.blur="payload.bag-1.business_status" class="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                                         <option value="">-- Pilih --</option>
                                         <option value="Berusaha">Berusaha</option>
                                         <option value="Non-Berusaha">Non-Berusaha</option>
@@ -400,7 +401,7 @@
                             <div>
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Status Strategis</label>
                                 <div class="relative">
-                                    <select wire:model.blur="payload.bag-1.strategic_status" class="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                    <select wire:model.live.blur="payload.bag-1.strategic_status" class="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                                         <option value="">-- Pilih --</option>
                                         <option value="Strategis Nasional">Proyek Strategis Nasional (PSN)</option>
                                         <option value="Non-Strategis">Non-Strategis / Reguler</option>
@@ -411,56 +412,56 @@
                             
                             <div class="sm:col-span-2">
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Bidang Kegiatan Usaha</label>
-                                <input wire:model.blur="payload.bag-1.business_field" type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <input wire:model.live.blur="payload.bag-1.business_field" type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
 
                             <div>
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Status Eksisting</label>
-                                <input wire:model.blur="payload.bag-1.activity_status" type="text" placeholder="Status saat ini (Misal: Kosong / Sudah Terbangun)" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <input wire:model.live.blur="payload.bag-1.activity_status" type="text" placeholder="Status saat ini (Misal: Kosong / Sudah Terbangun)" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
                             <div>
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Jadwal Pembangunan (Estimasi)</label>
-                                <input wire:model.blur="payload.bag-1.schedule" type="text" placeholder="Cth: Januari 2027 - Desember 2028" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <input wire:model.live.blur="payload.bag-1.schedule" type="text" placeholder="Cth: Januari 2027 - Desember 2028" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
                             
                             <div>
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Pekerja Pria</label>
-                                <input wire:model.blur="payload.bag-1.workforce_male" type="number" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <input wire:model.live.blur="payload.bag-1.workforce_male" type="number" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
                             <div>
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Pekerja Wanita</label>
-                                <input wire:model.blur="payload.bag-1.workforce_female" type="number" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <input wire:model.live.blur="payload.bag-1.workforce_female" type="number" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
 
                             <div class="sm:col-span-2 md:col-span-1">
-                                <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center justify-between">Nilai Investasi <span class="text-[10px] font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded">Gunakan Titik</span></label>
+                                <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex flex-wrap gap-2 items-center justify-between">Nilai Investasi <span class="text-[10px] font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded">Gunakan Titik</span></label>
                                 <div class="flex gap-2">
                                     <div class="relative w-1/3">
-                                        <select wire:model.blur="payload.bag-1.investment_unit" class="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                        <select wire:model.live.blur="payload.bag-1.investment_unit" class="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                                             <option value="">-- Mata Uang --</option>
                                             <option value="IDR (Rupiah)">IDR</option>
                                             <option value="USD (Dolar)">USD</option>
                                         </select>
                                         <div class="absolute inset-y-0 right-0 flex items-center px-2 md:px-3 pointer-events-none text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
                                     </div>
-                                    <input wire:model.blur="payload.bag-1.investment_value" type="text" placeholder="mis. 5000000.50" class="w-2/3 px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                    <input wire:model.live.blur="payload.bag-1.investment_value" type="text" placeholder="mis. 5000000.50" class="w-2/3 px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                                 </div>
                             </div>
                             <div class="hidden md:block"></div> <!-- Spacer to keep grid balanced -->
 
                             <div class="sm:col-span-2">
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Jenis Dokumen Lingkungan</label>
-                                <input wire:model.blur="payload.bag-1.document_type" type="text" placeholder="Amdal / UKL-UPL" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <input wire:model.live.blur="payload.bag-1.document_type" type="text" placeholder="Amdal / UKL-UPL" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Keterangan Tambahan</label>
-                                <textarea wire:model.blur="payload.bag-1.other_matters" rows="3" placeholder="Informasi pendukung lain..." class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700"></textarea>
+                                <textarea wire:model.live.blur="payload.bag-1.other_matters" rows="3" placeholder="Informasi pendukung lain..." class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700"></textarea>
                             </div>
                         </div>
                     </div>
 
                     <!-- Site Plan & Kondisi Tambahan -->
-                    <div class="bg-gradient-to-br from-indigo-50 to-blue-50 p-6 md:p-8 rounded-3xl border border-indigo-100 shadow-sm relative overflow-hidden">
+                    <div class="bg-gradient-to-br from-indigo-50 to-blue-50 p-4 sm:p-6 md:p-8 rounded-3xl border border-indigo-100 shadow-sm relative overflow-hidden">
                         <div class="absolute top-0 right-0 opacity-10">
                             <i class="fa-solid fa-compass text-9xl transform translate-x-1/3 -translate-y-1/3"></i>
                         </div>
@@ -519,7 +520,7 @@
                                     </div>
                                 </div>
                                 
-                                <div class="grid gap-6 sm:grid-cols-3">
+                                <div class="grid [&>*]:min-w-0 gap-6 sm:grid-cols-3">
                                     <div>
                                         <label class="block text-[13px] font-bold text-indigo-900 uppercase tracking-wider mb-2">Reklamasi</label>
                                         <div class="relative">
@@ -571,7 +572,7 @@
              BAB 2-5: AI CHATBOT
         =============================== -->
         @elseif (in_array($currentChapter, ['bag-2', 'bag-3', 'bag-4', 'bag-5']))
-            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden relative p-6 md:p-8">
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden relative p-4 sm:p-6 md:p-8">
                 <div class="text-center mb-8">
                     <h2 class="text-2xl font-extrabold text-slate-900">
                         Bab {{ str_replace('bag-', '', $currentChapter) }} — Interaksi Cerdas Bersama AI
@@ -591,21 +592,21 @@
              LAMPIRAN (ATTACHMENTS)
         =============================== -->
         <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden relative mt-8">
-            <div class="bg-slate-50 border-b border-slate-100 p-6 md:p-8">
+            <div class="bg-slate-50 border-b border-slate-100 p-4 sm:p-6 md:p-8">
                 <h2 class="text-xl font-bold text-slate-900 flex items-center">
                     <i class="fa-solid fa-paperclip mr-3 text-slate-400"></i> Lampiran Dokumen Bab Ini
                 </h2>
                 <p class="text-sm text-slate-500 mt-2">Maks. 10 file & 15 MB per bab (PDF, JPG, PNG, WebP).</p>
             </div>
             
-            <div class="p-6 md:p-8 space-y-8">
+            <div class="p-4 sm:p-6 md:p-8 space-y-8">
                 <!-- Upload Area (Drag & Drop UI mimic) -->
                 <div class="border-2 border-dashed border-slate-200 hover:border-blue-400 bg-slate-50 hover:bg-blue-50/30 transition-all rounded-2xl p-8 relative flex flex-col items-center justify-center text-center group cursor-pointer">
                     <input id="kkprl-pending-files" name="pending_files[]" wire:model="pendingFiles" type="file" multiple accept="application/pdf,image/jpeg,image/png,image/webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                     <div class="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-cloud-arrow-up text-3xl text-blue-500"></i>
                     </div>
-                    <p class="font-bold text-slate-700 text-lg">Tarik & Letakkan File Di Sini</p>
+                    <label for="kkprl-pending-files" class="font-bold text-slate-700 text-lg">Pilih file lampiran</label>
                     <p class="text-sm text-slate-400 mt-1">Atau klik area ini untuk mencari file di komputer Anda</p>
                     
                     <div wire:loading wire:target="pendingFiles" class="mt-4 text-blue-600 font-medium text-sm flex items-center bg-blue-100 px-4 py-2 rounded-lg">
@@ -629,11 +630,11 @@
                 @endif
 
                 <!-- Attachment Settings Form -->
-                <div class="grid md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <div class="grid [&>*]:min-w-0 md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
                     <div>
                         <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Penempatan File</label>
                         <div class="relative">
-                            <select wire:model="attachmentPlacement" class="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-blue-500 outline-none text-sm font-medium transition-all shadow-sm">
+                            <select wire:model.live="attachmentPlacement" class="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-blue-500 outline-none text-sm font-medium transition-all shadow-sm">
                                 <option value="appendix">Taruh di Lampiran Belakang</option>
                                 <option value="inline">Sisipkan di Tengah Dokumen (Inline)</option>
                             </select>
@@ -674,7 +675,7 @@
                 @if ($chapterAttachments->isNotEmpty())
                     <div class="pt-8 border-t border-slate-200">
                         <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4"><i class="fa-solid fa-folder-open mr-2 text-slate-400"></i> File Terunggah</h3>
-                        <div class="grid sm:grid-cols-2 gap-4">
+                        <div class="grid [&>*]:min-w-0 sm:grid-cols-2 gap-4">
                             @foreach ($chapterAttachments as $attachment)
                                 <div wire:key="chapter-attachment-{{ $attachment->id }}" class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-slate-300 transition-colors">
                                     <div class="flex items-center gap-3 overflow-hidden">
@@ -743,7 +744,7 @@
          DOWNLOAD DOCUMENTS SECTION
     =============================== -->
     <div class="mt-16 bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden relative">
-        <div class="bg-amber-50 border-b border-amber-100 p-6 md:p-8 flex items-center gap-4">
+        <div class="bg-amber-50 border-b border-amber-100 p-4 sm:p-6 md:p-8 flex items-center gap-4">
             <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 shrink-0">
                 <i class="fa-solid fa-file-word text-2xl"></i>
             </div>
@@ -753,11 +754,11 @@
             </div>
         </div>
         
-        <div class="p-6 md:p-8">
+        <div class="p-4 sm:p-6 md:p-8">
             @error('documents') <p class="mb-4 text-sm font-bold text-red-600 bg-red-50 p-3 rounded-lg">{{ $message }}</p> @enderror
             @if ($documentMessage) <p class="mb-4 text-sm font-bold text-emerald-600 bg-emerald-50 p-3 rounded-lg">{{ $documentMessage }}</p> @endif
             
-            <div class="grid md:grid-cols-2 gap-4">
+            <div class="grid [&>*]:min-w-0 md:grid-cols-2 gap-4">
                 @foreach ($relevantChapters as $chapter)
                     @php($chapterState = $chapterProgress[$chapter] ?? ['status' => 'incomplete'])
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-slate-200 p-5 hover:border-amber-300 transition-colors bg-white">
@@ -814,6 +815,8 @@
             map: null,
             layerGroup: null,
             syncTimeout: null,
+            initTimeout: null,
+            boundsTimeout: null,
             isDrawing: false,
 
             init() {
@@ -823,6 +826,10 @@
                     
                     if (Array.isArray(initialData) && initialData.length > 0) {
                         this.points = initialData;
+                        this.points.forEach((point, index) => {
+                            this.syncFromDD(index, true);
+                            this.syncFromDD(index, false);
+                        });
                     } else {
                         this.addPoint();
                     }
@@ -830,28 +837,36 @@
                     this.addPoint();
                 }
                 
-                this.$watch('points', (value) => {
-                    if(!this.isDrawing) this.drawOnMap();
-                    
-                    let raw = JSON.stringify(value);
-                    let text = this.formatPointsText(value);
-                    
-                    if (this.syncTimeout) clearTimeout(this.syncTimeout);
-                    this.syncTimeout = setTimeout(() => {
-                        wire.updateCoordinates(raw, text, this.shapeType);
-                    }, 500);
-                }, { deep: true });
-
-                this.$watch('shapeType', (value) => {
-                    this.drawOnMap();
-                    let raw = JSON.stringify(this.points);
-                    let text = this.formatPointsText(this.points);
-                    wire.updateCoordinates(raw, text, this.shapeType);
+                this.$watch('points', () => {
+                    if (!this.isDrawing) this.drawOnMap();
+                    this.syncCoordinates();
                 });
 
-                setTimeout(() => {
-                    this.initMap();
-                }, 200);
+                this.$watch('shapeType', () => {
+                    this.drawOnMap();
+                    this.syncCoordinates();
+                });
+
+                this.initTimeout = setTimeout(() => this.initMap(), 200);
+            },
+
+            syncCoordinates() {
+                const raw = JSON.stringify(this.points);
+                const text = this.formatPointsText(this.points);
+                // Include the latest coordinates in navigation requests before autosave fires.
+                wire.$set('payload.bag-1.coordinates_raw', raw, false);
+                wire.$set('payload.bag-1.coordinates', text, false);
+                wire.$set('payload.bag-1.shape_type', this.shapeType, false);
+                clearTimeout(this.syncTimeout);
+                this.syncTimeout = setTimeout(() => wire.updateCoordinates(raw, text, this.shapeType), 500);
+            },
+
+            destroy() {
+                clearTimeout(this.syncTimeout);
+                clearTimeout(this.initTimeout);
+                clearTimeout(this.boundsTimeout);
+                if (this.map) this.map.remove();
+                this.map = null;
             },
 
             initMap() {
@@ -874,7 +889,7 @@
 
                 this.drawOnMap();
 
-                setTimeout(() => {
+                this.boundsTimeout = setTimeout(() => {
                     if (this.layerGroup.getLayers().length > 0) {
                         this.map.fitBounds(this.layerGroup.getBounds(), { padding: [30, 30], maxZoom: 14 });
                     }
@@ -892,12 +907,17 @@
                     lng_dd: lng.toFixed(6), lng_d: dmsLng.d, lng_m: dmsLng.m, lng_s: dmsLng.s, lng_dir: dmsLng.dir
                 };
 
-                let isDefaultEmpty = this.points.length === 1 && this.points[0].lat_dd === '' && this.points[0].lng_dd === '';
-                
-                if (isDefaultEmpty) {
-                    this.points[0] = newPoint;
+                const isEmptyPoint = point => String(point.lat_dd ?? '').trim() === '' && String(point.lng_dd ?? '').trim() === '';
+
+                if (this.points.every(isEmptyPoint)) {
+                    this.points = [newPoint];
                 } else {
-                    this.points.push(newPoint);
+                    const emptyIndex = this.points.findIndex(isEmptyPoint);
+                    if (emptyIndex !== -1) {
+                        this.points[emptyIndex] = newPoint;
+                    } else {
+                        this.points.push(newPoint);
+                    }
                 }
                 
                 this.drawOnMap();
@@ -933,7 +953,7 @@
                 this.points.forEach((p, index) => {
                     let lat = parseFloat(p.lat_dd);
                     let lng = parseFloat(p.lng_dd);
-                    if (!isNaN(lat) && !isNaN(lng)) {
+                    if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
                         latlngs.push([lat, lng]);
                         
                         let marker = L.marker([lat, lng], { draggable: true }).addTo(this.layerGroup);
@@ -956,20 +976,21 @@
             },
 
             clearMap() {
+                this.isDrawing = false;
                 this.points = [{
                     lat_dd: '', lat_d: '', lat_m: '', lat_s: '', lat_dir: 'S',
                     lng_dd: '', lng_d: '', lng_m: '', lng_s: '', lng_dir: 'E'
                 }];
+                this.drawOnMap();
                 if (this.map) this.map.setView([-2.5489, 118.0149], 5);
             },
 
             calcDMS(dd, isLat) {
                 let dir = dd < 0 ? (isLat ? 'S' : 'W') : (isLat ? 'N' : 'E');
-                let absDd = Math.abs(dd);
-                let d = Math.floor(absDd);
-                let minFloat = (absDd - d) * 60;
-                let m = Math.floor(minFloat);
-                let s = ((minFloat - m) * 60).toFixed(4);
+                const units = Math.round(Math.abs(dd) * 3600 * 10000);
+                const d = Math.floor(units / 36000000);
+                const m = Math.floor((units % 36000000) / 600000);
+                const s = ((units % 600000) / 10000).toFixed(4);
                 return { d, m, s, dir };
             },
 
@@ -1005,6 +1026,15 @@
             },
             syncFromDMS(index, isLat) {
                 let point = this.points[index];
+
+                const components = isLat
+                    ? [point.lat_d, point.lat_m, point.lat_s]
+                    : [point.lng_d, point.lng_m, point.lng_s];
+                if (components.every(value => String(value ?? '').trim() === '')) {
+                    if (isLat) point.lat_dd = '';
+                    else point.lng_dd = '';
+                    return;
+                }
                 
                 let d = parseFloat(isLat ? point.lat_d : point.lng_d) || 0;
                 let m = parseFloat(isLat ? point.lat_m : point.lng_m) || 0;

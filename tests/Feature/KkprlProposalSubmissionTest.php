@@ -15,6 +15,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\KkprlPayloadFixture;
 use Tests\TestCase;
 
 class KkprlProposalSubmissionTest extends TestCase
@@ -44,7 +45,7 @@ class KkprlProposalSubmissionTest extends TestCase
 
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
 
@@ -73,7 +74,7 @@ class KkprlProposalSubmissionTest extends TestCase
 
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
 
@@ -101,9 +102,10 @@ class KkprlProposalSubmissionTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '999' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
+        $payload['coordinates_raw'] = json_encode([['lat_dd' => '999', 'lng_dd' => '106.8']]);
         app(KkprlProposalDraftService::class)->save($proposal, $payload, 3);
 
         $this->expectException(ValidationException::class);
@@ -127,7 +129,7 @@ class KkprlProposalSubmissionTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         app(KkprlProposalDraftService::class)->save($proposal, $payload, 3);
@@ -145,7 +147,7 @@ class KkprlProposalSubmissionTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         app(KkprlProposalDraftService::class)->save($proposal, $payload, 3);

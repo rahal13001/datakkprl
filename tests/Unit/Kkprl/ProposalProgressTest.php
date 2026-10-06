@@ -3,7 +3,9 @@
 namespace Tests\Unit\Kkprl;
 
 use App\Domain\Kkprl\ProposalProgress;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\KkprlPayloadFixture;
 use Tests\TestCase;
 
 class ProposalProgressTest extends TestCase
@@ -89,22 +91,82 @@ class ProposalProgressTest extends TestCase
     public function invalid_coordinate_is_reported_as_error_not_incomplete(): void
     {
         $progress = app(ProposalProgress::class)->evaluate([
-            'latitude' => '999',
-            'longitude' => '106.8',
+            'shape_type' => 'point',
+            'coordinates' => str_replace('(-6.2)', '(999)', KkprlPayloadFixture::value('coordinates')),
         ]);
 
         $this->assertSame('error', $progress->chapters['bag-1']['status']);
-        $this->assertContains('fields.latitude', $progress->errors['bag-1']);
+        $this->assertContains('fields.coordinates', $progress->errors['bag-1']);
     }
 
     #[Test]
     public function conditional_decisions_are_required_in_base_chapter(): void
     {
         $payload = array_fill_keys(ProposalProgress::requiredFields('bag-1'), 'Terisi');
-        $payload['latitude'] = '-6.2';
-        $payload['longitude'] = '106.8';
+        $payload['shape_type'] = KkprlPayloadFixture::value('shape_type');
+        $payload['coordinates'] = KkprlPayloadFixture::value('coordinates');
         unset($payload['land_relation'], $payload['has_existing_permits']);
 
         $this->assertSame('incomplete', app(ProposalProgress::class)->evaluate($payload)->chapters['bag-1']['status']);
+    }
+
+    #[Test]
+    #[DataProvider('invalidMapCoordinates')]
+    public function invalid_map_coordinates_prevent_a_complete_chapter(mixed $raw, string $shape): void
+    {
+        $bag = array_fill_keys(ProposalProgress::requiredFields('bag-1'), 'Terisi');
+        $bag['coordinates'] = KkprlPayloadFixture::value('coordinates');
+        $bag['shape_type'] = $shape;
+        $bag['coordinates_raw'] = $raw;
+
+        $result = app(ProposalProgress::class)->evaluate(['bag-1' => $bag]);
+
+        $this->assertSame('error', $result->chapters['bag-1']['status']);
+        $this->assertContains('fields.coordinates', $result->errors['bag-1']);
+    }
+
+    public static function invalidMapCoordinates(): array
+    {
+        return [
+            'latitude outside WGS84' => ['[{"lat_dd":"999","lng_dd":"106.8"}]', 'point'],
+            'longitude outside WGS84' => ['[{"lat_dd":"-6.2","lng_dd":"181"}]', 'point'],
+            'partial point' => ['[{"lat_dd":"-6.2","lng_dd":""}]', 'point'],
+            'non numeric point' => ['[{"lat_dd":"bad","lng_dd":"106.8"}]', 'point'],
+            'broken JSON' => ['{', 'point'],
+            'JSON scalar' => ['true', 'point'],
+            'JSON object' => ['{"lat_dd":"-6.2","lng_dd":"106.8"}', 'point'],
+            'empty list' => ['[]', 'point'],
+            'malformed row' => ['[null]', 'point'],
+            'wrong storage type' => [true, 'point'],
+            'line needs two points' => ['[{"lat_dd":"-6.2","lng_dd":"106.8"}]', 'line'],
+            'polygon needs three points' => ['[{"lat_dd":"-6.2","lng_dd":"106.8"}]', 'polygon'],
+        ];
+    }
+
+    #[Test]
+    public function valid_map_coordinates_and_decimal_boundaries_are_accepted(): void
+    {
+        foreach (['point' => 1, 'line' => 2, 'polygon' => 3] as $shape => $count) {
+            $payload = array_fill_keys(ProposalProgress::requiredFields('bag-1'), 'Terisi');
+            $payload['shape_type'] = $shape;
+            $payload['coordinates'] = KkprlPayloadFixture::value('coordinates');
+            $payload['coordinates_raw'] = json_encode(array_slice([
+                ['lat_dd' => '-90', 'lng_dd' => '-180'],
+                ['lat_dd' => '90', 'lng_dd' => '180'],
+                ['lat_dd' => '0', 'lng_dd' => '0'],
+            ], 0, $count));
+
+            $this->assertSame('complete', app(ProposalProgress::class)->evaluate($payload)->chapters['bag-1']['status']);
+        }
+    }
+
+    #[Test]
+    public function arbitrary_coordinate_text_and_unknown_shapes_are_rejected(): void
+    {
+        $payload = ['shape_type' => 'point', 'coordinates' => 'Bukan koordinat'];
+        $this->assertContains('fields.coordinates', app(ProposalProgress::class)->evaluate($payload)->errors['bag-1']);
+        $payload['coordinates'] = KkprlPayloadFixture::value('coordinates');
+        $payload['shape_type'] = 'unknown';
+        $this->assertContains('fields.shape_type', app(ProposalProgress::class)->evaluate($payload)->errors['bag-1']);
     }
 }

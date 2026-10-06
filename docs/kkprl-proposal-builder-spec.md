@@ -195,7 +195,8 @@ Bagian wajib untuk semua proposal. Semua field Bag 1 yang ditampilkan dan berasa
 - Kecamatan.
 - Desa/kelurahan.
 - Nama perairan/laut.
-- Latitude dan longitude manual.
+- Bentuk lokasi: titik, garis, atau polygon.
+- Daftar koordinat WGS84, diisi melalui peta atau DD/DMS. Nilai desimal tiap titik disimpan pada `coordinates_raw`, dengan teks `coordinates` untuk dokumen. Latitude harus -90 sampai 90; longitude -180 sampai 180. Garis membutuhkan minimal dua titik dan polygon tiga titik.
 - Luas kebutuhan perairan dan satuannya.
 - Kedalaman kolom perairan dan satuannya.
 
@@ -667,12 +668,22 @@ MVP berhasil jika:
 ## 18. Integrasi AI Agent (Gemini Flash)
 
 Fitur pengisian form statis untuk Bab 2, 3, 4, dan 5 digantikan dengan **Blended UI (Chatbot + Preview Card)**.
-- **AI Engine:** Gemini Flash 1.5/2.0 via API. Dipilih karena biaya murah, *context window* besar, dan *native vision*.
+- **AI Engine:** Gemini `gemini-3.8-flash` via API, memakai kemampuan percakapan dan pemahaman gambar native melalui HTTP Laravel.
 - **Blended UI:** Layar dibagi menjadi porsi Obrolan (Chat) dan Kartu Pratinjau (Preview). AI mewawancarai pengguna, mengekstrak jawaban menjadi JSON, lalu meng-update Kartu Pratinjau.
 - **Konfirmasi Manual (Anti-Halusinasi):** AI tidak menyimpan data secara diam-diam. Pengguna harus mengklik "Konfirmasi & Simpan" pada Kartu Pratinjau agar data masuk ke `payload` di tabel `kkprl_proposals`.
+- **Dua cara koreksi:** Pengguna dapat meminta revisi melalui percakapan AI atau mengedit langsung field pada kartu pratinjau Bab 2–5. Label dan key mengikuti katalog field template; jadwal reklamasi dapat diedit per baris.
+- **Pratinjau bertahap:** Pratinjau boleh belum lengkap. Koreksi disimpan sebagai konteks sesi chat agar dapat dilanjutkan, tetapi belum menjadi payload proposal sebelum pengguna menekan **Konfirmasi & Simpan Draft**. Pengguna dapat mengosongkan kembali field yang perlu diperiksa.
+- **Konteks koreksi:** Permintaan AI berikutnya menggunakan pratinjau terbaru, termasuk koreksi manual. AI hanya mengubah field yang dibahas dan tidak mengarang fakta yang belum diberikan atau dikonfirmasi.
+- **Percakapan ramah pengguna:** Blok JSON diproses sebagai data internal dan tidak ditampilkan dalam chat, termasuk saat respons terpotong atau riwayat lama dibuka kembali. Saat draft siap, asisten mengarahkan pengguna membaca Pratinjau Draft, mengoreksi melalui chat atau editor, lalu menekan **Konfirmasi & Simpan Draft**. Pertanyaan lanjutan tetap tampil jika informasi perlu dilengkapi. Respons yang tidak valid tidak menimpa pratinjau sebelumnya dan menampilkan arahan mencoba ulang.
+- **Penyimpanan konfirmasi:** Konfirmasi memakai service draft yang sama dengan wizard, mempertahankan data bab lain, memperbarui progress dan waktu simpan, serta mengikuti pemeriksaan session access, bab aktif, dan penguncian proposal. Export tetap memerlukan kelengkapan bab.
 - **Klasifikasi Lampiran:** Saat pengguna upload file, sistem memilah:
   - *Sensitive* (KTP, NIB): Disimpan via `KkprlProposalAttachmentService` murni, AI tidak memiliki akses.
   - *Non-Sensitive* (Foto Ekosistem, Peta): Dikirim ke API Gemini Vision bersama prompt untuk mendeskripsikan kondisi lokasi, hasilnya ditambahkan ke Kartu Pratinjau.
+- **Bukti gambar Bab 3:** Pengguna memilih mangrove, lamun, karang, arus, gelombang, pasang surut, batimetri atau profil dasar laut. Panduan menampilkan koordinat Bab 1, tautan sumber dan cara mengambil screenshot dengan legenda/lokasi/periode. Foto sendiri dan sumber lain didukung. Bukti bersifat opsional; chat tetap tersedia.
+- **Provenance:** Gambar disimpan privat sebagai lampiran inline `ai_evidence`, lengkap dengan sumber, URL, periode, tanggal akses, atribusi, keterangan dan koordinat saat unggah. Metadata dipertahankan dalam snapshot/manifest serta revisi; caption/sitasi ikut Word/PDF. JPG/PNG/WebP maksimal 5 MiB memakai kuota bersama 10 file/15 MiB per bab.
+- **Analisis terbatas:** Satu permintaan membaca satu gambar dan hanya memperbarui field terkait pada pratinjau. AI tidak menebak angka, spesies, kesehatan karang, sedimen, penampang terukur atau ketiadaan habitat. Gambar tidak jelas dapat memicu klarifikasi. Respons invalid, kegagalan API atau perubahan akses/lock/bukti/koordinat/checkpoint mempertahankan koreksi sebelumnya.
+- **Kegagalan dan kuota AI:** Chat/gambar membedakan kuota harian, batas sementara, konfigurasi, koneksi dan kegagalan provider. HTTP 429 menampilkan waktu tunggu dan menahan permintaan ulang pada cache persisten bersama mengikuti informasi provider. Gambar, narasi dan jawaban tetap tersedia; pengguna dapat mengedit pratinjau. Tidak ada perpindahan otomatis ke layanan berbayar. Pengelola dapat menjalankan `php artisan kkprl:ai-reset-cooldown` setelah peningkatan kuota untuk menghapus penundaan lokal; command tidak mengubah kuota Google. Key/model memakai `services.gemini` tanpa dependency baru.
+- **Kompatibilitas shared hosting:** Tidak membutuhkan instalasi paket atau program baru. Pengguna mengakses sumber secara manual; aplikasi tidak mengambil URL sumber atau melakukan scraping. Akses gratis bukan jaminan izin penggunaan screenshot komersial; panduan mencantumkan batasan khusus Atlas/BIG serta alternatif. Keputusan dan validasi: [ADR-017](decisions/ADR-017-chapter-three-image-evidence.md), [laporan pengujian](kkprl-chapter-three-evidence-validation.md).
 
 ## 19. Pertanyaan Terbuka
 

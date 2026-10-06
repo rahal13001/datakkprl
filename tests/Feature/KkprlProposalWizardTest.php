@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Domain\Kkprl\ProposalAccessDenied;
+use App\Domain\Kkprl\ProposalLocked;
 use App\Domain\Kkprl\ProposalProgress;
 use App\Livewire\KkprlProposalWizard;
 use App\Models\KkprlProposal;
@@ -15,6 +17,7 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\KkprlPayloadFixture;
 use Tests\TestCase;
 
 class KkprlProposalWizardTest extends TestCase
@@ -31,8 +34,8 @@ class KkprlProposalWizardTest extends TestCase
         Livewire::test(KkprlProposalWizard::class)
             ->assertSet('proposalId', $proposal->id)
             ->assertSet('currentStep', 1)
-            ->assertSee('Progress proposal')
-            ->assertSee('Bag 1')
+            ->assertSee('Kelengkapan proposal')
+            ->assertSee('Bab 1')
             ->assertSee('Mengunggah...');
     }
 
@@ -72,8 +75,8 @@ class KkprlProposalWizardTest extends TestCase
         $component
             ->call('previous')
             ->assertSee('Sesi akses proposal berakhir. Verifikasi ulang nomor tiket dan nomor HP.')
-            ->assertDontSee('Progress proposal')
-            ->assertDontSee('Nama pemohon');
+            ->assertDontSee('Kelengkapan proposal')
+            ->assertDontSee('Nama Pemohon Lengkap');
     }
 
     #[Test]
@@ -101,7 +104,7 @@ class KkprlProposalWizardTest extends TestCase
         $access->grantAccess($revision);
 
         Livewire::test(KkprlProposalWizard::class)
-            ->assertSee('Catatan revisi petugas')
+            ->assertSee('Catatan Revisi Petugas')
             ->assertSee('Perbaiki uraian lokasi.');
     }
 
@@ -123,6 +126,53 @@ class KkprlProposalWizardTest extends TestCase
     }
 
     #[Test]
+    public function map_edits_are_saved_and_invalid_coordinates_block_submission(): void
+    {
+        $proposal = app(KkprlProposalAccessService::class)->startDraft(['phone' => '0812-3456-7890']);
+        $component = Livewire::test(KkprlProposalWizard::class)
+            ->call('updateCoordinates', '[{"lat_dd":"999","lng_dd":"106.8"}]', KkprlPayloadFixture::value('coordinates'), 'point')
+            ->assertSet('chapterProgress.bag-1.status', 'error')
+            ->call('submitProposal')
+            ->assertHasErrors('fields.coordinates');
+
+        $this->assertSame('point', $proposal->fresh()->payload['bag-1']['shape_type']);
+        $this->assertSame('[{"lat_dd":"999","lng_dd":"106.8"}]', $proposal->fresh()->payload['bag-1']['coordinates_raw']);
+        $this->assertSame('draft', $proposal->fresh()->status);
+        $this->assertDatabaseCount('kkprl_proposal_documents', 0);
+    }
+
+    #[Test]
+    public function an_expired_session_cannot_edit_map_coordinates(): void
+    {
+        $access = app(KkprlProposalAccessService::class);
+        $proposal = $access->startDraft(['phone' => '0812-3456-7890']);
+        $component = Livewire::test(KkprlProposalWizard::class);
+        $access->forget();
+
+        $this->expectException(ProposalAccessDenied::class);
+        try {
+            $component->call('updateCoordinates', '[]', '', 'point');
+        } finally {
+            $this->assertEmpty($proposal->fresh()->payload);
+        }
+    }
+
+    #[Test]
+    public function a_locked_proposal_cannot_edit_map_coordinates(): void
+    {
+        $proposal = app(KkprlProposalAccessService::class)->startDraft(['phone' => '0812-3456-7890']);
+        $component = Livewire::test(KkprlProposalWizard::class);
+        $proposal->update(['status' => 'submitted']);
+
+        $this->expectException(ProposalLocked::class);
+        try {
+            $component->call('updateCoordinates', '[]', '', 'point');
+        } finally {
+            $this->assertEmpty($proposal->fresh()->payload);
+        }
+    }
+
+    #[Test]
     public function inactive_conditional_chapters_are_not_rendered(): void
     {
         app(KkprlProposalAccessService::class)->startDraft([
@@ -130,15 +180,36 @@ class KkprlProposalWizardTest extends TestCase
         ]);
 
         Livewire::test(KkprlProposalWizard::class)
-            ->assertSee('Kegiatan mencakup reklamasi')
-            ->assertSee('<option value="">Pilih</option>', false)
-            ->assertDontSee('Persyaratan Reklamasi')
+            ->assertSee('Reklamasi')
+            ->assertSee('<option value="">-- Pilih --</option>', false)
+            ->assertDontSee('Bab 4 — Interaksi Cerdas Bersama AI')
             ->set('payload.includes_reclamation', true)
             ->call('saveDraft')
             ->call('next')
             ->call('next')
             ->call('next')
-            ->assertSee('Persyaratan Reklamasi');
+            ->assertSee('Bab 4 — Interaksi Cerdas Bersama AI');
+    }
+
+    #[Test]
+    public function boolean_choices_are_restored_as_select_values_and_keep_the_real_chapter_number(): void
+    {
+        $proposal = app(KkprlProposalAccessService::class)->startDraft(['phone' => '0812-3456-7890']);
+        $proposal->update(['payload' => [
+            'includes_reclamation' => false,
+            'land_relation' => 'adjacent',
+            'has_existing_permits' => true,
+        ]]);
+
+        Livewire::test(KkprlProposalWizard::class)
+            ->assertSet('payload.includes_reclamation', '0')
+            ->assertSet('payload.has_existing_permits', '1')
+            ->assertSee('Bab 5')
+            ->assertDontSee('Bab 4')
+            ->assertSet('relevantChapters', ['bag-1', 'bag-2', 'bag-3', 'bag-5'])
+            ->set('currentStep', 4)
+            ->assertSet('attachmentChapter', 'bag-5')
+            ->assertSee('Bab 5 — Interaksi Cerdas Bersama AI');
     }
 
     #[Test]
@@ -150,7 +221,7 @@ class KkprlProposalWizardTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
         $payload['includes_reclamation'] = true;
@@ -181,8 +252,8 @@ class KkprlProposalWizardTest extends TestCase
             ->set('payload.has_existing_permits', '0')
             ->call('saveDraft')
             ->call('next')->call('next')->call('next')
-            ->assertSee('Bukti lahan darat')
-            ->assertDontSee('Perizinan yang telah dimiliki');
+            ->assertSee('Jenis bukti kepemilikan/penguasaan')
+            ->assertDontSee('Instansi penerbit');
     }
 
     #[Test]
@@ -264,18 +335,18 @@ class KkprlProposalWizardTest extends TestCase
         $payload = [];
         foreach (['bag-1', 'bag-2', 'bag-3'] as $chapter) {
             foreach (ProposalProgress::requiredFields($chapter) as $field) {
-                $payload[$field] = $field === 'latitude' ? '-6.2' : ($field === 'longitude' ? '106.8' : 'Terisi');
+                $payload[$field] = KkprlPayloadFixture::value($field);
             }
         }
 
         Livewire::test(KkprlProposalWizard::class)
             ->set('payload', $payload)
             ->set('currentStep', 3)
-            ->assertSee('Membuat dokumen...')
-            ->assertSee('Mengirim...')
+            ->assertSee('Membuat...')
+            ->assertSee('Memproses...')
             ->call('submitProposal')
             ->assertSet('locked', true)
-            ->assertSee('Proposal sudah dikirim untuk ditinjau petugas.');
+            ->assertSee('Proposal Terkunci (Sedang Ditinjau)');
 
         $this->assertSame('submitted', $proposal->fresh()->status);
     }
