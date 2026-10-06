@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LearningMaterial;
 use App\Models\LearningMaterialAccess;
+use App\Models\ProposalGuide;
 use App\Services\LearningTrackingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -14,6 +15,10 @@ class LearningMaterialController extends Controller
 
     public function show(Request $request, LearningMaterial $material)
     {
+        if ($guide = $this->migratedGuide($material)) {
+            return redirect()->to(route('pedoman-kkprl').'#pedoman-'.$guide->id);
+        }
+
         $this->abortUnlessPublic($material);
         $access = $this->resolveAccess($request, $material);
 
@@ -32,6 +37,10 @@ class LearningMaterialController extends Controller
 
     public function pdf(Request $request, LearningMaterial $material)
     {
+        if ($guide = $this->migratedGuide($material)) {
+            return redirect()->route('pedoman-kkprl.pdf', $guide);
+        }
+
         $this->abortUnlessPublicPdf($material);
         abort_unless($this->resolveAccess($request, $material), 403);
 
@@ -48,6 +57,10 @@ class LearningMaterialController extends Controller
 
     public function download(Request $request, LearningMaterial $material)
     {
+        if ($guide = $this->migratedGuide($material)) {
+            return redirect()->route('pedoman-kkprl.download', $guide);
+        }
+
         $this->abortUnlessPublicPdf($material);
         abort_unless($this->resolveAccess($request, $material), 403);
 
@@ -71,6 +84,7 @@ class LearningMaterialController extends Controller
 
     protected function abortUnlessPublic(LearningMaterial $material): void
     {
+        abort_if($material->trashed(), 404);
         $material->loadMissing('group.category');
         abort_unless($material->is_published, 404);
         abort_unless($material->group?->is_published, 404);
@@ -98,5 +112,15 @@ class LearningMaterialController extends Controller
         $filename = $filename ?: 'materi-belajar-kkprl';
 
         return "{$filename}.{$extension}";
+    }
+
+    private function migratedGuide(LearningMaterial $material): ?ProposalGuide
+    {
+        $guide = ProposalGuide::query()->where('legacy_material_id', $material->id)->first();
+        if ($guide) {
+            abort_unless($guide->is_published, 404);
+        }
+
+        return $guide;
     }
 }

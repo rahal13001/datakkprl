@@ -454,7 +454,7 @@
                             </span>
                         </a>
                         <a
-                            href="https://kawanruanglaut.timurbersinar.com/belajar-kkprl/materi/panduan-perolehan-data-oseanografi-ekosistem-pesisir-batimetri-dan-pemetaan-dasar-bagi-sektor-perikanan-skala-kecil-serta-tingkat-resiko-rendah?access_uuid=7e7441a4-08f7-4aed-a473-64f8bcc396da"
+                            href="{{ route('pedoman-kkprl') }}"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Pedoman Perolehan Data Proposal KKPRL Skala Kecil (dibuka di tab baru)"

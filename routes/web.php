@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\LearningMaterialController;
+use App\Http\Controllers\ProposalGuideController;
 use App\Http\Controllers\LearningTrackingController;
 use App\Http\Controllers\KkprlProposalDocumentDownloadController;
 use App\Http\Controllers\KkprlProposalAttachmentDownloadController;
@@ -58,9 +59,12 @@ Route::group($routingConfig, function () {
     Route::get('/proposal-kkprl/documents/{document}', KkprlProposalDocumentDownloadController::class)->name('kkprl.proposal.document.download');
     Route::get('/proposal-kkprl/attachments/{attachment}', KkprlProposalAttachmentDownloadController::class)->name('kkprl.proposal.attachment.download');
     Route::get('/belajar-kkprl', BelajarKkprl::class)->name('belajar-kkprl');
-    Route::get('/belajar-kkprl/materi/{material:slug}', [LearningMaterialController::class, 'show'])->name('belajar-kkprl.material.show');
-    Route::get('/belajar-kkprl/materi/{material:slug}/pdf', [LearningMaterialController::class, 'pdf'])->name('belajar-kkprl.material.pdf');
-    Route::get('/belajar-kkprl/materi/{material:slug}/download', [LearningMaterialController::class, 'download'])->name('belajar-kkprl.material.download');
+    Route::get('/pedoman-kkprl', [ProposalGuideController::class, 'index'])->name('pedoman-kkprl');
+    Route::get('/pedoman-kkprl/{guide}/pdf', [ProposalGuideController::class, 'pdf'])->name('pedoman-kkprl.pdf');
+    Route::get('/pedoman-kkprl/{guide}/download', [ProposalGuideController::class, 'download'])->name('pedoman-kkprl.download');
+    Route::get('/belajar-kkprl/materi/{material:slug}', [LearningMaterialController::class, 'show'])->withTrashed()->name('belajar-kkprl.material.show');
+    Route::get('/belajar-kkprl/materi/{material:slug}/pdf', [LearningMaterialController::class, 'pdf'])->withTrashed()->name('belajar-kkprl.material.pdf');
+    Route::get('/belajar-kkprl/materi/{material:slug}/download', [LearningMaterialController::class, 'download'])->withTrashed()->name('belajar-kkprl.material.download');
     Route::post('/learning/material-access', [LearningTrackingController::class, 'storeAccess'])->middleware('throttle:10,1')->name('learning.access.store');
     Route::get('/learning/material-access/me', [LearningTrackingController::class, 'me'])->middleware('throttle:60,1')->name('learning.access.me');
     Route::post('/learning/session/start', [LearningTrackingController::class, 'startSession'])->middleware('throttle:30,1')->name('learning.session.start');

@@ -175,6 +175,8 @@ return [
         ],
         'exclude' => [
             //
+            // Guides share the existing learning material content permissions.
+            \App\Filament\Layanankkprl\Resources\ProposalGuides\ProposalGuideResource::class,
         ],
     ],
 
