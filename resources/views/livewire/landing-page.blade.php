@@ -182,6 +182,20 @@
             opacity: 0.96;
             filter: saturate(0.88) contrast(0.94) brightness(1.03);
         }
+        /* Frame the DJPRL artwork inside its original transparent canvas. */
+        .navbar-djprl {
+            aspect-ratio: 1694 / 678;
+        }
+
+        .navbar-djprl img {
+            position: absolute;
+            width: 118.064%;
+            max-width: none;
+            height: auto;
+            left: -9.032%;
+            top: -89.676%;
+        }
+
         @media (max-width: 1023px) {
             .hero-poster-shell {
                 max-width: 23rem;
@@ -194,23 +208,35 @@
          @scroll.window="scrolled = (window.pageYOffset > 20)"
          class="fixed w-full z-50 transition-all duration-300 top-0"
          :class="{ 'glass py-3': scrolled, 'bg-transparent py-6': !scrolled }">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8 flex justify-between items-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
             
-            <!-- Logo KKP -->
-            <div class="flex items-center gap-3 group cursor-pointer">
-                <img
-                    src="{{ asset('img/logokkp.png') }}"
-                    alt="Logo KKP"
-                    class="h-11 w-11 object-contain transition-transform group-hover:scale-105"
-                >
-                <div class="leading-tight">
-                    <h1 class="font-mono font-bold text-lg text-slate-900 tracking-tight">LPRL SORONG</h1>
-                    <p class="text-[10px] text-slate-500 font-medium tracking-widest uppercase">Official Platform V2</p>
+            <!-- Logo KKP, DJPRL, and office identity -->
+            <div class="flex shrink-0 items-center gap-2 sm:gap-3 group cursor-pointer">
+                <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+                    <img
+                        src="{{ asset('img/logokkp.png') }}"
+                        alt="Logo KKP"
+                        width="400"
+                        height="364"
+                        class="h-9 w-9 sm:h-11 sm:w-11 shrink-0 object-contain transition-transform group-hover:scale-105"
+                    >
+                    <span class="navbar-djprl relative block w-20 sm:w-24 shrink-0 overflow-hidden">
+                        <img
+                            src="{{ asset('img/djprl.png') }}"
+                            alt="Logo Direktorat Jenderal Penataan Ruang Laut"
+                            width="2000"
+                            height="2000"
+                        >
+                    </span>
+                </div>
+                <div class="leading-tight whitespace-nowrap">
+                    <h1 class="font-mono font-bold text-sm sm:text-lg text-slate-900 tracking-tight">LPRL Sorong</h1>
+                    <p class="hidden sm:block text-[10px] text-slate-500 font-medium tracking-widest uppercase">Official Platform V2</p>
                 </div>
             </div>
 
             <!-- Menu (Clean Text) -->
-            <div class="hidden md:flex items-center gap-5 lg:gap-6">
+            <div class="hidden xl:flex items-center gap-5 lg:gap-6">
                 <a href="#home" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Home</a>
                 <a href="#services" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Layanan</a>
                 <a href="#knowledge" class="text-sm font-medium text-slate-600 hover:text-brand-black transition-colors">Regulasi</a>
@@ -256,13 +282,15 @@
             </div>
 
             <!-- Mobile Trigger -->
-            <button @click="mobileOpen = !mobileOpen" class="md:hidden text-slate-900">
-                <i class="fa-solid fa-bars-staggered text-xl"></i>
+            <button type="button" @click="mobileOpen = !mobileOpen" aria-label="Menu navigasi" :aria-expanded="mobileOpen" aria-controls="landing-mobile-menu" class="inline-flex h-10 w-10 items-center justify-center xl:hidden shrink-0 text-slate-900">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+                    <path d="M4 5h16M10 12h10M4 19h16" />
+                </svg>
             </button>
         </div>
         
         <!-- Mobile Menu (Simple Dropdown) -->
-        <div x-show="mobileOpen" x-transition class="md:hidden glass border-t border-slate-100 p-6 space-y-4">
+        <div id="landing-mobile-menu" x-show="mobileOpen" x-transition class="xl:hidden glass border-t border-slate-100 p-6 space-y-4">
             <a href="#home" class="block text-sm font-medium text-slate-600">Home</a>
             <a href="#services" class="block text-sm font-medium text-slate-600">Layanan</a>
             <a href="#knowledge" class="block text-sm font-medium text-slate-600">Regulasi</a>
