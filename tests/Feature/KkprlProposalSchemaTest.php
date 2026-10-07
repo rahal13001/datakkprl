@@ -2,23 +2,24 @@
 
 namespace Tests\Feature;
 
-use App\Models\KkprlProposal;
 use App\Services\DataHashService;
 use App\Services\KkprlProposalDraftService;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\KkprlApplicantFixture;
 use Tests\TestCase;
 
 class KkprlProposalSchemaTest extends TestCase
 {
+    use KkprlApplicantFixture;
     use RefreshDatabase;
 
     #[Test]
     public function proposal_generates_ticket_and_protects_phone_and_payload(): void
     {
-        $proposal = KkprlProposal::create([
+        $proposal = $this->ownedProposal([
             'applicant_name' => 'Pemohon Uji',
             'phone' => '+62 812-3456-7890',
             'payload' => ['includes_reclamation' => false],
@@ -45,8 +46,8 @@ class KkprlProposalSchemaTest extends TestCase
     #[Test]
     public function revision_keeps_root_ticket_and_is_connected_to_original(): void
     {
-        $original = KkprlProposal::create(['phone' => '081234567890']);
-        $revision = KkprlProposal::create([
+        $original = $this->ownedProposal(['phone' => '081234567890']);
+        $revision = $this->ownedProposal([
             'root_proposal_id' => $original->root_proposal_id,
             'revision_of_id' => $original->id,
             'revision_number' => 1,
@@ -63,7 +64,7 @@ class KkprlProposalSchemaTest extends TestCase
     #[Test]
     public function draft_syncs_safe_review_columns_from_bag_one_payload(): void
     {
-        $proposal = KkprlProposal::create(['phone' => '081234567890']);
+        $proposal = $this->ownedProposal(['phone' => '081234567890']);
 
         app(KkprlProposalDraftService::class)->save($proposal, [
             'bag-1' => [
@@ -88,7 +89,7 @@ class KkprlProposalSchemaTest extends TestCase
     #[Test]
     public function serialized_proposal_does_not_expose_protection_columns(): void
     {
-        $proposal = KkprlProposal::create([
+        $proposal = $this->ownedProposal([
             'phone' => '081234567890',
             'email' => 'pemohon@example.test',
             'applicant_name' => 'Pemohon Uji',
@@ -107,9 +108,9 @@ class KkprlProposalSchemaTest extends TestCase
     #[Test]
     public function a_ticket_can_be_shared_by_revisions_but_not_by_two_root_proposals(): void
     {
-        $original = KkprlProposal::create(['phone' => '081234567890']);
+        $original = $this->ownedProposal(['phone' => '081234567890']);
 
-        KkprlProposal::create([
+        $this->ownedProposal([
             'ticket_number' => $original->ticket_number,
             'revision_number' => 1,
             'root_proposal_id' => $original->id,
@@ -120,7 +121,7 @@ class KkprlProposalSchemaTest extends TestCase
 
         $this->expectException(QueryException::class);
 
-        KkprlProposal::create([
+        $this->ownedProposal([
             'ticket_number' => $original->ticket_number,
             'phone' => '081234567890',
         ]);
@@ -129,7 +130,7 @@ class KkprlProposalSchemaTest extends TestCase
     #[Test]
     public function attachment_stores_chapter_placement_and_private_path(): void
     {
-        $proposal = KkprlProposal::create(['phone' => '081234567890']);
+        $proposal = $this->ownedProposal(['phone' => '081234567890']);
 
         $attachment = $proposal->attachments()->create([
             'chapter' => 'bag-1',

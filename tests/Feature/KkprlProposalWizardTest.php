@@ -2,11 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Domain\Kkprl\ProposalAccessDenied;
 use App\Domain\Kkprl\ProposalLocked;
 use App\Domain\Kkprl\ProposalProgress;
 use App\Livewire\KkprlProposalWizard;
-use App\Models\KkprlProposal;
 use App\Models\KkprlProposalReviewEvent;
 use App\Services\KkprlProposalAccessService;
 use App\Services\KkprlProposalAttachmentService;
@@ -17,11 +15,13 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\KkprlApplicantFixture;
 use Tests\Support\KkprlPayloadFixture;
 use Tests\TestCase;
 
 class KkprlProposalWizardTest extends TestCase
 {
+    use KkprlApplicantFixture;
     use RefreshDatabase;
 
     #[Test]
@@ -61,7 +61,7 @@ class KkprlProposalWizardTest extends TestCase
 
         $component
             ->call('saveDraft')
-            ->assertSee('Sesi akses proposal berakhir. Verifikasi ulang nomor tiket dan nomor HP.');
+            ->assertForbidden();
     }
 
     #[Test]
@@ -74,7 +74,7 @@ class KkprlProposalWizardTest extends TestCase
 
         $component
             ->call('previous')
-            ->assertSee('Sesi akses proposal berakhir. Verifikasi ulang nomor tiket dan nomor HP.')
+            ->assertForbidden()
             ->assertDontSee('Kelengkapan proposal')
             ->assertDontSee('Nama Pemohon Lengkap');
     }
@@ -85,7 +85,7 @@ class KkprlProposalWizardTest extends TestCase
         $access = app(KkprlProposalAccessService::class);
         $original = $access->startDraft(['phone' => '0812-3456-7890']);
         $original->update(['status' => 'needs_revision']);
-        $revision = KkprlProposal::create([
+        $revision = $this->ownedProposal([
             'root_proposal_id' => $original->root_proposal_id,
             'revision_of_id' => $original->id,
             'revision_number' => 1,
@@ -149,12 +149,8 @@ class KkprlProposalWizardTest extends TestCase
         $component = Livewire::test(KkprlProposalWizard::class);
         $access->forget();
 
-        $this->expectException(ProposalAccessDenied::class);
-        try {
-            $component->call('updateCoordinates', '[]', '', 'point');
-        } finally {
-            $this->assertEmpty($proposal->fresh()->payload);
-        }
+        $component->call('updateCoordinates', '[]', '', 'point')->assertForbidden();
+        $this->assertEmpty($proposal->fresh()->payload);
     }
 
     #[Test]
@@ -323,9 +319,8 @@ class KkprlProposalWizardTest extends TestCase
         $proposal->update(['status' => 'submitted']);
 
         Livewire::test(KkprlProposalWizard::class)
-            ->set('pendingFiles', [UploadedFile::fake()->image('locked.png')])
-            ->call('uploadAttachments')
-            ->assertSee('Proposal sudah terkunci dan lampiran tidak dapat diubah.');
+            ->call('_startUpload', 'pendingFiles', [['name' => 'locked.png', 'size' => 128, 'type' => 'image/png']], true)
+            ->assertForbidden();
     }
 
     #[Test]

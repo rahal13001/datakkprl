@@ -1,6 +1,10 @@
 <div class="flex flex-col space-y-6 w-full mt-2">
+    @if($chapter === 'bag-5')
+        @include('livewire.partials.kkprl-chapter-five-options')
+    @endif
     @if($chapter === 'bag-3')
         @include('livewire.partials.kkprl-chapter-three-evidence')
+        @include('livewire.partials.kkprl-seabed-profile-script')
     @endif
     
     <!-- Bagian Chat (Atas) -->
@@ -32,7 +36,7 @@
                 @endif
             @endforeach
             
-            <div wire:loading wire:target="sendMessage,analyzeEvidence" class="flex items-start max-w-[85%]">
+            <div wire:loading wire:target="sendMessage,analyzeEvidence,analyzeTideData" class="flex items-start max-w-[85%]">
                  <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 mt-1 ring-4 ring-white shadow-sm text-lg">🤖</div>
                  <div class="bg-white px-5 py-3.5 rounded-2xl rounded-tl-none shadow-sm border border-slate-200 text-sm text-slate-400 italic flex items-center space-x-2">
                      <span>AI sedang memproses</span>
@@ -66,7 +70,7 @@
                     id="kkprl-chat-input-{{ $chapter }}"
                     aria-label="Pesan untuk asisten AI Bab {{ str_replace('bag-', '', $chapter) }}"
                     wire:loading.attr="disabled"
-                    wire:target="sendMessage,confirmAndSave,analyzeEvidence"
+                    wire:target="sendMessage,confirmAndSave,analyzeEvidence,analyzeTideData,calculateTideData,generateTideChart,generateSeabedProfile,generateBathymetry"
                     @disabled($locked)
                     placeholder="Ketik jawaban atau deskripsi Anda di sini..." 
                     rows="2"
@@ -117,13 +121,13 @@
                         @if($key === 'reclamation_schedule_rows')
                             @include('livewire.partials.kkprl-preview-schedule')
                         @else
-                            <label for="preview-{{ $chapter }}-{{ $key }}" class="block mb-2 text-sm font-semibold text-slate-100">{{ $field['label'] }}</label>
+                            <label for="preview-{{ $chapter }}-{{ $key }}" class="block mb-2 text-sm font-semibold text-slate-100">{{ $field['label'] }}@if($chapter === 'bag-5' && !in_array($key, $requiredPreviewFields)) <span class="text-xs text-slate-400"> (opsional)</span> @endif</label>
                             <textarea
                                 id="preview-{{ $chapter }}-{{ $key }}"
                                 name="preview_{{ $key }}"
                                 wire:model.live.blur="previewData.{{ $key }}"
                                 wire:loading.attr="disabled"
-                                wire:target="sendMessage,confirmAndSave,analyzeEvidence"
+                                wire:target="sendMessage,confirmAndSave,analyzeEvidence,analyzeTideData,calculateTideData,generateTideChart,generateSeabedProfile,generateBathymetry"
                                 rows="4"
                                 maxlength="30000"
                                 placeholder="Lengkapi lewat chat atau tulis koreksi Anda di sini."
@@ -153,7 +157,7 @@
                 type="button"
                 wire:click="confirmAndSave" 
                 wire:loading.attr="disabled"
-                wire:target="sendMessage,confirmAndSave,updatedPreviewData,analyzeEvidence"
+                wire:target="sendMessage,confirmAndSave,updatedPreviewData,analyzeEvidence,analyzeTideData,calculateTideData,generateTideChart,generateSeabedProfile,generateBathymetry"
                 class="w-full py-4 bg-gradient-to-r from-emerald-600 to-green-500 text-white font-bold text-base rounded-xl hover:from-emerald-500 hover:to-green-400 transition-all shadow-lg shadow-emerald-900/30 disabled:opacity-30 disabled:cursor-not-allowed flex justify-center items-center group"
                 @disabled($locked)
             >

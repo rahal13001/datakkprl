@@ -2,108 +2,85 @@
 
 namespace App\Services;
 
-use App\Contracts\KkprlProposalAccessVerifier;
 use App\Domain\Kkprl\InvalidProposalCredentials;
 use App\Domain\Kkprl\KkprlPhoneNormalizer;
 use App\Domain\Kkprl\ProposalAccessDenied;
-use App\Domain\Kkprl\ProposalAccessRateLimited;
+use App\Models\KkprlApplicant;
 use App\Models\KkprlProposal;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Validation\ValidationException;
 
 final class KkprlProposalAccessService
 {
+    /** Legacy session key is never an authorization source. */
     public const SESSION_KEY = 'kkprl_proposal_access';
 
-    public function __construct(
-        private readonly KkprlPhoneNormalizer $phones,
-        private readonly KkprlProposalAccessVerifier $verifier,
-    ) {}
+    public const SELECTION_KEY = 'kkprl_selected_proposal';
 
-    /**
-     * @param  array<string, mixed>  $input
-     */
-    public function startDraft(array $input): KkprlProposal
+    public function __construct(private readonly KkprlApplicantAuthService $accounts, private readonly KkprlPhoneNormalizer $phones) {}
+
+    public function startDraft(array $input = []): KkprlProposal
     {
-        $phone = $this->phones->normalize($input['phone'] ?? null);
+        $proposal = DB::transaction(function () use ($input): KkprlProposal {
+            $account = $this->assertApproved(lock: true);
+            $proposal = new KkprlProposal(['phone' => $this->phones->normalize($input['phone'] ?? null), 'status' => 'draft']);
+            $proposal->forceFill(['applicant_id' => $account->id])->save();
 
-        if ($phone === null) {
-            throw ValidationException::withMessages([
-                'phone' => 'Nomor HP wajib diisi.',
-            ]);
-        }
-
-        $proposal = DB::transaction(
-            fn (): KkprlProposal => KkprlProposal::create([
-                'phone' => $phone,
-                'status' => 'draft',
-            ]),
-        );
-
+            return $proposal->fresh();
+        });
         $this->grantAccess($proposal);
 
         return $proposal;
     }
 
+    /** Tickets and contact numbers no longer authenticate, including direct legacy calls. */
     public function resumeDraft(string $ticketNumber, string $phone, ?string $rateLimitKey = null): KkprlProposal
     {
-        $normalizedPhone = $this->phones->normalize($phone);
-        $key = $this->rateLimitKey($ticketNumber, $normalizedPhone, $rateLimitKey);
-        $maxAttempts = (int) config('kkprl.proposal_access.resume_attempts', 5);
-        $decaySeconds = (int) config('kkprl.proposal_access.resume_decay_seconds', 900);
-        $ipKey = $this->ipRateLimitKey($rateLimitKey);
-        $ipMaxAttempts = (int) config('kkprl.proposal_access.resume_ip_attempts', 30);
-        $ipDecaySeconds = (int) config('kkprl.proposal_access.resume_ip_decay_seconds', 900);
+        throw new InvalidProposalCredentials;
+    }
 
-        if (RateLimiter::tooManyAttempts($key, $maxAttempts)
-            || RateLimiter::tooManyAttempts($ipKey, $ipMaxAttempts)) {
-            throw new ProposalAccessRateLimited;
+    public function assertApproved(bool $lock = false): KkprlApplicant
+    {
+        $account = $this->accounts->current($lock);
+        if ($account === null || $account->approved_at === null) {
+            throw new ProposalAccessDenied;
         }
 
-        $proposal = $this->verifier->verify($ticketNumber, $phone);
+        return $account;
+    }
 
-        if ($proposal === null) {
-            RateLimiter::hit($key, $decaySeconds);
-            RateLimiter::hit($ipKey, $ipDecaySeconds);
-            throw new InvalidProposalCredentials;
+    public function assertCanBuild(KkprlProposal $proposal, bool $lock = false): void
+    {
+        $account = $this->assertApproved($lock || DB::transactionLevel() > 0);
+        $owner = KkprlProposal::whereKey($proposal->id)->value('applicant_id');
+        if ($owner === null || (int) $owner !== $account->id) {
+            throw new ProposalAccessDenied;
         }
+    }
 
-        RateLimiter::clear($key);
-        $this->grantAccess($proposal);
+    public function canReadDocuments(KkprlProposal $proposal): bool
+    {
+        $account = $this->accounts->current();
 
-        return $proposal;
+        return $account !== null && KkprlProposal::whereKey($proposal->id)->where('applicant_id', $account->id)->exists();
     }
 
     public function current(): ?KkprlProposal
     {
-        $access = session(self::SESSION_KEY);
-
-        if (! is_array($access) || ! isset($access['proposal_id'], $access['root_proposal_id'])) {
+        $account = $this->accounts->current(DB::transactionLevel() > 0);
+        $selection = session(self::SELECTION_KEY);
+        if ($account === null || $account->approved_at === null || ! is_array($selection)) {
             return null;
         }
-
-        $lastActivity = (int) ($access['last_activity'] ?? 0);
-        $timeout = (int) config('kkprl.proposal_access.idle_timeout_seconds', 1_800);
-
-        if ($lastActivity === 0 || now()->timestamp - $lastActivity > $timeout) {
+        $timeout = (int) config('kkprl.proposal_access.idle_timeout_seconds', 1800);
+        if (now()->timestamp - (int) ($selection['last_activity'] ?? 0) > $timeout) {
             $this->forget();
 
             return null;
         }
-
-        $proposal = KkprlProposal::query()
-            ->whereKey($access['proposal_id'])
-            ->where('root_proposal_id', $access['root_proposal_id'])
-            ->first();
-
-        if ($proposal === null) {
-            $this->forget();
-
-            return null;
+        $proposal = KkprlProposal::whereKey($selection['proposal_id'] ?? null)->where('applicant_id', $account->id)->first();
+        if ($proposal !== null) {
+            session()->put(self::SELECTION_KEY.'.last_activity', now()->timestamp);
         }
-
-        session()->put(self::SESSION_KEY.'.last_activity', now()->timestamp);
 
         return $proposal;
     }
@@ -111,7 +88,6 @@ final class KkprlProposalAccessService
     public function assertCanAccess(KkprlProposal $proposal): void
     {
         $current = $this->current();
-
         if ($current === null || ! $current->is($proposal)) {
             throw new ProposalAccessDenied;
         }
@@ -119,36 +95,13 @@ final class KkprlProposalAccessService
 
     public function grantAccess(KkprlProposal $proposal): void
     {
-        session()->regenerate();
-        session()->put(self::SESSION_KEY, [
-            'proposal_id' => $proposal->id,
-            'root_proposal_id' => $proposal->root_proposal_id,
-            'last_activity' => now()->timestamp,
-        ]);
+        $this->assertCanBuild($proposal);
+        session()->forget(self::SESSION_KEY);
+        session()->put(self::SELECTION_KEY, ['proposal_id' => $proposal->id, 'last_activity' => now()->timestamp]);
     }
 
     public function forget(): void
     {
-        session()->forget(self::SESSION_KEY);
-    }
-
-    private function rateLimitKey(string $ticketNumber, ?string $phone, ?string $override): string
-    {
-        if ($override !== null) {
-            return $override;
-        }
-
-        $ip = request()->ip() ?? 'unknown';
-
-        return 'kkprl:resume:'.hash('sha256', strtoupper(trim($ticketNumber)).'|'.$phone.'|'.$ip);
-    }
-
-    private function ipRateLimitKey(?string $override): string
-    {
-        if ($override !== null) {
-            return $override.':ip';
-        }
-
-        return 'kkprl:resume:ip:'.hash('sha256', request()->ip() ?? 'unknown');
+        session()->forget([self::SESSION_KEY, self::SELECTION_KEY]);
     }
 }

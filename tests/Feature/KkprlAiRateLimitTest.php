@@ -5,15 +5,23 @@ namespace Tests\Feature;
 use App\Domain\Kkprl\ProposalAiRequestFailed;
 use App\Services\KkprlAiService;
 use Carbon\CarbonImmutable;
+use GuzzleHttp\Exception\ConnectTimeoutException;
+use GuzzleHttp\Psr7\Request;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\KkprlApplicantFixture;
 use Tests\TestCase;
 
 class KkprlAiRateLimitTest extends TestCase
 {
+    use KkprlApplicantFixture;
+    use RefreshDatabase;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -145,6 +153,86 @@ class KkprlAiRateLimitTest extends TestCase
             $this->fail('Network failure should be explained.');
         } catch (ProposalAiRequestFailed $failure) {
             $this->assertSame('connection', $failure->reason);
+        }
+    }
+
+    #[Test]
+    public function gemini_has_a_longer_configurable_response_deadline_without_automatic_paid_retries(): void
+    {
+        $options = [];
+        Http::fake(function ($request, $requestOptions) use (&$options) {
+            $options[] = $requestOptions;
+
+            return Http::response(['candidates' => [['content' => ['parts' => [['text' => 'Narasi pasut.']]]]]]);
+        });
+        $this->assertSame('Narasi pasut.', app(KkprlAiService::class)->chat([['role' => 'user', 'content' => 'Ulas pasut']], 'prompt'));
+        $this->assertSame(60, $options[0]['timeout']);
+        $this->assertSame(15, $options[0]['connect_timeout']);
+        config(['services.gemini.timeout' => 90, 'services.gemini.connect_timeout' => 10]);
+        app(KkprlAiService::class)->chat([['role' => 'user', 'content' => 'Ulas pasut']], 'prompt');
+        $this->assertSame(90, $options[1]['timeout']);
+        $this->assertSame(10, $options[1]['connect_timeout']);
+        Http::assertSentCount(2);
+    }
+
+    #[Test]
+    public function curl_timeout_is_explained_and_logs_only_safe_transport_diagnostics(): void
+    {
+        Log::spy();
+        $transport = new ConnectTimeoutException('cURL error 28: PRIVATE_PROMPT synthetic-test-key', new Request('POST', 'https://example.test'));
+        $attempts = 0;
+        Http::fake(function () use ($transport, &$attempts) {
+            $attempts++;
+
+            throw new ConnectionException('cURL error 28: PRIVATE_PROMPT synthetic-test-key', 0, $transport);
+        });
+        try {
+            app(KkprlAiService::class)->chat([['role' => 'user', 'content' => 'PRIVATE_PROMPT']], 'prompt');
+            $this->fail('Timeout should be distinguished from other network failures.');
+        } catch (ProposalAiRequestFailed $failure) {
+            $this->assertSame('timeout', $failure->reason);
+            $this->assertStringContainsString('waktu tunggu', $failure->userMessage());
+        }
+        Log::shouldHaveReceived('warning')->withArgs(fn ($message, $context) => $context['reason'] === 'timeout'
+            && $context['curl_errno'] === 28 && is_int($context['elapsed_ms'])
+            && ! str_contains(json_encode([$message, $context]), 'synthetic-test-key')
+            && ! str_contains(json_encode([$message, $context]), 'PRIVATE_PROMPT'))->once();
+        $this->assertSame(1, $attempts);
+    }
+
+    public static function transportFailures(): array
+    {
+        return [[6, 'dns'], [7, 'connection'], [60, 'tls'], [77, 'tls']];
+    }
+
+    #[Test]
+    public function low_thinking_is_opt_in_for_supported_flash_and_does_not_change_normal_chat(): void
+    {
+        Http::fake(['*' => Http::response(['candidates' => [['content' => ['parts' => [['text' => 'Narasi pasut.']]]]]])]);
+        config(['services.gemini.model' => 'gemini-3.8-flash']);
+        app(KkprlAiService::class)->chat([['role' => 'user', 'content' => 'Ulas pasut']], 'prompt', true);
+        Http::assertSent(fn ($request) => ($request['generationConfig']['thinkingConfig']['thinkingLevel'] ?? null) === 'LOW');
+        Http::fake(['*' => Http::response(['candidates' => [['content' => ['parts' => [['text' => 'Narasi pasut.']]]]]])]);
+        app(KkprlAiService::class)->chat([['role' => 'user', 'content' => 'Percakapan biasa']], 'prompt');
+        Http::assertSent(fn ($request) => ! isset($request['generationConfig']['thinkingConfig']));
+        config(['services.gemini.model' => 'gemini-2.5-flash']);
+        Http::fake(['*' => Http::response(['candidates' => [['content' => ['parts' => [['text' => 'Narasi pasut.']]]]]])]);
+        app(KkprlAiService::class)->chat([['role' => 'user', 'content' => 'Ulas pasut']], 'prompt', true);
+        Http::assertSent(fn ($request) => ! isset($request['generationConfig']['thinkingConfig']));
+    }
+
+    #[Test]
+    #[DataProvider('transportFailures')]
+    public function network_failures_are_classified_without_showing_transport_details(int $errno, string $reason): void
+    {
+        Http::fake(fn () => throw new ConnectionException('cURL error '.$errno.': PRIVATE_PROMPT synthetic-test-key'));
+        try {
+            app(KkprlAiService::class)->chat([['role' => 'user', 'content' => 'Ulas pasut']], 'prompt');
+            $this->fail('Transport error must be reported.');
+        } catch (ProposalAiRequestFailed $failure) {
+            $this->assertSame($reason, $failure->reason);
+            $this->assertStringNotContainsString('PRIVATE_PROMPT', $failure->userMessage());
+            $this->assertStringNotContainsString('synthetic-test-key', $failure->userMessage());
         }
     }
 

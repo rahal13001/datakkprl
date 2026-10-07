@@ -5,8 +5,10 @@ namespace App\Livewire;
 use App\Domain\Kkprl\AttachmentQuotaViolation;
 use App\Domain\Kkprl\InvalidAttachmentFile;
 use App\Domain\Kkprl\ProposalAccessDenied;
+use App\Domain\Kkprl\ProposalFieldCatalog;
 use App\Domain\Kkprl\ProposalLocked;
 use App\Domain\Kkprl\ProposalProgress;
+use App\Livewire\Concerns\WithKkprlFileUploads;
 use App\Models\KkprlProposal;
 use App\Models\KkprlProposalAttachment;
 use App\Models\KkprlProposalDocument;
@@ -22,12 +24,11 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 
 #[Layout('components.layouts.app')]
 class KkprlProposalWizard extends Component
 {
-    use WithFileUploads;
+    use WithKkprlFileUploads;
 
     #[Locked]
     public int $proposalId;
@@ -77,7 +78,7 @@ class KkprlProposalWizard extends Component
         abort_if($proposal === null, 403);
 
         $this->proposalId = $proposal->id;
-        $this->payload = $proposal->payload ?? [];
+        $this->payload = $this->editingPayload($proposal->payload ?? []);
         $this->normalizeConditionInputs();
         $this->lastSavedAt = $proposal->last_saved_at?->format('d-m-Y H:i:s') ?? '';
         $this->currentStep = max(1, $proposal->current_step);
@@ -92,6 +93,15 @@ class KkprlProposalWizard extends Component
         $this->syncAttachmentChapter();
     }
 
+    public function hydrate(): void
+    {
+        try {
+            app(KkprlProposalAccessService::class)->assertCanAccess(KkprlProposal::findOrFail($this->proposalId));
+        } catch (ProposalAccessDenied) {
+            abort(403);
+        }
+    }
+
     #[On('draft-saved')]
     public function refreshState(ProposalProgress $progress): void
     {
@@ -102,7 +112,7 @@ class KkprlProposalWizard extends Component
             } catch (ProposalAccessDenied) {
                 return;
             }
-            $this->payload = $proposal->payload ?? [];
+            $this->payload = $this->editingPayload($proposal->payload ?? []);
             $this->normalizeConditionInputs();
             $this->lastSavedAt = $proposal->last_saved_at?->format('d-m-Y H:i:s') ?? '';
             $this->locked = $proposal->isLocked();
@@ -212,7 +222,7 @@ class KkprlProposalWizard extends Component
         } catch (ProposalLocked) {
             $this->addError('attachments', 'Proposal sudah terkunci dan lampiran tidak dapat diubah.');
         } catch (ProposalAccessDenied) {
-            $this->addError('attachments', 'Sesi akses proposal berakhir. Verifikasi ulang nomor tiket dan nomor HP.');
+            $this->addError('attachments', 'Akses builder berakhir. Buka akun proposal dan periksa approval Anda.');
         }
     }
 
@@ -232,7 +242,7 @@ class KkprlProposalWizard extends Component
         } catch (ProposalLocked) {
             $this->addError('attachments', 'Proposal sudah terkunci dan lampiran tidak dapat diubah.');
         } catch (ProposalAccessDenied) {
-            $this->addError('attachments', 'Sesi akses proposal berakhir. Verifikasi ulang nomor tiket dan nomor HP.');
+            $this->addError('attachments', 'Akses builder berakhir. Buka akun proposal dan periksa approval Anda.');
         }
     }
 
@@ -269,7 +279,7 @@ class KkprlProposalWizard extends Component
         } catch (ProposalLocked) {
             $this->addError('attachments', 'Proposal sudah terkunci dan lampiran tidak dapat diubah.');
         } catch (ProposalAccessDenied) {
-            $this->addError('attachments', 'Sesi akses proposal berakhir. Verifikasi ulang nomor tiket dan nomor HP.');
+            $this->addError('attachments', 'Akses builder berakhir. Buka akun proposal dan periksa approval Anda.');
         }
     }
 
@@ -289,7 +299,7 @@ class KkprlProposalWizard extends Component
         } catch (ProposalLocked) {
             $this->locked = true;
         } catch (ProposalAccessDenied) {
-            $this->addError('draft', 'Sesi akses proposal berakhir. Verifikasi ulang nomor tiket dan nomor HP.');
+            $this->addError('draft', 'Akses builder berakhir. Buka akun proposal dan periksa approval Anda.');
         } catch (\Throwable) {
             $this->addError('documents', 'Dokumen belum berhasil dibuat. Proposal tetap draft; coba lagi setelah lampiran atau data diperiksa.');
         }
@@ -310,7 +320,7 @@ class KkprlProposalWizard extends Component
         } catch (ValidationException $exception) {
             $this->setErrorBag($exception->errors());
         } catch (ProposalAccessDenied) {
-            $this->addError('documents', 'Sesi akses proposal berakhir. Verifikasi ulang nomor tiket dan nomor HP.');
+            $this->addError('documents', 'Akses builder berakhir. Buka akun proposal dan periksa approval Anda.');
         } catch (\Throwable) {
             $this->addError('documents', 'Dokumen belum dapat dibuat. Periksa kelengkapan bab dan lampiran.');
         }
@@ -383,9 +393,12 @@ class KkprlProposalWizard extends Component
             $proposal = KkprlProposal::query()->findOrFail($this->proposalId);
             ($access ?? app(KkprlProposalAccessService::class))->assertCanAccess($proposal);
 
-            $saved = $drafts->save($proposal, $this->payload, $this->currentStep);
+            $saved = $drafts->save($proposal, $this->payloadForStorage($proposal), $this->currentStep);
 
-            $this->payload = $saved->payload ?? [];
+            // Livewire replaces an object when its key order changes. Keep the
+            // input order so an autosave response preserves edits made in flight.
+            $sanitized = $this->editingPayload($saved->payload ?? []);
+            $this->payload = array_replace(array_intersect_key($this->payload, $sanitized), $sanitized);
             $this->lastSavedAt = $saved->last_saved_at?->format('d-m-Y H:i:s') ?? '';
             $this->refreshProgress($progress);
             $this->syncAttachmentChapter();
@@ -394,7 +407,7 @@ class KkprlProposalWizard extends Component
         } catch (ProposalLocked) {
             $this->addError('draft', 'Proposal sudah terkunci dan tidak dapat diubah.');
         } catch (ProposalAccessDenied) {
-            $this->addError('draft', 'Sesi akses proposal berakhir. Verifikasi ulang nomor tiket dan nomor HP.');
+            $this->addError('draft', 'Akses builder berakhir. Buka akun proposal dan periksa approval Anda.');
         }
     }
 
@@ -420,6 +433,64 @@ class KkprlProposalWizard extends Component
                 $this->payload[$field] = '0';
             }
         }
+    }
+
+    /** Keep empty inputs as object keys so the first response cannot replace local edits. */
+    private function editingPayload(array $payload): array
+    {
+        $conditions = ['includes_reclamation', 'land_relation', 'has_existing_permits'];
+        foreach (['bag-1', 'bag-2', 'bag-3', 'bag-4', 'bag-5'] as $chapter) {
+            if (array_key_exists($chapter, $payload) && ! is_array($payload[$chapter])) {
+                unset($payload[$chapter]);
+            }
+            $fields = $chapter === 'bag-5'
+                ? array_merge(ProposalFieldCatalog::fields('bag-5-land'), ProposalFieldCatalog::fields('bag-5-permits'))
+                : ProposalFieldCatalog::fields($chapter);
+            $fields = array_diff($fields, $conditions);
+            if ($chapter === 'bag-1') {
+                $fields[] = 'coordinates_raw';
+            }
+            // Legacy flat payloads must keep every chapter when Bab 1 becomes nested.
+            foreach ($fields as $field) {
+                if (array_key_exists($field, $payload)) {
+                    $payload[$chapter][$field] ??= $payload[$field];
+                    unset($payload[$field]);
+                }
+            }
+            if ($chapter === 'bag-1') {
+                $payload[$chapter] = array_replace(array_fill_keys($fields, null), $payload[$chapter] ?? []);
+            }
+        }
+        foreach ($conditions as $field) {
+            $payload[$field] ??= null;
+        }
+
+        return $payload;
+    }
+
+    /** Empty input scaffolding is UI state, not proposal data or document identity. */
+    private function payloadForStorage(KkprlProposal $proposal): array
+    {
+        $payload = $this->editingPayload($this->payload);
+        $payload['bag-1'] = array_filter($payload['bag-1'] ?? [], fn ($value): bool => $value !== null);
+        foreach (['includes_reclamation', 'land_relation', 'has_existing_permits'] as $field) {
+            if (($payload[$field] ?? null) === null) {
+                unset($payload[$field]);
+            }
+        }
+
+        $stored = $proposal->payload ?? [];
+        $chapters = ['bag-1', 'bag-2', 'bag-3', 'bag-4', 'bag-5'];
+        if ($stored !== [] && ! collect($chapters)->contains(fn ($chapter): bool => is_array($stored[$chapter] ?? null))) {
+            // Preserve legacy storage shape: document identity may include its
+            // original flat condition fields, even though the UI uses chapters.
+            foreach ($chapters as $chapter) {
+                $payload = array_replace($payload, $payload[$chapter] ?? []);
+                unset($payload[$chapter]);
+            }
+        }
+
+        return $payload;
     }
 
     private function syncAttachmentChapter(): void

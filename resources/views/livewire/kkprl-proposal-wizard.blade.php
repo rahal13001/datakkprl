@@ -9,6 +9,8 @@
         .ck.ck-toolbar { border-top-left-radius: 0.75rem !important; border-top-right-radius: 0.75rem !important; background-color: #f8fafc !important; border-bottom: 1px solid #e2e8f0 !important; }
     </style>
     
+    <a href="{{ route('kkprl.applicant.portal') }}" class="mb-4 inline-block font-semibold text-amber-800 underline">Akun &amp; dokumen</a>
+
     <!-- Modern Header & Progress -->
     <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden relative mb-8">
         <div class="bg-slate-50 border-b border-slate-100 p-6 lg:p-8">
@@ -127,6 +129,27 @@
              BAB 1: FORM STATIS
         =============================== -->
         @if ($currentChapter === 'bag-1')
+            @php($bagOneProgress = $chapterProgress['bag-1'])
+            <section aria-label="Kelengkapan Bab 1" class="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+                <h2 class="font-semibold">Kelengkapan Bab 1: {{ $bagOneProgress['completed'] }} dari {{ $bagOneProgress['total'] }} isian wajib</h2>
+                <p class="mt-2 text-sm text-slate-600">Bab 1 selesai setelah semua isian wajib terisi dan koordinat valid. Progres di atas mencakup seluruh bab yang aktif.</p>
+                <p class="mt-1 text-sm text-slate-600">Angka 0 dan pilihan Tidak tetap dihitung. Untuk uraian yang tidak relevan, tuliskan Tidak berlaku.</p>
+                @if ($bagOneProgress['missing'] !== [])
+                    <details class="mt-3">
+                        <summary class="cursor-pointer text-sm font-semibold">Belum diisi: {{ count($bagOneProgress['missing']) }} isian</summary>
+                        <ul class="mt-2 list-inside list-disc text-sm text-slate-600">
+                            @foreach ($bagOneProgress['missing'] as $field)
+                                <li wire:key="chapter-one-missing-{{ $field }}">{{ \App\Domain\Kkprl\ProposalFieldCatalog::label($field) }}</li>
+                            @endforeach
+                        </ul>
+                    </details>
+                @endif
+                @if ($bagOneProgress['errors'] !== [])
+                    <p role="alert" class="mt-3 text-sm text-red-700">Periksa bentuk dan koordinat lokasi: titik memerlukan minimal 1 koordinat, garis 2, dan poligon 3. Latitude harus antara -90 dan 90; longitude antara -180 dan 180.</p>
+                @elseif ($bagOneProgress['status'] === 'complete')
+                    <p class="mt-3 text-sm font-semibold text-emerald-700">Bab 1 selesai.</p>
+                @endif
+            </section>
             <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden relative">
                 <div class="bg-gradient-to-r from-blue-700 to-indigo-800 p-8 text-white relative overflow-hidden">
                     <div class="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-white opacity-5 rounded-full blur-3xl"></div>
@@ -240,6 +263,11 @@
                                     <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex flex-wrap gap-2 items-center justify-between">Kedalaman (Meter) <span class="text-[10px] font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded">Gunakan Titik</span></label>
                                     <input wire:model.live.blur="payload.bag-1.depth" type="text" placeholder="Cth: -5.2" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                                 </div>
+                                <div>
+                                    <label for="kkprl-depth-unit" class="mb-2 block text-sm font-semibold text-slate-700">Satuan kedalaman/datum</label>
+                                    <input id="kkprl-depth-unit" wire:model.live.blur="payload.bag-1.depth_unit" type="text" placeholder="m; datum tidak diketahui" aria-describedby="kkprl-depth-unit-help" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100">
+                                    <p id="kkprl-depth-unit-help" class="mt-2 text-xs text-slate-600">Cantumkan satuan dan acuan kedalaman dari sumber. Jika datum belum diketahui, nyatakan demikian.</p>
+                                </div>
                             </div>
                             
                             <div wire:ignore x-data="coordinateManager(@js($payload['bag-1']['coordinates_raw'] ?? '[]'), @js($payload['bag-1']['shape_type'] ?? 'polygon'), $wire)" class="border border-slate-200 rounded-xl bg-slate-50 p-3 sm:p-5 shadow-sm">
@@ -279,6 +307,15 @@
                                         </button>
                                     </div>
                                     <div id="coordinate-map" wire:ignore style="height: 400px; z-index: 0;" class="w-full rounded-lg border border-slate-300 z-0"></div>
+                                    <section x-show="shapeType !== 'point'" x-cloak aria-label="Ukuran geometri peta" aria-live="polite" class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                                        <p x-show="measurement.status === 'ready'" class="font-semibold">
+                                            <span x-text="shapeType === 'polygon' ? 'Perkiraan luas peta: ' : 'Perkiraan panjang peta: '"></span><span x-text="measurement.formatted"></span> <span x-text="measurement.unit"></span>
+                                        </p>
+                                        <p x-show="measurement.status === 'incomplete'" x-text="shapeType === 'polygon' ? 'Isi minimal 3 titik koordinat lengkap dan valid untuk menghitung luas.' : 'Isi minimal 2 titik koordinat lengkap dan valid untuk menghitung panjang.'"></p>
+                                        <p x-show="measurement.status === 'invalid'">Luas belum dapat dihitung. Periksa titik yang berulang, area tanpa luas, atau garis batas yang bersilangan.</p>
+                                        <p x-show="measurement.warning !== ''" x-text="measurement.message" role="status" class="mt-2 rounded-md border border-amber-300 bg-amber-50 p-2 text-amber-900"></p>
+                                        <p class="mt-2 text-xs text-slate-500">Perkiraan dari koordinat WGS84; bukan hasil survei. Isian dimensi Anda tidak diubah otomatis.</p>
+                                    </section>
                                 </div>
 
                                 <div class="space-y-4">
@@ -450,8 +487,8 @@
                             <div class="hidden md:block"></div> <!-- Spacer to keep grid balanced -->
 
                             <div class="sm:col-span-2">
-                                <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Jenis Dokumen Lingkungan</label>
-                                <input wire:model.live.blur="payload.bag-1.document_type" type="text" placeholder="Amdal / UKL-UPL" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
+                                <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Jenis dokumen permohonan</label>
+                                <input wire:model.live.blur="payload.bag-1.document_type" type="text" placeholder="PKKPRL / KKRL" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm transition-all font-medium text-slate-700">
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Keterangan Tambahan</label>
@@ -460,104 +497,84 @@
                         </div>
                     </div>
 
-                    <!-- Site Plan & Kondisi Tambahan -->
-                    <div class="bg-gradient-to-br from-indigo-50 to-blue-50 p-4 sm:p-6 md:p-8 rounded-3xl border border-indigo-100 shadow-sm relative overflow-hidden">
-                        <div class="absolute top-0 right-0 opacity-10">
-                            <i class="fa-solid fa-compass text-9xl transform translate-x-1/3 -translate-y-1/3"></i>
-                        </div>
-                        
-                        <div class="relative z-10">
-                            <div class="flex items-center mb-8 pb-4 border-b border-indigo-200/50">
-                                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold mr-4 shrink-0 shadow-lg shadow-indigo-600/30">
-                                    <i class="fa-regular fa-map"></i>
+                    <section aria-label="Rencana tapak" class="rounded-xl border border-slate-200 bg-white p-4 sm:p-6">
+                        <h3 class="text-lg font-semibold text-slate-900">Rencana tapak (site plan)</h3>
+                        <p id="kkprl-site-plan-help" class="mt-2 text-sm leading-relaxed text-slate-600">Jelaskan bangunan atau instalasi yang direncanakan, ukuran, letak, akses, dan hubungan antarfasilitas. Sesuaikan uraian dengan gambar rencana tapak. Isi hanya informasi yang sudah diketahui.</p>
+                        <div class="mt-4 space-y-6">
+                            <div>
+                                <label class="mb-2 block text-sm font-semibold text-slate-700">Uraian rencana tapak</label>
+                                <div wire:ignore wire:key="site-plan-editor-{{ $proposalId }}" x-data="{
+                                    destroyEditor: null,
+                                    changed: false,
+                                    disposed: false,
+                                    init() {
+                                        if (typeof ClassicEditor === 'undefined') return;
+                                        ClassicEditor.create(this.$refs.editor, {
+                                            placeholder: 'Tuliskan uraian rencana tapak...',
+                                            toolbar: ['bold', 'italic', '|', 'bulletedList', 'numberedList', 'insertTable', '|', 'undo', 'redo'],
+                                            table: { contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells'] }
+                                        }).then(editor => {
+                                            if (this.disposed) { editor.destroy(); return; }
+                                            this.destroyEditor = () => editor.destroy();
+                                            editor.setData(this.$wire.$get('payload.bag-1.site_plan_description') || '');
+                                            editor.editing.view.change(writer => writer.setAttribute('aria-label', 'Uraian rencana tapak', editor.editing.view.document.getRoot()));
+                                            editor.model.document.on('change:data', () => {
+                                                this.changed = true;
+                                                this.$wire.$set('payload.bag-1.site_plan_description', editor.getData(), false);
+                                            });
+                                            editor.editing.view.document.on('change:isFocused', (event, name, focused) => {
+                                                if (!focused && this.changed) {
+                                                    this.changed = false;
+                                                    this.$wire.$commit();
+                                                }
+                                            });
+                                        }).catch(error => console.error('Editor rencana tapak gagal dimuat', error));
+                                    },
+                                    destroy() {
+                                        this.disposed = true;
+                                        this.destroyEditor?.();
+                                    }
+                                }" class="min-w-0 rounded-lg border border-slate-200 bg-white text-slate-700">
+                                    <div x-ref="editor" aria-describedby="kkprl-site-plan-help"></div>
                                 </div>
-                                <h3 class="text-xl font-bold text-indigo-950 tracking-tight">Rencana Tapak (Site Plan)</h3>
                             </div>
-                            
-                            <div class="space-y-8">
-                                <!-- Rich Text Editor -->
-                                <div>
-                                    <label class="block text-[13px] font-bold text-indigo-900 uppercase tracking-wider mb-2">Narasi Deskriptif</label>
-                                    <p class="text-xs text-indigo-700 mb-4 bg-indigo-100/50 p-3 rounded-lg border border-indigo-200 inline-block">
-                                        <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Gunakan editor modern di bawah ini untuk membuat format yang rapi (Tebal, Miring, Poin, Angka).
-                                    </p>
-                                    
-                                    <div wire:ignore x-data="{
-                                        editorInstance: null,
-                                        init() {
-                                            if (typeof ClassicEditor === 'undefined') {
-                                                console.error('CKEditor is not loaded');
-                                                return;
-                                            }
-                                            
-                                            ClassicEditor
-                                                .create(this.$refs.editor, {
-                                                    toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'insertTable', 'blockQuote', 'undo', 'redo'],
-                                                    table: {
-                                                        contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
-                                                    }
-                                                })
-                                                .then(editor => {
-                                                    this.editorInstance = editor;
-                                                    
-                                                    // Set initial value
-                                                    const existing = @this.get('payload.bag-1.site_plan_description');
-                                                    if (existing) {
-                                                        editor.setData(existing);
-                                                    }
-                                                    
-                                                    // Sync with Livewire
-                                                    editor.model.document.on('change:data', () => {
-                                                        @this.set('payload.bag-1.site_plan_description', editor.getData());
-                                                    });
-                                                })
-                                                .catch(error => {
-                                                    console.error('Error initializing CKEditor:', error);
-                                                });
-                                        }
-                                    }" class="bg-white rounded-xl shadow-sm border border-indigo-200 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition-all text-slate-700">
-                                        <div x-ref="editor" class="text-[14.5px]">Mulai mengetik deskripsi Anda di sini...</div>
-                                    </div>
-                                </div>
-                                
                                 <div class="grid [&>*]:min-w-0 gap-6 sm:grid-cols-3">
                                     <div>
-                                        <label class="block text-[13px] font-bold text-indigo-900 uppercase tracking-wider mb-2">Reklamasi</label>
+                                        <label class="block text-[13px] font-bold text-slate-700 uppercase tracking-wider mb-2">Reklamasi</label>
                                         <div class="relative">
-                                            <select wire:model.live="payload.includes_reclamation" required class="w-full appearance-none px-4 py-3 rounded-xl border border-indigo-200 bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-sm transition-all cursor-pointer font-medium text-slate-700 shadow-sm">
+                                            <select wire:model.live="payload.includes_reclamation" required class="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all cursor-pointer font-medium text-slate-700 shadow-sm">
                                                 <option value="">-- Pilih --</option>
                                                 <option value="1">Ya, Ada Reklamasi</option>
                                                 <option value="0">Tidak Ada</option>
                                             </select>
-                                            <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-indigo-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                                            <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="block text-[13px] font-bold text-indigo-900 uppercase tracking-wider mb-2">Posisi Ke Daratan</label>
+                                        <label class="block text-[13px] font-bold text-slate-700 uppercase tracking-wider mb-2">Posisi Ke Daratan</label>
                                         <div class="relative">
-                                            <select wire:model.live="payload.land_relation" required class="w-full appearance-none px-4 py-3 rounded-xl border border-indigo-200 bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-sm transition-all cursor-pointer font-medium text-slate-700 shadow-sm">
+                                            <select wire:model.live="payload.land_relation" required class="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all cursor-pointer font-medium text-slate-700 shadow-sm">
                                                 <option value="">-- Pilih --</option>
                                                 <option value="adjacent">Berhimpitan (Nempel)</option>
                                                 <option value="not_adjacent">Terpisah (Lepas Pantai)</option>
                                             </select>
-                                            <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-indigo-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                                            <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="block text-[13px] font-bold text-indigo-900 uppercase tracking-wider mb-2">Perizinan Lain</label>
+                                        <label class="block text-[13px] font-bold text-slate-700 uppercase tracking-wider mb-2">Perizinan Lain</label>
                                         <div class="relative">
-                                            <select wire:model.live="payload.has_existing_permits" required class="w-full appearance-none px-4 py-3 rounded-xl border border-indigo-200 bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-sm transition-all cursor-pointer font-medium text-slate-700 shadow-sm">
+                                            <select wire:model.live="payload.has_existing_permits" required class="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all cursor-pointer font-medium text-slate-700 shadow-sm">
                                                 <option value="">-- Pilih --</option>
                                                 <option value="1">Ada Izin Lain</option>
                                                 <option value="0">Belum Ada</option>
                                             </select>
-                                            <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-indigo-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                                            <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
                         </div>
-                    </div>
+                    </section>
                 </div>
 
                 <!-- Quill CSS & JS (moved to top visually, but placed here) -->
@@ -818,6 +835,11 @@
             initTimeout: null,
             boundsTimeout: null,
             isDrawing: false,
+
+            get measurement() {
+                return window.kkprlCoordinateMeasurement(this.shapeType, this.points,
+                    wire.$get('payload.bag-1.water_area'), wire.$get('payload.bag-1.water_area_unit'));
+            },
 
             init() {
                 try {

@@ -3,14 +3,17 @@
 namespace App\Services;
 
 use App\Domain\Kkprl\PdfAttachmentRenderFailed;
+use App\Domain\Kkprl\ProposalAccessDenied;
 use App\Domain\Kkprl\ProposalDocumentSectionCatalog;
 use App\Domain\Kkprl\ProposalFieldCatalog;
 use App\Domain\Kkprl\ProposalInlineAnchorResolver;
+use App\Domain\Kkprl\ProposalLocked;
 use App\Domain\Kkprl\ProposalSnapshot;
 use App\Models\KkprlProposal;
 use App\Models\KkprlProposalDocument;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Smalot\PdfParser\Parser;
 use ZipArchive;
@@ -42,6 +45,11 @@ final class KkprlProposalDocumentService
         string $chapter,
         array $formats = ['docx', 'pdf'],
     ): Collection {
+        app(KkprlProposalAccessService::class)->assertCanBuild($proposal);
+        $proposal = $proposal->fresh();
+        if ($proposal->isLocked()) {
+            throw new ProposalLocked;
+        }
         $snapshot = $this->snapshots->capture($proposal, $chapter);
         $documents = collect();
 
@@ -87,35 +95,59 @@ final class KkprlProposalDocumentService
             return $document->fresh();
         }
 
-        $document->fill([
-            'storage_disk' => $this->disk(),
-            'generation_status' => 'generating',
-            'error_code' => null,
-        ]);
-        $document->save();
-
         try {
+            // Rendering runs outside the final persistence checkpoint.
             $binary = $format === 'pdf'
                 ? $this->renderPdf($snapshot)
                 : $this->renderDocx($snapshot);
-            $path = "kkprl/proposals/{$proposal->root_proposal_id}/{$proposal->id}/documents/{$snapshot->chapter}-{$snapshot->snapshotHash}-{$snapshot->attachmentManifestHash}.{$format}";
 
-            if (! Storage::disk($this->disk())->put($path, $binary)) {
-                throw new \RuntimeException('Unable to store generated document.');
-            }
-            $document->fill([
-                'storage_path' => $path,
-                'generation_status' => 'generated',
-                'generated_at' => now(),
-            ]);
-            $document->save();
+            return DB::transaction(function () use ($proposal, $snapshot, $format, $binary, $document): KkprlProposalDocument {
+                $locked = KkprlProposal::query()->lockForUpdate()->findOrFail($proposal->id);
+                app(KkprlProposalAccessService::class)->assertCanBuild($locked, lock: true);
+                if ($locked->isLocked()) {
+                    throw new ProposalLocked;
+                }
+                $current = $this->snapshots->capture($locked, $snapshot->chapter);
+                if (! hash_equals($snapshot->snapshotHash, $current->snapshotHash)
+                    || ! hash_equals($snapshot->attachmentManifestHash, $current->attachmentManifestHash)) {
+                    throw new \RuntimeException('Proposal changed during rendering.');
+                }
+                $existing = KkprlProposalDocument::query()->where([
+                    'proposal_id' => $locked->id, 'chapter' => $snapshot->chapter, 'format' => $format,
+                    'snapshot_hash' => $snapshot->snapshotHash, 'attachment_manifest_hash' => $snapshot->attachmentManifestHash,
+                ])->first();
+                if ($existing?->generation_status === 'generated'
+                    && $existing->storage_disk === $this->disk() && filled($existing->storage_path)
+                    && Storage::disk($this->disk())->exists($existing->storage_path)) {
+                    return $existing;
+                }
+                $path = "kkprl/proposals/{$locked->root_proposal_id}/{$locked->id}/documents/{$snapshot->chapter}-{$snapshot->snapshotHash}-{$snapshot->attachmentManifestHash}.{$format}";
+                if (! Storage::disk($this->disk())->put($path, $binary)) {
+                    throw new \RuntimeException('Unable to store generated document.');
+                }
+                $document->fill([
+                    'storage_disk' => $this->disk(),
+                    'storage_path' => $path,
+                    'generation_status' => 'generated',
+                    'error_code' => null,
+                    'generated_at' => now(),
+                ])->save();
 
-            return $document->fresh();
+                return $document->fresh();
+            });
         } catch (\Throwable $exception) {
-            $document->update([
-                'generation_status' => 'failed',
-                'error_code' => 'render_failed',
-            ]);
+            // A revoked identity may not even write a failed status.
+            try {
+                DB::transaction(function () use ($proposal, $document): void {
+                    $locked = KkprlProposal::query()->lockForUpdate()->findOrFail($proposal->id);
+                    app(KkprlProposalAccessService::class)->assertCanBuild($locked, lock: true);
+                    if (! $locked->isLocked()) {
+                        $document->fill(['generation_status' => 'failed', 'error_code' => 'render_failed'])->save();
+                    }
+                });
+            } catch (ProposalAccessDenied) {
+                // Preserve the original failure without writing after revocation/reset.
+            }
             throw $exception;
         }
     }
@@ -297,8 +329,14 @@ final class KkprlProposalDocumentService
                 $mime = 'image/png';
             }
 
-            $pages = $isImage ? [] : $this->extractPdfPages($binary);
-            $renderedPages = $isImage ? [] : $this->renderPdfPages($binary);
+            $isTideData = ($item['attachment_role'] ?? null) === 'ai_tide_data';
+            if ($isTideData && ! is_array($item['source_metadata']['tide_summary'] ?? null)) {
+                throw new PdfAttachmentRenderFailed;
+            }
+            $pages = $isImage ? [] : ($isTideData
+                ? [app(KkprlTideDataAnalyzer::class)->report($item['source_metadata']['tide_summary'])]
+                : $this->extractPdfPages($binary));
+            $renderedPages = $isImage || $isTideData ? [] : $this->renderPdfPages($binary);
 
             if (! $isImage && $renderedPages === [] && $pages === []) {
                 throw new PdfAttachmentRenderFailed;
@@ -693,7 +731,7 @@ final class KkprlProposalDocumentService
         }
 
         foreach (($attachment['pages'] ?? [(string) ($attachment['text'] ?? '')]) as $index => $page) {
-            $xml .= $this->paragraph('Halaman PDF '.($index + 1), true);
+            $xml .= $this->paragraph(($attachment['attachment_role'] ?? null) === 'ai_tide_data' ? 'Ringkasan data pasut' : 'Halaman PDF '.($index + 1), true);
             $xml .= $this->paragraph((string) $page);
             if ($index < count($attachment['pages'] ?? []) - 1) {
                 $xml .= $this->docxPageBreak();
@@ -713,6 +751,7 @@ final class KkprlProposalDocumentService
         $escaped = htmlspecialchars($text, ENT_XML1 | ENT_QUOTES, 'UTF-8');
         $withBreaks = str_replace("\n", '</w:t><w:br/><w:t xml:space="preserve">', $escaped);
         $run = '<w:r>'.($bold ? '<w:rPr><w:b/></w:rPr>' : '').'<w:t xml:space="preserve">'.$withBreaks.'</w:t></w:r>';
+
         return '<w:p>'.$run.'</w:p>';
     }
 

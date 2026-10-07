@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted for MVP
+Superseded pada kode tanggal 2026-10-07 oleh [ADR-024](ADR-024-akun-pemohon-terpisah.md), [ADR-025](ADR-025-approval-reset-akun-pemohon.md) dan [ADR-026](ADR-026-kepemilikan-dan-transisi-akses-pemohon.md). Isi keputusan lama dipertahankan sebagai sejarah; migration/deployment database pengguna belum dijalankan.
 
 ## Date
 

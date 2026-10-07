@@ -19,15 +19,16 @@ final class ProposalProgress
 
         foreach ($relevant as $chapter) {
             $fields = $this->fieldsForChapter($chapter, $payload);
-            $completed = count(array_filter(
+            $missing = array_values(array_filter(
                 $fields,
-                fn (string $field): bool => $this->filled($this->valueFor($payload, $field)),
+                fn (string $field): bool => ! $this->fieldFilled($field, $this->valueFor($payload, $field)),
             ));
             $total = count($fields);
+            $completed = $total - count($missing);
             $issues = $this->issuesForChapter($chapter, $payload);
             $status = $issues !== [] ? 'error' : ($completed === $total ? 'complete' : 'incomplete');
 
-            $chapters[$chapter] = compact('status', 'completed', 'total') + ['errors' => $issues];
+            $chapters[$chapter] = compact('status', 'completed', 'total', 'missing') + ['errors' => $issues];
             $errors[$chapter] = $issues;
             $totalFields += $total;
             $completedFields += $completed;
@@ -44,27 +45,13 @@ final class ProposalProgress
     /** @return list<string> */
     public static function requiredFields(string $chapter): array
     {
-        return ProposalFieldCatalog::fields($chapter);
+        return ProposalFieldCatalog::requiredFields($chapter);
     }
 
     /** @return list<string> */
     private function fieldsForChapter(string $chapter, array $payload): array
     {
-        if ($chapter !== 'bag-5') {
-            return self::requiredFields($chapter);
-        }
-
-        $fields = [];
-
-        if (($payload['land_relation'] ?? null) === 'adjacent') {
-            $fields = array_merge($fields, self::requiredFields('bag-5-land'));
-        }
-
-        if ($this->truthy($payload['has_existing_permits'] ?? false)) {
-            $fields = array_merge($fields, self::requiredFields('bag-5-permits'));
-        }
-
-        return $fields;
+        return ProposalFieldCatalog::requiredFieldsForPayload($chapter, $payload);
     }
 
     private function filled(mixed $value): bool
@@ -98,6 +85,17 @@ final class ProposalProgress
             : $value !== null;
     }
 
+    private function fieldFilled(string $field, mixed $value): bool
+    {
+        if ($field === 'site_plan_description' && is_string($value)) {
+            $text = html_entity_decode(strip_tags($value), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+            return preg_match('/[^\s\p{Z}]/u', $text) === 1;
+        }
+
+        return $this->filled($value);
+    }
+
     private function valueFor(array $payload, string $field): mixed
     {
         if (array_key_exists($field, $payload)) {
@@ -111,11 +109,6 @@ final class ProposalProgress
         }
 
         return null;
-    }
-
-    private function truthy(mixed $value): bool
-    {
-        return in_array($value, [true, 1, '1', 'true'], true);
     }
 
     /** @return list<string> */

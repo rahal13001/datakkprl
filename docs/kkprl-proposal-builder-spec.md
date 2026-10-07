@@ -1,5 +1,11 @@
 # Spesifikasi: Pembuat Proposal KKPRL
 
+> Ukuran peta Bab 1, 8 Oktober 2026: Polygon menampilkan perkiraan luas hektar dan Line menampilkan jumlah panjang segmen kilometer, masing-masing dua desimal. Warning membandingkan hasil dengan dimensi isian pada satuan yang cocok dan tidak mengubah isian atau menghalangi workflow. Nilai computed hanya informasi frontend dan bukan hasil survei. Lihat [spesifikasi ukuran peta](kkprl-map-measurement-spec.md), [validasi](kkprl-map-measurement-validation.md), dan [ADR-028](decisions/ADR-028-informational-map-dimensions.md).
+
+> Perbaikan Bab 1, 8 Oktober 2026: autosave memakai state UI stabil tanpa menyimpan scaffold, katalog 36 isian ditampilkan beserta daftar yang kosong, dan satuan kedalaman/datum kini tersedia. Editor rencana tapak baru kosong; petunjuk berada di luar konten dan pengiriman dilakukan saat blur/action wizard. Format payload flat legacy dan hash dokumen dipertahankan ketika tidak ada edit isi. Lihat [spesifikasi Bab 1](kkprl-chapter-one-input-spec.md), [validasi aktual](kkprl-chapter-one-input-validation.md), serta [ADR-027](decisions/ADR-027-chapter-one-input-state-and-completion.md). Progress keseluruhan mencakup semua bab aktif dan bukan ukuran kepastian regulasi.
+
+> Akses pemohon pada kode ini menggunakan akun email/password dan approval petugas. Lihat [spesifikasi akun](kkprl-applicant-account-spec.md), ADR-024–026 dan [validasi aktual](kkprl-applicant-account-validation.md). ADR-001 tetap menjadi riwayat keputusan tiket/HP yang telah digantikan. Migration/seeder belum dijalankan pada database pengguna.
+
 ## Status Dokumen
 
 - Status: Disetujui (Updated with AI Integration Plan)
@@ -13,7 +19,7 @@ Dokumen ini menjadi sumber kebenaran untuk MVP pembuat proposal KKPRL. Perubahan
 
 ## 1. Tujuan
 
-Menyediakan wizard formulir publik yang ringan di HP untuk membantu pemohon membuat proposal KKPRL secara bertahap, menyimpan draft, melanjutkan pengisian tanpa akun, lalu mengunduh proposal dalam format Word dan PDF.
+Menyediakan wizard formulir publik yang ringan di HP untuk membantu pemohon membuat proposal KKPRL secara bertahap, menyimpan draft, melanjutkan pengisian melalui akun yang telah disetujui, lalu mengunduh proposal dalam format Word dan PDF.
 
 Petugas tetap dapat membuka, memeriksa, dan meninjau proposal dari panel Filament.
 
@@ -23,7 +29,7 @@ Fitur ini adalah sistem pendukung penyusunan dan review dokumen. Fitur ini bukan
 
 | Module ID | Tanggung jawab | Bergantung pada |
 |---|---|---|
-| `proposal-access` | Membuat tiket, melanjutkan draft dengan nomor tiket + nomor HP, session access, rate limit | — |
+| `proposal-access` | Registrasi/login email-password, approval, kepemilikan, wadah dokumen generated, pemilihan proposal | — |
 | `proposal-draft` | Membuat draft, autosave, progress, status, pemulihan data | `proposal-access` |
 | `proposal-form` | Form Bag 1–5, validasi, kondisi bagian, upload lampiran | `proposal-draft` |
 | `proposal-document` | Render proposal ke Word/PDF berdasarkan snapshot data | `proposal-draft`, `proposal-form` |
@@ -34,9 +40,9 @@ Urutan build: `proposal-access` → `proposal-draft` → `proposal-form` (Bab 1)
 
 ## 3. Keputusan Produk yang Sudah Disetujui
 
-1. Pemohon tidak perlu membuat akun.
-2. Pemohon melanjutkan proposal dengan pasangan `nomor tiket + nomor HP`.
-3. OTP belum digunakan pada MVP, tetapi desain tidak boleh menghambat penambahan OTP.
+1. Pemohon mendaftar dengan email dan password; akun baru pending tanpa draft atau panggilan AI.
+2. Pending hanya dapat melihat/mengunduh dokumen generated miliknya. Builder memerlukan approval petugas dan kepemilikan.
+3. Pemulihan password dilakukan petugas berpermission khusus; tidak ada reset mandiri email/OTP/WhatsApp.
 4. Draft disimpan bertahap karena pengisian panjang dan data pendukung mungkin belum tersedia sekaligus.
 5. Form harus nyaman digunakan dari HP dan tetap ringan.
 6. Koordinat diisi manual.
@@ -59,8 +65,8 @@ Urutan build: `proposal-access` → `proposal-draft` → `proposal-form` (Bab 1)
 2. Data proposal disimpan di database Laravel yang sudah berjalan.
 3. Lampiran proposal memakai private storage yang sudah digunakan aplikasi untuk data sensitif.
 4. Nomor tiket dibuat sistem dan unik.
-5. Nomor HP dinormalisasi sebelum pencarian, misalnya menghapus spasi dan menyamakan format negara.
-6. Setelah verifikasi pasangan berhasil, sistem membuat session access sehingga nomor HP tidak dikirim pada setiap langkah.
+5. Nomor HP tetap data kontak proposal; bukan kredensial atau dasar penetapan owner.
+6. Guard pemohon terpisah dari petugas; versi sesi fresh menolak sesi lama setelah reset.
 7. File hasil generate dan lampiran diperlakukan sebagai data privat.
 8. Template Word yang ada menjadi referensi format, bukan otomatis dianggap siap dipakai sebagai template merge.
 9. Tipe lampiran yang didukung MVP dibatasi pada PDF, JPG/JPEG, PNG, dan WebP.
@@ -72,7 +78,7 @@ Asumsi nomor 5–8 harus diverifikasi saat desain teknis dan implementasi.
 
 ### 5.1 Pemohon publik
 
-Pemohon dapat membuat proposal, menyimpan draft, melanjutkan dengan pasangan tiket + HP, mengubah draft yang belum dikunci, mengelola lampiran miliknya, dan mengunduh Word/PDF miliknya.
+Pemohon pending hanya melihat/mengunduh dokumen generated sendiri yang lolos pemeriksaan integritas, atau empty state singkat. Tidak ada wizard, draft, chat, upload, peta, progres atau generate. Pemohon approved dapat membuat dan memilih proposal miliknya, menyimpan draft yang belum dikunci, mengelola lampiran, menggunakan AI/GMRT dan mengunduh Word/PDF. Approval tidak melewati lock, revisi, kuota atau validasi.
 
 Pemohon tidak dapat melihat proposal lain, mencari proposal hanya dengan nomor tiket, mengakses URL storage yang ditebak, atau mengubah proposal setelah status `submitted`.
 
@@ -116,27 +122,21 @@ Aktivitas penting petugas harus tercatat memakai audit log atau mekanisme audit 
 
 ### 6.1 Membuat proposal baru
 
-1. Pemohon membuka halaman pembuat proposal KKPRL.
-2. Pemohon memilih **Buat Proposal Baru**.
-3. Sistem menjelaskan penyimpanan draft dan cara melanjutkan.
-4. Pemohon mengisi identitas minimum, termasuk nomor HP.
-5. Sistem membuat nomor tiket unik dan draft awal.
-6. Sistem menampilkan nomor tiket dengan instruksi untuk menyimpannya.
-7. Pemohon masuk ke wizard Bag 1–3.
-
-Nomor tiket harus dapat disalin dan tidak boleh menjadi satu-satunya rahasia akses.
+1. Daftar melalui `/daftar-proposal-kkprl` dengan email, password dan konfirmasi password.
+2. Login melalui `/masuk-proposal-kkprl`. Akun baru membuka `/akun-proposal-kkprl` tanpa draft otomatis.
+3. Sebelum approval, wadah hanya memuat dokumen generated milik akun atau **Belum ada dokumen.**
+4. Petugas berpermission menyetujui akses builder. Pemohon memilih **Buat proposal baru**.
+5. Backend membuat draft dan tiket internal serta menetapkan owner dari guard, bukan input.
+6. Pemohon melengkapi kontak dan data proposal sesuai template dalam wizard.
 
 ### 6.2 Melanjutkan draft
 
-1. Pemohon membuka **Lanjutkan Proposal**.
-2. Pemohon mengisi nomor tiket dan nomor HP.
-3. Sistem menormalisasi HP, mencari proposal family berdasarkan nomor tiket utama, lalu membuat session access.
-4. Jika benar dan ada revisi aktif berstatus `draft`, sistem membuka revisi aktif tersebut.
-5. Jika belum ada revisi aktif, sistem membuka proposal utama atau menampilkan status terakhir yang tersedia.
-6. Jika pasangan salah, sistem menampilkan pesan generik tanpa membocorkan field mana yang salah.
-7. Sistem membatasi percobaan berulang.
-
-Nomor tiket tidak boleh menjadi satu-satunya otorisasi pada URL publik atau download.
+1. Login akun dan buka **Proposal milik Anda**.
+2. Pilih proposal/revisi sendiri; selection session hanya memilih proposal, bukan memberikan kewenangan.
+3. Akun harus approved, owner cocok, dan versi sesi fresh pada mount/hydrate/action/service.
+4. Proposal terkunci tetap terkunci. Revisi baru dibuat melalui workflow petugas dan mewarisi owner root.
+5. URL lama start/resume mengarahkan ke login atau wadah akun. Pasangan tiket/HP dan sesi lama tidak memberi grant.
+6. Lupa password: hubungi petugas berpermission reset, yang memasukkan password baru dan konfirmasi. Sampaikan secara manual melalui kanal privat organisasi.
 
 ### 6.3 Pengisian bertahap
 
@@ -313,6 +313,10 @@ Aturan yang sama wajib dipakai oleh Livewire validation, ringkasan, generator Wo
 - Bab 1, Bab 2, dan Bab 3 wajib lengkap untuk semua proposal.
 - Bab 4 wajib lengkap hanya jika reklamasi dipilih.
 - Bab 5 wajib lengkap hanya untuk subbagian lahan/perizinan yang dipilih.
+- Rincian wajib izin yang ada: jenis, tahun perolehan dan status. Nomor, instansi penerbit, masa berlaku, dokumen dan catatan opsional.
+- Rincian wajib lahan: status, jenis bukti dan tahun perolehan; dokumen serta catatan opsional.
+- Bab 5 menyediakan pilihan sudah/belum memiliki izin pendukung. Pilihan masuk checkpoint dahulu, lalu memperbarui has_existing_permits Bab 1 saat Konfirmasi & Simpan Draft. Jika belum memiliki izin, bagian perizinan dilewati; jika tidak ada kebutuhan lahan juga, Bab 5 tidak menjadi syarat kelengkapan.
+- Data izin yang tidak aktif tetap tersimpan untuk koreksi, tetapi tidak masuk snapshot/ekspor. Rincian opsional yang diisi tetap diekspor. Lihat ADR-022.
 - Bab yang belum lengkap tidak dapat diekspor.
 - Proposal tidak dapat berstatus `submitted` sebelum seluruh bab yang relevan lengkap.
 
@@ -338,7 +342,7 @@ Status `needs_revision` digunakan sebagai instruksi review untuk membuat salinan
 3. Sistem membuat salinan proposal baru yang terhubung ke proposal awal.
 4. Salinan baru berstatus `draft` dan mendapat label sederhana `rev-1`, `rev-2`, dan seterusnya.
 5. Nomor tiket utama tetap sama untuk seluruh proposal family.
-6. Pemohon cukup memasukkan nomor tiket utama + nomor HP; sistem melacak revisi aktif tanpa error.
+6. Pemohon login akun dan memilih revisi miliknya pada wadah akun. Owner revisi diwariskan dari root; proposal legacy tetap tanpa owner sampai penetapan manual terverifikasi dan diaudit.
 7. Pemohon mengakses dan melengkapi salinan revisi sesuai mekanisme akses yang ditetapkan.
 8. Dalam kondisi khusus, petugas A meminta izin edit dengan alasan dan target revisi.
 9. Petugas B yang memiliki permission approval menyetujui atau menolak permintaan.
@@ -353,21 +357,16 @@ Sistem sebaiknya menyimpan langkah terakhir, persentase progress, waktu autosave
 
 ## 10. Keamanan dan Privasi
 
-Pasangan nomor tiket + nomor HP lebih mudah ditebak daripada akun dengan password kuat. Karena OTP belum digunakan, MVP wajib menerapkan mitigasi berikut:
+Akun email/password memakai model/provider/guard pemohon terpisah. Password di-hash; registrasi menggunakan input allowlist dan throttle. Approval `approved_at` berbeda dari `User.status`. Sesi pemohon mengikat `session_version`, yang dinaikkan saat reset oleh petugas; setiap boundary mengecek akun fresh.
 
-- Simpan nomor HP terenkripsi jika mengikuti pola data protection aplikasi.
-- Simpan hash/HMAC nomor HP untuk exact lookup tanpa query plaintext.
-- Jangan menyimpan nomor HP sebagai password plaintext.
-- Jangan menaruh nomor HP pada URL, nama file, atau pesan error.
-- Gunakan session access setelah verifikasi pasangan.
-- Terapkan rate limit pada percobaan melanjutkan proposal.
-- Gunakan respons error generik untuk pasangan yang salah.
-- Terapkan idle timeout dan invalidasi session access.
-- Cegah akses file langsung melalui URL publik.
-- Validasi MIME type, ekstensi, ukuran, dan nama file upload.
-- Sanitasi nama file dan simpan dengan nama acak.
-- Catat aktivitas akses penting tanpa menyimpan rahasia mentah.
-- Gunakan abstraksi verifikasi akses agar OTP dapat ditambahkan kemudian.
+- Pending hanya mengakses dokumen generated sendiri; data proposal dan lampiran mentah tetap tertutup.
+- Builder memeriksa approval dan owner pada request langsung, hydrate Livewire, action dan service.
+- Persistence setelah AI/GMRT/render memeriksa ulang akun, versi, approval, owner, lock dan checkpoint; akun dikunci saat transaksi penulisan.
+- Upload sementara KKPRL menggunakan route signed khusus yang terikat applicant/proposal/versi sesi. Penerimaan file memeriksa izin kembali, tanpa mengubah upload sistem lain.
+- Private storage, MIME/signature, nama file aman, quota dan pemeriksaan snapshot/manifest tetap berlaku.
+- Permission daftar/detail, approval, reset dan penetapan owner terpisah; hanya role yang disepakati menerima permission dari seeder khusus. Approval edit petugas tetap workflow tersendiri.
+- Audit append-only mencatat actor/target/waktu/tindakan; tidak mencatat password atau hash. Alasan/reference kepemilikan dienkripsi.
+- Assignment legacy memerlukan bukti terverifikasi, alasan dan referensi manual. Tidak ada klaim berdasarkan tiket, email atau HP semata.
 
 Security review khusus wajib dilakukan sebelum fitur dibuka publik.
 
@@ -378,6 +377,7 @@ Model final harus mengikuti pola migrasi dan encryption yang sudah ada. Rancanga
 ### `kkprl_proposals`
 
 - `id`.
+- `applicant_id`, FK nullable untuk legacy, ditetapkan backend; revisi mengikuti owner root.
 - `root_proposal_id`, untuk menghubungkan semua record dalam satu proposal family.
 - `revision_of_id`, nullable, untuk menghubungkan salinan revisi dengan proposal sebelumnya.
 - `revision_number`, dengan `0` untuk proposal utama.
@@ -498,17 +498,22 @@ MVP tidak membutuhkan API publik terpisah. Livewire menjadi boundary form publik
 
 Route konseptual:
 
-- `GET /buat-proposal-kkprl` — mulai proposal.
-- `GET /lanjutkan-proposal-kkprl` — verifikasi tiket + nomor HP.
-- `GET /proposal-kkprl` — wizard setelah session access.
-- `GET /proposal-kkprl/dokumen/{chapter}/{format}` — download satu bab terotorisasi.
+- `GET /buat-proposal-kkprl` — redirect login/wadah akun; tidak membuat draft.
+- `GET /lanjutkan-proposal-kkprl` — redirect login/wadah akun (legacy fail-closed).
+- `GET /masuk-proposal-kkprl`, `/daftar-proposal-kkprl`, `/akun-proposal-kkprl` — identitas pemohon dan dokumen generated.
+- `POST /proposal-kkprl/uploads` — penerimaan temporary upload signed yang terikat akun, proposal dan versi sesi.
+- `GET /proposal-kkprl` — wizard setelah akun approved memilih proposal sendiri.
+- `GET /proposal-kkprl/documents/{document}` — download dokumen generated terotorisasi.
+- `GET /proposal-kkprl/attachments/{attachment}` — lampiran mentah; hanya pemohon approved dalam scope atau petugas berpermission.
 
 Nama route final mengikuti konvensi route aplikasi. Nomor tiket tidak boleh menjadi satu-satunya credential pada route download.
 
 Kontrak internal minimum:
 
 - `startDraft(input) -> ProposalAccess`
-- `resumeDraft(ticketNumber, phone) -> ProposalAccess`
+- `resumeDraft(ticketNumber, phone)` — compatibility stub menolak semua kredensial legacy.
+- `KkprlApplicantAuthService` — register/login/logout dan pemeriksaan versi sesi fresh.
+- `KkprlApplicantAdministrationService` — approval/reset/owner assignment dengan permission/audit.
 - `saveDraft(proposalId, step, payload, attachments) -> DraftState`
 - `validateForGeneration(proposalId) -> ValidationResult`
 - `generateDocument(proposalId, chapter, format) -> ProposalDocument`
@@ -550,7 +555,8 @@ Karena lampiran ikut digabung, generator wajib memiliki batas ukuran/proses, cac
 
 Route konseptual download:
 
-- `GET /proposal-kkprl/dokumen/{chapter}/{format}` — download satu bab terotorisasi.
+- `GET /proposal-kkprl/documents/{document}` — download dokumen generated terotorisasi.
+- `GET /proposal-kkprl/attachments/{attachment}` — lampiran mentah; hanya pemohon approved dalam scope atau petugas berpermission.
 
 Setiap download tetap memeriksa session access pemohon atau permission petugas.
 
@@ -581,7 +587,7 @@ Petugas tidak boleh melihat atau mengubah data sensitif melebihi permission yang
 ### Feature test
 
 - Membuat draft menghasilkan tiket unik.
-- Pasangan tiket + nomor HP benar dapat melanjutkan.
+- Login akun approved dapat memilih proposal sendiri; tiket/HP lama selalu ditolak.
 - Pasangan salah ditolak secara generik.
 - Rate limit akses diterapkan.
 - Draft tersimpan lintas request/session.
@@ -603,7 +609,7 @@ Petugas tidak boleh melihat atau mengubah data sensitif melebihi permission yang
 - Android Chrome pada koneksi lambat.
 - File besar, file salah tipe, dan upload terputus.
 - Dua proposal dengan nomor HP sama.
-- Akses silang memakai nomor tiket proposal lain.
+- Akses silang akun melalui ID proposal/dokumen dan sesi/URL tiket lama ditolak.
 - Semua kombinasi kondisional utama saat render.
 
 Perintah dasar proyek saat implementasi:
@@ -648,9 +654,9 @@ rtk npm run build
 
 MVP berhasil jika:
 
-1. Pemohon dapat membuat draft tanpa login.
-2. Sistem menghasilkan nomor tiket dan menampilkan cara menyimpannya.
-3. Pemohon dapat melanjutkan dengan nomor tiket + nomor HP.
+1. Pemohon mendaftar/login email-password; hanya akun approved dapat membuat draft miliknya. Pending hanya membuka dokumen generated sendiri atau empty state.
+2. Registrasi hanya membuat akun pending; draft/tiket dibuat setelah approval dan tindakan Buat proposal baru.
+3. Pemohon dapat melanjutkan melalui akun approved dan hanya memilih proposal/revisi miliknya.
 4. Pemohon dapat mengisi bertahap tanpa kehilangan data.
 5. Bag 1–3 tampil untuk semua proposal.
 6. Bag 4 dan Bag 5 tampil sesuai kondisi yang dipilih.
@@ -680,7 +686,16 @@ Fitur pengisian form statis untuk Bab 2, 3, 4, dan 5 digantikan dengan **Blended
   - *Sensitive* (KTP, NIB): Disimpan via `KkprlProposalAttachmentService` murni, AI tidak memiliki akses.
   - *Non-Sensitive* (Foto Ekosistem, Peta): Dikirim ke API Gemini Vision bersama prompt untuk mendeskripsikan kondisi lokasi, hasilnya ditambahkan ke Kartu Pratinjau.
 - **Bukti gambar Bab 3:** Pengguna memilih mangrove, lamun, karang, arus, gelombang, pasang surut, batimetri atau profil dasar laut. Panduan menampilkan koordinat Bab 1, tautan sumber dan cara mengambil screenshot dengan legenda/lokasi/periode. Foto sendiri dan sumber lain didukung. Bukti bersifat opsional; chat tetap tersedia.
+- **Sumber bawaan batimetri:** Garmin Interactive Map memakai tautan viewer yang diberikan pengguna. Pemilihan batimetri mengisi sumber, URL dan kredit Garmin/Navionics otomatis. Panduan screenshot meminta lokasi sesuai Bab 1, angka kedalaman/kontur, satuan, skala dan kredit. Peta merupakan informasi sekunder; izin penggunaan mengikuti penyedia. GEBCO tetap dapat dipilih manual dan tetap menjadi sumber bawaan profil dasar laut. Metadata lampiran lama dipertahankan.
+- **Data tabel pasang surut:** Pada topik `tide`, pengguna dapat mengunggah gambar, CSV/XLS/XLSX, atau keduanya. Tabel terbaru diutamakan saat analisis, termasuk bila tombol gambar pasut dipakai. Form unggah terlihat jelas dengan tombol pilih file, nama file, status dan panduan. CSV UTF-8 menerima koma/titik koma/tab; Excel memakai worksheet pertama, dengan judul kolom pada baris pertama. Pengguna memeriksa mapping tanggal/waktu, tinggi, jam terpisah, format tanggal, satuan m/cm/mm, zona waktu dan acuan tinggi.
+- **CSV SRGI BIG asli:** Informasi instansi, stasiun, koordinat dan datum sebelum header `timestamp_utc,timestamp_local,predicted_height_m` dikenali tanpa pengguna mengedit file. Form memilih UTC dan meter, serta datum dari file. Waktu lokal dengan penanda WIB/WITA/WIT/UTC diterima jika sesuai zona pilihan. Metadata stasiun disimpan sebagai konteks sumber dan tidak menggantikan koordinat proposal. Tinggi prediksi diberi keterangan sebagai prediksi, bukan pengukuran langsung; acuan MSL dari file tidak disimpulkan melalui rata-rata sampel. CSV umum tanpa header tetap ditolak.
+- **Pemilihan zona CSV dengan dua timestamp:** Pilihan UTC/lokal dan kolom `timestamp_utc`/`timestamp_local` saling menyesuaikan otomatis pada perubahan form dan diperiksa kembali sebelum simpan. Kedua kolom berisi tanggal/jam lengkap; opsi jam terpisah dinonaktifkan. Zona yang tidak sesuai kolom lokal file tidak tersedia. Mapping tanggal/jam pada CSV umum tetap manual.
+- **Perhitungan pasut tanpa AI:** Tombol **Hitung data pasut** menghitung statistik serta amplitudo efektif delapan komponen melalui kuadrat terkecil/QR, lalu membuat narasi awal di pratinjau. Estimasi Formzahl `(K1+O1)/(M2+S2)` dan tipe hanya tersedia jika rekaman minimal 28 hari/200 sampel, cakupan minimal 90%, jeda maksimal 3 jam, model stabil dan R² pasut setelah pemisahan tren minimal 0,90. Hasil yang tidak memadai tetap menampilkan statistik, narasi dan alasannya. Kebijakan mutu ini bukan standar otoritas. Seluruh sampel digunakan tanpa interpolasi. Hasil merupakan estimasi periode, bukan konstanta astronomis stasiun; P1/K1 dan K2/S2 belum dipisahkan, tanpa koreksi nodal/inferensi/interval kepercayaan. Rata-rata sampel bukan MSL dan ekstrem periode bukan HHWL/LLWL/HAT/LAT. Baris rusak, duplikat waktu, rumus dan format palsu tetap ditolak. Keputusan: [ADR-019](decisions/ADR-019-backend-tidal-harmonics.md).
+- **Grafik pasut dari backend:** Tombol **Buat grafik pasut** membuat PNG dari seluruh sampel tabel terbaru melalui PHP GD, tanpa layanan AI dan tanpa mengganti narasi manual. Sumbu waktu memakai instan sebenarnya, tinggi dikonversi ke meter, datum dan zona waktu dicantumkan; prediksi BIG dibedakan dari pengukuran. Garis hanya penghubung visual, tanpa pemulusan atau pengisian celah. Jeda lebih dari 1,5 kali median interval diputus dan dilaporkan (kebijakan visual aplikasi, bukan standar resmi). Sumber/kredit, periode, nama/hash file dan metadata stasiun menyertai gambar. Grafik privat inline `tide` ikut snapshot/Word/PDF dan dapat dilihat/diunduh. Hasil identik tidak membuat lampiran tambahan; gagal/kuota/perubahan data atau checkpoint mempertahankan gambar lama dan koreksi narasi. Grafik memakai satu slot kuota Bab 3. Keputusan: [ADR-023](decisions/ADR-023-grafik-pasut-backend.md).
+- **Narasi pasut dan AI opsional:** Hasil, keterbatasan dan sumber tersedia tanpa Gemini dan tetap bisa dikonfirmasi menjadi draft. Tombol **Rapikan narasi dengan AI** memakai ringkasan backend; AI tidak menghitung ulang angka atau tipe. Jika pratinjau kosong, narasi awal dibuat sebelum request. Timeout mempertahankan narasi dan hasil. Menghitung ulang meminta konfirmasi UI bila akan mengganti teks yang terisi. Metadata harmonik berversi mengikuti snapshot/Word/PDF; cache tetap memerlukan checksum, akses, lock, koordinat, tabel terbaru dan checkpoint yang sesuai. Tidak ada fallback diam-diam ke gambar jika tabel bermasalah.
+- **Lampiran data pasut:** Privat sebagai inline `ai_tide_data` pada `tide`, maksimal 5 MiB, 50.000 baris data (di luar judul kolom), 20 kolom, area Excel 200.000 sel dan isi ZIP 32 MiB. Mendukung seluruh data per menit selama 30/31 hari (43.201/44.641 sampel termasuk kedua batas waktu), tanpa pemotongan atau pengurangan frekuensi. Excel dibaca bertahap untuk membatasi objek sel di memori. Kuota bersama Bab 3 tetap 10 file/15 MiB. Mapping, ringkasan perhitungan, sumber serta koordinat disimpan dalam metadata yang ikut snapshot/revisi. Word/PDF menampilkan ringkasan data dan sumber. Memakai PhpSpreadsheet yang sudah tersedia; tidak ada dependency atau migrasi baru. Konfirmasi manual, pengecekan akses/lock/checksum/koordinat/checkpoint dan kuota Gemini tetap berlaku. Keputusan: [ADR-018](decisions/ADR-018-tidal-table-evidence.md).
 - **Provenance:** Gambar disimpan privat sebagai lampiran inline `ai_evidence`, lengkap dengan sumber, URL, periode, tanggal akses, atribusi, keterangan dan koordinat saat unggah. Metadata dipertahankan dalam snapshot/manifest serta revisi; caption/sitasi ikut Word/PDF. JPG/PNG/WebP maksimal 5 MiB memakai kuota bersama 10 file/15 MiB per bab.
+- **Penampang langsung Bab 3:** Pada topik Profil dasar laut, pengguna memilih dua titik A/B pada peta yang menampilkan referensi koordinat Bab 1, atau mengisi koordinat desimal. Backend mengambil sampel GMRT ProfileServer melalui HTTPS, membuat grafik PNG dan narasi awal tanpa Gemini, lalu menyimpan grafik sebagai bukti privat inline dengan sumber, lisensi CC BY 4.0, waktu akses, endpoint, sampel dan checksum respons. AI opsional memakai grafik/ringkasan backend; ringkasan angka dan keterbatasan tetap melekat. Nilai elevasi positif/negatif dipertahankan; celah data tidak diinterpolasi. Grafik grid sekunder bukan survei, bukan bukti sedimen atau datum pasut, dan jumlah sampel bukan resolusi grid. Lintasan lokal didukung 10 m–100 km. Akses, kunci, koordinat dan checkpoint diperiksa kembali setelah request. Kegagalan mempertahankan hasil lama. Bersihkan lintasan memulai lagi dari A, tanpa menghapus grafik. Membuat ulang saat pratinjau terisi meminta konfirmasi penggantian narasi. Upload grafik dari sumber lain tetap tersedia. Lihat ADR-020.
 - **Analisis terbatas:** Satu permintaan membaca satu gambar dan hanya memperbarui field terkait pada pratinjau. AI tidak menebak angka, spesies, kesehatan karang, sedimen, penampang terukur atau ketiadaan habitat. Gambar tidak jelas dapat memicu klarifikasi. Respons invalid, kegagalan API atau perubahan akses/lock/bukti/koordinat/checkpoint mempertahankan koreksi sebelumnya.
 - **Kegagalan dan kuota AI:** Chat/gambar membedakan kuota harian, batas sementara, konfigurasi, koneksi dan kegagalan provider. HTTP 429 menampilkan waktu tunggu dan menahan permintaan ulang pada cache persisten bersama mengikuti informasi provider. Gambar, narasi dan jawaban tetap tersedia; pengguna dapat mengedit pratinjau. Tidak ada perpindahan otomatis ke layanan berbayar. Pengelola dapat menjalankan `php artisan kkprl:ai-reset-cooldown` setelah peningkatan kuota untuk menghapus penundaan lokal; command tidak mengubah kuota Google. Key/model memakai `services.gemini` tanpa dependency baru.
 - **Kompatibilitas shared hosting:** Tidak membutuhkan instalasi paket atau program baru. Pengguna mengakses sumber secara manual; aplikasi tidak mengambil URL sumber atau melakukan scraping. Akses gratis bukan jaminan izin penggunaan screenshot komersial; panduan mencantumkan batasan khusus Atlas/BIG serta alternatif. Keputusan dan validasi: [ADR-017](decisions/ADR-017-chapter-three-image-evidence.md), [laporan pengujian](kkprl-chapter-three-evidence-validation.md).
@@ -709,3 +724,12 @@ Pertanyaan berikut harus dijawab sebelum implementasi bagian terkait:
 - `app/Models/Client.php`
 - `docs/upgrade-prd.md`
 - `docs/servicekkprl-mobile-development-plan.md`
+
+
+### Batimetri GMRT langsung pada Bab 3 (ADR-021)
+
+Saat memilih Batimetri, GMRT menjadi sumber default. Tombol **Buat peta batimetri & narasi awal** memakai seluruh koordinat Bab 1 dan tambahan area 0,5/1/2/5 km (default 1 km), tanpa screenshot atau panggilan Gemini. Grid ASCII diperiksa backend; PHP GD membentuk raster warna, kontur antar pusat sel, legenda elevasi meter, koordinat WGS84, skala perkiraan dan penanda/bentuk Bab 1. NoData tetap kosong. Garmin, GEBCO dan unggah manual tetap tersedia.
+
+Ringkasan menyatakan rentang elevasi **seluruh area peta**, jumlah sel dan jarak grid keluaran, bukan kedalaman titik usaha atau ketelitian asli. Datum vertikal, periode survei dan resolusi sumber asli belum diketahui. Angka positif tidak diperlakukan sebagai kedalaman dan peta tidak membuktikan jenis sedimen.
+
+PNG disimpan privat dengan sumber, kredit CC BY 4.0, identitas koordinat/bentuk, ringkasan, SHA-256 serta arsip grid gzip/base64 pada source_metadata. AI opsional hanya mendapat gambar dan ringkasan; arsip grid tidak dikirim. Ringkasan backend dan lisensi tetap dilampirkan setelah AI menarasikan. Narasi masuk pratinjau dahulu; pengguna melakukan Konfirmasi & Simpan Draft. Peta/sumber ikut snapshot dan ekspor Word/PDF. Koneksi gagal, perubahan lokasi, akses/kunci, checkpoint tab lain dan kuota tidak menimpa bukti sebelumnya. Semua koordinat harus valid; area dibatasi 50 km per sisi, 65.536 sel dan 4 MiB respons.

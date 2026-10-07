@@ -59,6 +59,7 @@ final class KkprlProposalAttachmentService
         array $files,
         array $metadata = [],
     ): array {
+        app(KkprlProposalAccessService::class)->assertCanBuild($proposal);
         if ($proposal->isLocked()) {
             throw new ProposalLocked;
         }
@@ -75,7 +76,7 @@ final class KkprlProposalAttachmentService
         $this->assertPlacement($placement, $metadata, $proposal->payload ?? [], $chapter);
         $inspected = array_map(fn (UploadedFile $file): array => [
             'file' => $file,
-            'inspection' => $this->inspect($file),
+            'inspection' => $this->inspect($file, $chapter, $metadata),
         ], $files);
         $storedPaths = [];
 
@@ -84,6 +85,7 @@ final class KkprlProposalAttachmentService
                 $proposal, $chapter, $metadata, $placement, $inspected, &$storedPaths
             ): array {
                 $lockedProposal = KkprlProposal::query()->lockForUpdate()->findOrFail($proposal->id);
+                app(KkprlProposalAccessService::class)->assertCanBuild($lockedProposal, lock: true);
                 if ($lockedProposal->isLocked()) {
                     throw new ProposalLocked;
                 }
@@ -151,6 +153,7 @@ final class KkprlProposalAttachmentService
 
     public function delete(KkprlProposal $proposal, KkprlProposalAttachment $attachment): void
     {
+        app(KkprlProposalAccessService::class)->assertCanBuild($proposal);
         if ($proposal->isLocked()) {
             throw new ProposalLocked;
         }
@@ -161,6 +164,7 @@ final class KkprlProposalAttachmentService
 
         DB::transaction(function () use ($proposal, $attachment): void {
             $lockedProposal = KkprlProposal::query()->lockForUpdate()->findOrFail($proposal->id);
+            app(KkprlProposalAccessService::class)->assertCanBuild($lockedProposal, lock: true);
             if ($lockedProposal->isLocked()) {
                 throw new ProposalLocked;
             }
@@ -178,6 +182,7 @@ final class KkprlProposalAttachmentService
         UploadedFile $file,
         array $metadata = [],
     ): KkprlProposalAttachment {
+        app(KkprlProposalAccessService::class)->assertCanBuild($proposal);
         if ($proposal->isLocked()) {
             throw new ProposalLocked;
         }
@@ -201,6 +206,7 @@ final class KkprlProposalAttachmentService
                 $proposal, $attachment, $file, $metadata, $mime, $extension, $size, $checksum, $placement, &$storedPath
             ): array {
                 $lockedProposal = KkprlProposal::query()->lockForUpdate()->findOrFail($proposal->id);
+                app(KkprlProposalAccessService::class)->assertCanBuild($lockedProposal, lock: true);
                 if ($lockedProposal->isLocked()) {
                     throw new ProposalLocked;
                 }
@@ -262,7 +268,7 @@ final class KkprlProposalAttachmentService
     }
 
     /** @return array{0: string, 1: string, 2: int, 3: string} */
-    private function inspect(UploadedFile $file): array
+    private function inspect(UploadedFile $file, string $chapter = '', array $metadata = []): array
     {
         $realPath = $file->getRealPath();
 
@@ -274,6 +280,21 @@ final class KkprlProposalAttachmentService
         $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($realPath);
         $signature = file_get_contents($realPath, false, null, 0, 16);
         $size = filesize($realPath);
+
+        if (($metadata['attachment_role'] ?? null) === 'ai_tide_data') {
+            if ($chapter !== 'bag-3' || ($metadata['field'] ?? null) !== 'tide'
+                || ($metadata['placement'] ?? null) !== 'inline' || ($metadata['anchor_key'] ?? null) !== 'tide') {
+                throw new InvalidAttachmentFile('Data pasut hanya tersedia pada bagian pasang surut Bab 3.');
+            }
+            $extension = strtolower($file->getClientOriginalExtension());
+            app(KkprlTideDataReader::class)->read($realPath, $extension);
+
+            return [match ($extension) {
+                'csv' => 'text/csv',
+                'xls' => 'application/vnd.ms-excel',
+                'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            }, $extension, (int) $size, hash_file('sha256', $realPath) ?: ''];
+        }
 
         if (! is_string($mime) || ! isset(self::MIME_EXTENSIONS[$mime]) || ! is_string($signature) || $size === false) {
             Log::error('Upload failed: mime/signature/size issue.', [

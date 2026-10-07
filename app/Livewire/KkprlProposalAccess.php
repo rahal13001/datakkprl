@@ -24,6 +24,7 @@ class KkprlProposalAccess extends Component
 
     public function submit(KkprlProposalAccessService $access): void
     {
+        abort(403, 'Gunakan akun email dan password.');
         $this->resetErrorBag();
 
         if ($this->mode === 'resume') {

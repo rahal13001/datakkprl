@@ -130,6 +130,28 @@ final class ProposalFieldCatalog
         return array_column(self::definitionsForPayload($chapter, $payload), 'key');
     }
 
+    /** @return list<string> */
+    public static function requiredFields(string $chapter): array
+    {
+        return match ($chapter) {
+            'bag-5-land' => ['land_status', 'land_evidence_type', 'land_acquisition_year'],
+            'bag-5-permits' => ['permit_type', 'permit_year', 'permit_status'],
+            default => self::fields($chapter),
+        };
+    }
+
+    /** @param array<string, mixed> $payload @return list<string> */
+    public static function requiredFieldsForPayload(string $chapter, array $payload): array
+    {
+        if ($chapter !== 'bag-5') {
+            return self::requiredFields($chapter);
+        }
+
+        return array_values(array_intersect(self::fieldsForPayload($chapter, $payload), array_merge(
+            self::requiredFields('bag-5-land'), self::requiredFields('bag-5-permits'),
+        )));
+    }
+
     public static function label(string $field): string
     {
         foreach (self::DEFINITIONS as $definitions) {

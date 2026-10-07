@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Contracts\KkprlProposalAccessVerifier;
 use App\Filament\Layanankkprl\Resources\Clients\Pages\ViewClient;
+use App\Http\Middleware\EnsureKkprlApplicant;
 use App\Models\Activity;
 use App\Models\Assignment;
 use App\Models\BeritaAcara;
@@ -31,6 +32,7 @@ use Filament\View\PanelsRenderHook;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\Compilers\BladeCompiler;
+use Livewire\Livewire;
 use ReflectionProperty;
 
 class AppServiceProvider extends ServiceProvider
@@ -60,6 +62,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Livewire::addPersistentMiddleware([EnsureKkprlApplicant::class]);
         Activity::observe(ActivityObserver::class);
         Faq::observe(FaqObserver::class);
         Regulation::observe(RegulationObserver::class);

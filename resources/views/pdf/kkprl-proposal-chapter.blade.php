@@ -73,7 +73,7 @@
                         @endforeach
                     @else
                         @foreach ($attachment['pages'] as $pageIndex => $page)
-                            <div class="pdf-page"><strong>Halaman PDF {{ $pageIndex + 1 }}</strong><br>{{ $page }}</div>
+                            <div class="pdf-page"><strong>{{ ($attachment['attachment_role'] ?? null) === 'ai_tide_data' ? 'Ringkasan data pasut' : 'Halaman PDF '.($pageIndex + 1) }}</strong><br>{{ $page }}</div>
                         @endforeach
                     @endif
                     <div class="caption">{{ $attachment['caption'] }}</div>
@@ -96,7 +96,7 @@
                         @endforeach
                     @else
                         @foreach ($attachment['pages'] as $pageIndex => $page)
-                            <div class="pdf-page"><strong>Halaman PDF {{ $pageIndex + 1 }}</strong><br>{{ $page }}</div>
+                            <div class="pdf-page"><strong>{{ ($attachment['attachment_role'] ?? null) === 'ai_tide_data' ? 'Ringkasan data pasut' : 'Halaman PDF '.($pageIndex + 1) }}</strong><br>{{ $page }}</div>
                         @endforeach
                     @endif
                     <div class="caption">{{ $attachment['caption'] }}</div>

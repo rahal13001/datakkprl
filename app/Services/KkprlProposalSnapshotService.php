@@ -8,6 +8,7 @@ use App\Domain\Kkprl\ProposalInlineAnchorResolver;
 use App\Domain\Kkprl\ProposalProgress;
 use App\Domain\Kkprl\ProposalSnapshot;
 use App\Models\KkprlProposal;
+use App\Models\KkprlProposalAttachment;
 use Illuminate\Validation\ValidationException;
 
 final class KkprlProposalSnapshotService
@@ -41,6 +42,7 @@ final class KkprlProposalSnapshotService
             ->orderBy('display_order')
             ->orderBy('id')
             ->get()
+            ->filter(fn ($attachment): bool => $chapter !== 'bag-5' || $this->activeChapterFiveAttachment($attachment, $payload))
             ->map(fn ($attachment): array => [
                 'id' => $attachment->id,
                 'chapter' => $attachment->chapter,
@@ -98,6 +100,26 @@ final class KkprlProposalSnapshotService
         );
     }
 
+    private function activeChapterFiveAttachment(KkprlProposalAttachment $attachment, array $payload): bool
+    {
+        $active = ProposalFieldCatalog::fieldsForPayload('bag-5', $payload);
+        $all = array_merge(ProposalFieldCatalog::fields('bag-5-land'), ProposalFieldCatalog::fields('bag-5-permits'));
+        if (in_array($attachment->field, $all, true) && ! in_array($attachment->field, $active, true)) {
+            return false;
+        }
+        if ($attachment->placement !== 'inline') {
+            return true;
+        }
+        if ($this->anchors->resolve('bag-5', (string) $attachment->anchor_key, $payload) !== null) {
+            return true;
+        }
+        // Resolve known inactive anchors using all sections, while still rejecting unknown anchors below.
+        $allSections = array_replace($payload, ['land_relation' => 'adjacent', 'has_existing_permits' => true]);
+        $field = $this->anchors->resolve('bag-5', (string) $attachment->anchor_key, $allSections);
+
+        return $field === null || in_array($field, $active, true);
+    }
+
     /** @return array<string, mixed> */
     private function payloadForChapter(array $payload, string $chapter): array
     {
@@ -111,20 +133,9 @@ final class KkprlProposalSnapshotService
             return $conditions + [$chapter => array_intersect_key($payload[$chapter], array_flip($fields))];
         }
 
-        $fields = match ($chapter) {
-            'bag-5' => array_merge(
-                ($payload['land_relation'] ?? null) === 'adjacent' ? ProposalProgress::requiredFields('bag-5-land') : [],
-                $this->truthy($payload['has_existing_permits'] ?? false) ? ProposalProgress::requiredFields('bag-5-permits') : [],
-            ),
-            default => ProposalProgress::requiredFields($chapter),
-        };
+        $fields = ProposalFieldCatalog::fieldsForPayload($chapter, $payload);
 
         return $conditions + [$chapter => array_intersect_key($payload, array_flip($fields))];
-    }
-
-    private function truthy(mixed $value): bool
-    {
-        return in_array($value, [true, 1, '1', 'true'], true);
     }
 
     /** @param mixed $value */

@@ -32,6 +32,12 @@ Permintaan analisis bersifat sinkron dengan timeout HTTP 30 detik dan satu gamba
 
 Tes fitur mencakup provenance, akses privat, isolasi proposal/bab, kuota, jenis file/URL, perubahan koordinat, penguncian selama analisis, koreksi bersamaan, kegagalan/clarification AI, konfirmasi, checksum, penghapusan, replacement dan manifest. Tes revisi memeriksa pelestarian metadata. Pengujian browser menggunakan database dan peta sintetis serta respons Gemini simulasi; lihat [laporan validasi](../kkprl-chapter-three-evidence-validation.md).
 
+## Perkembangan
+
+Mulai 2026-10-07, bukti pasang surut juga menerima data CSV/XLS/XLSX yang diprioritaskan terhadap gambar; lihat [ADR-018](ADR-018-tidal-table-evidence.md). Keputusan gambar untuk topik lain tetap berlaku.
+
+Pada 2026-10-07, sumber bawaan batimetri diganti dari GEBCO ke Garmin Interactive Map sesuai permintaan pengguna, karena alur unduh/email GEBCO menyulitkan pengambilan gambar. Katalog menggunakan tautan viewer yang diberikan pengguna dan mengisi URL serta kredit Garmin/Navionics otomatis. Panduan meminta pengguna mencari lokasi, memperbesar peta sampai angka/garis kontur terbaca, mencocokkan koordinat Bab 1 dan menyertakan satuan, skala serta kredit pada screenshot. Peta tetap diperlakukan sebagai data sekunder; ketersediaan viewer tidak diartikan sebagai lisensi open source atau izin reproduksi tanpa batas. Ketentuan penggunaan ditautkan. GEBCO tetap tersedia sebagai sumber alternatif dan sumber bawaan profil dasar laut. Provenance lampiran lama tidak diubah.
+
 ## References
 
 - [Gemini image understanding](https://ai.google.dev/gemini-api/docs/image-understanding): inline image input, tanpa SDK baru.
@@ -43,3 +49,4 @@ Tes fitur mencakup provenance, akses privat, isolasi proposal/bab, kuota, jenis 
 - [Copernicus Marine license](https://marine.copernicus.eu/user-corner/service-commitments-and-licence): penggunaan data dengan atribusi dan ketentuan layanan.
 - [BIG pasang surut](https://srgi.big.go.id/tides): login, persetujuan ketentuan, serta kontak BIG untuk lebih dari tiga hari.
 - [GEBCO download app](https://download.gebco.net/) dan [WMS](https://www.gebco.net/data-products/gebco-web-services/web-map-service): gambaran batimetri global.
+- [Garmin Interactive Map](https://maps.garmin.com/en-US/marine?maps=garmin&overlay=false&key=qzv6umb2zu41) dan [ketentuan penggunaan Garmin](https://www.garmin.com/en-US/legal/terms-of-use/): viewer batimetri pilihan pengguna, kredit dan izin mengikuti penyedia peta.

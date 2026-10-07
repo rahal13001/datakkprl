@@ -24,6 +24,9 @@ final class ProposalAiRequestFailed extends RuntimeException
             'model' => 'Model AI yang digunakan belum tersedia. Hubungi pengelola layanan.',
             'busy' => 'Layanan AI sedang sibuk. Coba lagi beberapa saat.',
             'connection' => 'Koneksi ke layanan AI belum berhasil. Coba lagi beberapa saat.',
+            'timeout' => 'Layanan AI belum merespons dalam batas waktu tunggu. Coba lagi beberapa saat.',
+            'dns' => 'Server belum dapat menemukan alamat layanan AI. Pengelola perlu memeriksa koneksi internet atau DNS server.',
+            'tls' => 'Server belum dapat memverifikasi sertifikat layanan AI. Pengelola perlu memeriksa konfigurasi sertifikat server.',
             'empty_response' => 'AI belum memberikan narasi. Coba gambar yang lebih jelas atau lengkapi informasinya.',
             default => 'Permintaan AI belum dapat diproses. Periksa isian lalu coba lagi.',
         };

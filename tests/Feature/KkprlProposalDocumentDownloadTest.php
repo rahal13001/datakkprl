@@ -3,18 +3,22 @@
 namespace Tests\Feature;
 
 use App\Domain\Kkprl\ProposalProgress;
+use App\Models\KkprlApplicant;
 use App\Models\User;
+use App\Services\KkprlApplicantAuthService;
 use App\Services\KkprlProposalAccessService;
 use App\Services\KkprlProposalDocumentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Permission;
+use Tests\Support\KkprlApplicantFixture;
 use Tests\Support\KkprlPayloadFixture;
 use Tests\TestCase;
 
 class KkprlProposalDocumentDownloadTest extends TestCase
 {
+    use KkprlApplicantFixture;
     use RefreshDatabase;
 
     #[Test]
@@ -40,6 +44,9 @@ class KkprlProposalDocumentDownloadTest extends TestCase
         $first = $access->startDraft(['phone' => '0812-1111-1111']);
         $first->update(['payload' => $this->completePayload()]);
         $document = app(KkprlProposalDocumentService::class)->generateChapterFormats($first->fresh(), 'bag-1', ['pdf'])->first();
+        $other = KkprlApplicant::create(['email' => 'other@example.test', 'password' => 'Other-fixture-123!']);
+        $other->forceFill(['approved_at' => now()])->save();
+        $this->signInApplicant($other->fresh());
         $second = $access->startDraft(['phone' => '0812-2222-2222']);
         $access->grantAccess($second);
 
@@ -54,7 +61,7 @@ class KkprlProposalDocumentDownloadTest extends TestCase
         $proposal = $access->startDraft(['phone' => '0812-3456-7890']);
         $proposal->update(['payload' => $this->completePayload()]);
         $document = app(KkprlProposalDocumentService::class)->generateChapterFormats($proposal->fresh(), 'bag-1', ['pdf'])->first();
-        $access->forget();
+        app(KkprlApplicantAuthService::class)->logout();
         $staff = User::factory()->create();
 
         $staff->givePermissionTo(Permission::findOrCreate('Review:KkprlProposal', 'web'));

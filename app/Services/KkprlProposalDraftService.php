@@ -19,17 +19,19 @@ final class KkprlProposalDraftService
      */
     public function save(KkprlProposal $proposal, array $payload, int $step): KkprlProposal
     {
+        app(KkprlProposalAccessService::class)->assertCanBuild($proposal);
         if ($proposal->isLocked()) {
             throw new ProposalLocked;
         }
 
         $payload = $this->sanitizer->sanitize($payload);
         $progress = app(ProposalProgress::class)->evaluate($payload);
-        $bagOne = is_array($payload['bag-1'] ?? null) ? $payload['bag-1'] : [];
+        $bagOne = is_array($payload['bag-1'] ?? null) ? $payload['bag-1'] : $payload;
 
         return DB::transaction(function () use ($proposal, $payload, $progress, $step, $bagOne): KkprlProposal {
             $lockedProposal = KkprlProposal::query()->lockForUpdate()->findOrFail($proposal->id);
 
+            app(KkprlProposalAccessService::class)->assertCanBuild($lockedProposal, lock: true);
             if ($lockedProposal->isLocked()) {
                 throw new ProposalLocked;
             }

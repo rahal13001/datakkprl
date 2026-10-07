@@ -15,11 +15,13 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\KkprlApplicantFixture;
 use Tests\Support\KkprlPayloadFixture;
 use Tests\TestCase;
 
 class KkprlChapterThreeEvidenceTest extends TestCase
 {
+    use KkprlApplicantFixture;
     use RefreshDatabase;
 
     protected function setUp(): void

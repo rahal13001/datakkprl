@@ -7,10 +7,12 @@ use App\Services\KkprlProposalAccessService;
 use App\Services\KkprlProposalDraftService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\KkprlApplicantFixture;
 use Tests\TestCase;
 
 class KkprlProposalDraftTest extends TestCase
 {
+    use KkprlApplicantFixture;
     use RefreshDatabase;
 
     #[Test]

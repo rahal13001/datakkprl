@@ -10,10 +10,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\KkprlApplicantFixture;
 use Tests\TestCase;
 
 class KkprlAiChatTest extends TestCase
 {
+    use KkprlApplicantFixture;
     use RefreshDatabase;
 
     #[Test]

@@ -5,18 +5,18 @@ namespace Tests\Feature;
 use App\Contracts\KkprlProposalAccessVerifier;
 use App\Domain\Kkprl\InvalidProposalCredentials;
 use App\Domain\Kkprl\ProposalAccessDenied;
-use App\Domain\Kkprl\ProposalAccessRateLimited;
-use App\Models\KkprlProposal;
 use App\Services\KkprlProposalAccessService;
 use App\Services\KkprlTicketPhoneAccessVerifier;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\RateLimiter;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\KkprlApplicantFixture;
 use Tests\TestCase;
 
 class KkprlProposalAccessTest extends TestCase
 {
+    use KkprlApplicantFixture;
     use RefreshDatabase;
 
     protected function setUp(): void
@@ -44,7 +44,7 @@ class KkprlProposalAccessTest extends TestCase
         ]);
 
         $this->assertSame('draft', $proposal->status);
-        $this->assertSame($proposal->id, session('kkprl_proposal_access.proposal_id'));
+        $this->assertSame($proposal->id, session('kkprl_selected_proposal.proposal_id'));
         $this->assertTrue(app(KkprlProposalAccessService::class)->current()->is($proposal));
     }
 
@@ -62,32 +62,24 @@ class KkprlProposalAccessTest extends TestCase
     }
 
     #[Test]
-    public function applicant_can_resume_with_equivalent_phone_format(): void
+    public function ticket_phone_cannot_resume_even_an_owned_proposal(): void
     {
         $service = app(KkprlProposalAccessService::class);
         $proposal = $service->startDraft(['phone' => '0812-3456-7890']);
         $service->forget();
-
-        $resumed = $service->resumeDraft($proposal->ticket_number, '+62 812 3456 7890');
-
-        $this->assertTrue($resumed->is($proposal));
-        $this->assertSame($proposal->id, session('kkprl_proposal_access.proposal_id'));
+        $this->assertNull(app(KkprlProposalAccessVerifier::class)->verify($proposal->ticket_number, '+62 812 3456 7890'));
+        $this->expectException(InvalidProposalCredentials::class);
+        $service->resumeDraft($proposal->ticket_number, '+62 812 3456 7890');
     }
 
     #[Test]
-    public function main_ticket_can_resume_a_submitted_proposal_without_error(): void
+    public function owned_submitted_proposal_can_be_selected_but_remains_locked(): void
     {
         $service = app(KkprlProposalAccessService::class);
-        $proposal = KkprlProposal::create([
-            'phone' => '0812-3456-7890',
-            'status' => 'submitted',
-        ]);
-
-        $resumed = $service->resumeDraft($proposal->ticket_number, '0812-3456-7890');
-
-        $this->assertTrue($resumed->is($proposal));
-        $this->assertTrue($resumed->isLocked());
-        $this->assertSame($proposal->id, session('kkprl_proposal_access.proposal_id'));
+        $proposal = $this->ownedProposal(['status' => 'submitted']);
+        $service->grantAccess($proposal);
+        $this->assertTrue($service->current()->is($proposal));
+        $this->assertTrue($service->current()->isLocked());
     }
 
     #[Test]
@@ -100,43 +92,18 @@ class KkprlProposalAccessTest extends TestCase
     }
 
     #[Test]
-    public function repeated_resume_attempts_are_rate_limited(): void
+    public function repeated_and_varying_legacy_credentials_never_create_access(): void
     {
         $service = app(KkprlProposalAccessService::class);
-
-        for ($attempt = 1; $attempt <= 5; $attempt++) {
+        $service->forget();
+        for ($attempt = 0; $attempt < 8; $attempt++) {
             try {
-                $service->resumeDraft('KKPRL-UNKNOWN', '0812-0000-0000', 'kkprl-test');
+                $service->resumeDraft('KKPRL-UNKNOWN-'.$attempt, '08120000000'.$attempt);
+                $this->fail('Legacy access must fail closed.');
             } catch (InvalidProposalCredentials) {
-                // Expected until the configured limit is reached.
+                $this->assertNull($service->current());
             }
         }
-
-        $this->expectException(ProposalAccessRateLimited::class);
-        $service->resumeDraft('KKPRL-UNKNOWN', '0812-0000-0000', 'kkprl-test');
-    }
-
-    #[Test]
-    public function varying_bad_credentials_are_rate_limited_per_ip(): void
-    {
-        config([
-            'kkprl.proposal_access.resume_ip_attempts' => 2,
-            'kkprl.proposal_access.resume_ip_decay_seconds' => 900,
-        ]);
-        $ipKey = 'kkprl:resume:ip:'.hash('sha256', request()->ip() ?? 'unknown');
-        RateLimiter::clear($ipKey);
-        $service = app(KkprlProposalAccessService::class);
-
-        for ($attempt = 1; $attempt <= 2; $attempt++) {
-            try {
-                $service->resumeDraft('KKPRL-UNKNOWN-'.$attempt, '0812-0000-000'.$attempt);
-            } catch (InvalidProposalCredentials) {
-                // Expected until the IP limit is reached.
-            }
-        }
-
-        $this->expectException(ProposalAccessRateLimited::class);
-        $service->resumeDraft('KKPRL-UNKNOWN-3', '0812-0000-0003');
     }
 
     #[Test]

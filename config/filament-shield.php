@@ -1,8 +1,10 @@
 <?php
 
 declare(strict_types=1);
+use App\Filament\Layanankkprl\Resources\KkprlApplicants\KkprlApplicantResource;
 use App\Filament\Layanankkprl\Resources\KkprlProposalEditApprovals\KkprlProposalEditApprovalResource;
 use App\Filament\Layanankkprl\Resources\KkprlProposals\KkprlProposalResource;
+use App\Filament\Layanankkprl\Resources\ProposalGuides\ProposalGuideResource;
 use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
 use Filament\Pages\Dashboard;
 use Filament\Widgets\AccountWidget;
@@ -180,11 +182,12 @@ return [
             ],
         ],
         'exclude' => [
+            KkprlApplicantResource::class,
             // KKPRL uses workflow permissions and hand-written policies.
             KkprlProposalResource::class,
             KkprlProposalEditApprovalResource::class,
             // Guides share the existing learning material content permissions.
-            \App\Filament\Layanankkprl\Resources\ProposalGuides\ProposalGuideResource::class,
+            ProposalGuideResource::class,
         ],
     ],
 
@@ -239,6 +242,11 @@ return [
     */
 
     'custom_permissions' => [
+        'ViewAny:KkprlApplicant',
+        'View:KkprlApplicant',
+        'Approve:KkprlApplicant',
+        'ResetPassword:KkprlApplicant',
+        'AssignOwner:KkprlApplicant',
         'ViewAnyAssignment',
         'ViewAssignment',
         'CreateAssignment',

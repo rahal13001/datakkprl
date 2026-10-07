@@ -15,20 +15,7 @@ final class KkprlTicketPhoneAccessVerifier implements KkprlProposalAccessVerifie
 
     public function verify(string $ticketNumber, string $credential): ?KkprlProposal
     {
-        $phoneHash = $this->hashes->phone($this->phones->normalize($credential));
-
-        if ($phoneHash === null) {
-            return null;
-        }
-
-        $proposals = KkprlProposal::query()
-            ->where('ticket_number', strtoupper(trim($ticketNumber)))
-            ->where('phone_hash', $phoneHash)
-            ->orderByDesc('revision_number')
-            ->get();
-
-        return $proposals->first(
-            fn (KkprlProposal $proposal): bool => $proposal->status === 'draft' && $proposal->revision_number > 0,
-        ) ?? $proposals->first();
+        // Retained for legacy integrations: credentials never grant account access.
+        return null;
     }
 }

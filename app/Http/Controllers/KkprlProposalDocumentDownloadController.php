@@ -16,15 +16,15 @@ final class KkprlProposalDocumentDownloadController
         KkprlProposalAccessService $access,
         KkprlProposalSnapshotService $snapshots,
     ): Response {
-        $current = $access->current();
-        $staffAllowed = auth()->check() && auth()->user()->can('Download:KkprlProposalDocument');
+        $staffAllowed = auth('web')->check() && auth('web')->user()->can('Download:KkprlProposalDocument');
 
-        if (! $staffAllowed && ($current === null || $document->proposal_id !== $current->id)) {
+        if (! $staffAllowed && ($document->proposal === null || ! $access->canReadDocuments($document->proposal))) {
             abort(404);
         }
 
         abort_unless($document->generation_status === 'generated' && filled($document->storage_path), 404);
         abort_unless($document->storage_disk === config('kkprl.storage_disk', 'kkprl_private'), 404);
+        abort_unless(Storage::disk($document->storage_disk)->exists($document->storage_path), 404);
 
         $proposal = $document->proposal()->first();
         abort_if($proposal === null, 404);
@@ -40,6 +40,8 @@ final class KkprlProposalDocumentDownloadController
                 && hash_equals((string) $document->attachment_manifest_hash, $snapshot->attachmentManifestHash),
             404,
         );
+
+        abort_unless($staffAllowed || $access->canReadDocuments($proposal), 404);
 
         return Storage::disk($document->storage_disk)->download(
             $document->storage_path,

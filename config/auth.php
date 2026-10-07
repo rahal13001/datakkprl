@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\KkprlApplicant;
+use App\Models\User;
+
 return [
 
     /*
@@ -36,6 +39,10 @@ return [
     */
 
     'guards' => [
+        'kkprl_applicant' => [
+            'driver' => 'session',
+            'provider' => 'kkprl_applicants',
+        ],
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
@@ -60,9 +67,13 @@ return [
     */
 
     'providers' => [
+        'kkprl_applicants' => [
+            'driver' => 'eloquent',
+            'model' => KkprlApplicant::class,
+        ],
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model' => env('AUTH_MODEL', User::class),
         ],
 
         // 'users' => [

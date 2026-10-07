@@ -25,8 +25,9 @@ class KkprlAiService
     }
 
     /** @throws ProposalAiRequestFailed */
-    public function chat(array $messages, string $systemPrompt): ?string
+    public function chat(array $messages, string $systemPrompt, bool $lowThinking = false): ?string
     {
+        app(KkprlProposalAccessService::class)->assertApproved();
         $contents = [];
         foreach ($messages as $message) {
             if (($message['role'] ?? null) === 'system_preview') {
@@ -38,12 +39,14 @@ class KkprlAiService
             ];
         }
 
-        return $this->generate($contents, $systemPrompt, 0.4);
+        return $this->generate($contents, $systemPrompt, 0.4, $lowThinking);
     }
 
     /** @throws ProposalAiRequestFailed */
     public function analyzeImage(string $base64Image, string $mimeType, string $prompt): ?string
     {
+        app(KkprlProposalAccessService::class)->assertApproved();
+
         return $this->generate([[
             'role' => 'user',
             'parts' => [
@@ -58,7 +61,7 @@ class KkprlAiService
         Cache::forget($this->cooldownKey());
     }
 
-    private function generate(array $contents, string $systemPrompt, float $temperature): string
+    private function generate(array $contents, string $systemPrompt, float $temperature, bool $lowThinking = false): string
     {
         if ($this->apiKey === '') {
             $this->fail(new ProposalAiRequestFailed('configuration'));
@@ -70,15 +73,37 @@ class KkprlAiService
             throw new ProposalAiRequestFailed($cooldown['reason'], 429, $cooldown['until'] - now()->timestamp);
         }
 
+        $timeout = max(5, min(120, (int) config('services.gemini.timeout', 60)));
+        $connectTimeout = max(1, min(30, $timeout, (int) config('services.gemini.connect_timeout', 15)));
+        $generationConfig = ['temperature' => $temperature];
+        // LOW is supported by these Flash models; do not send Gemini 3 parameters to other models.
+        if ($lowThinking && in_array($this->model, ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3-flash-preview'], true)) {
+            $generationConfig['thinkingConfig'] = ['thinkingLevel' => 'LOW'];
+        }
+        $started = hrtime(true);
         try {
-            $response = Http::withHeaders(['x-goog-api-key' => $this->apiKey])->connectTimeout(5)->timeout(30)
+            $response = Http::withHeaders(['x-goog-api-key' => $this->apiKey])->connectTimeout($connectTimeout)->timeout($timeout)
                 ->post("{$this->baseUrl}/{$this->model}:generateContent", [
                     'system_instruction' => ['parts' => [['text' => $systemPrompt]]],
-                    'generationConfig' => ['temperature' => $temperature],
+                    'generationConfig' => $generationConfig,
                     'contents' => $contents,
                 ]);
         } catch (ConnectionException $exception) {
-            $this->fail(new ProposalAiRequestFailed('connection'), ['exception' => $exception::class]);
+            // Extract only the numeric transport code: exception text can include URLs, credentials or prompts.
+            $errno = preg_match('/\bcURL error (\d+):/', $exception->getMessage(), $match) ? (int) $match[1] : null;
+            $reason = match ($errno) {
+                28 => 'timeout',
+                6 => 'dns',
+                60, 77 => 'tls',
+                default => 'connection',
+            };
+            $this->fail(new ProposalAiRequestFailed($reason), [
+                'exception' => $exception::class,
+                'curl_errno' => $errno,
+                'elapsed_ms' => (int) round((hrtime(true) - $started) / 1e6),
+                'timeout_seconds' => $timeout,
+                'connect_timeout_seconds' => $connectTimeout,
+            ]);
         }
 
         if (! $response->successful()) {

@@ -19,11 +19,13 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Permission;
+use Tests\Support\KkprlApplicantFixture;
 use Tests\Support\KkprlPayloadFixture;
 use Tests\TestCase;
 
 class KkprlProposalRevisionTest extends TestCase
 {
+    use KkprlApplicantFixture;
     use RefreshDatabase;
 
     #[Test]

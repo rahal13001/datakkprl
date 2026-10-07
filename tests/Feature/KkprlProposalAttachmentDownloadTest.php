@@ -10,10 +10,12 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Permission;
+use Tests\Support\KkprlApplicantFixture;
 use Tests\TestCase;
 
 class KkprlProposalAttachmentDownloadTest extends TestCase
 {
+    use KkprlApplicantFixture;
     use RefreshDatabase;
 
     #[Test]

@@ -2,6 +2,27 @@
 
 Mapping ini adalah baseline MVP hasil pembacaan XML/text dari template DOCX pada `docs/template/`. Field yang tidak aktif tidak dirender ke form maupun output.
 
+## Kelengkapan Bab 1 — 8 Oktober 2026
+
+Sumber executable: `ProposalFieldCatalog::requiredFields('bag-1')` dan `ProposalProgress`. Jumlah tetap 36; perubahan ini menyediakan input `depth_unit` yang sebelumnya hilang, bukan menambah persyaratan. Label `document_type` diselaraskan menjadi jenis dokumen permohonan PKKPRL/KKRL, sesuai katalog/template; nilai lama tidak dikonversi.
+
+| Kelompok | Jumlah | Isian wajib |
+|---|---:|---|
+| Identitas | 8 | Nama, jabatan, instansi, alamat, nomor KTP, NPWP, telepon/fax, email |
+| Lokasi, dimensi, koordinat | 11 | Provinsi, kabupaten/kota, kecamatan, desa/kelurahan, nama perairan, bentuk area, daftar koordinat, luas/panjang, satuan luas/panjang, kedalaman, satuan kedalaman/datum |
+| Rencana kegiatan | 5 | Kegiatan utama, penunjang, kegiatan/status eksisting, jadwal, keterangan tambahan |
+| Profil usaha/investasi | 8 | Pekerja pria, pekerja wanita, nilai investasi, mata uang, sifat usaha, bidang usaha, status strategis, jenis dokumen permohonan |
+| Rencana tapak | 1 | Narasi rencana tapak/site plan dengan teks yang tidak kosong |
+| Kondisi | 3 | Reklamasi, hubungan daratan, perizinan pendukung |
+
+Koordinat dihitung sebagai satu field wajib; jumlah titik dan rentangnya diperiksa terpisah sesuai bentuk area. `coordinates_raw` adalah state bantu dan bukan isian wajib tambahan. File lampiran tidak masuk hitungan 36. Nilai 0 dan false bukan field kosong. Kelengkapan Bab 1 berarti semua field wajib terisi tanpa error koordinat; persentase keseluruhan menggabungkan seluruh bab aktif. Uraian yang tidak relevan dapat menyatakan **Tidak berlaku**; ini tidak menggantikan kewajiban koordinat valid.
+
+Tabel baseline di bawah mempertahankan sejarah mapping awal `latitude`/`longitude`; input lokasi aktual memakai `shape_type`, `coordinates`, dan state bantu `coordinates_raw`.
+
+Pengukuran peta (ADR-028) membaca koordinat/bentuk serta membandingkan hasil dengan `water_area`/`water_area_unit`: luas Polygon ha atau panjang Line km, dua desimal. Hasil computed tidak menambah field wajib/payload/template, tidak mengganti isian pengguna dan tidak masuk snapshot dokumen. Warning menunjukkan selisih setelah pembulatan atau satuan yang belum cocok; aturan kelengkapan katalog tetap sama.
+
+## Mapping baseline template
+
 | Template | Section | Field aplikasi |
 |---|---|---|
 | Bag 1 — Rencana Bangunan dan Instalasi Laut | Identitas pemohon/instansi | `applicant_name`, `applicant_position`, `institution_name`, `address`, `identity_number`, `tax_number`, `phone_alternative`, `email` |

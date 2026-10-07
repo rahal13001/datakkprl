@@ -2,5 +2,87 @@
   "ast_input_tokens": 0,
   "ast_output_tokens": 0,
   "semantic_usage_available": false,
-  "note": "Semantic extraction used a host subagent; host did not expose token counters. Total LLM usage is unknown, not zero."
+  "note": "Delegated host semantic token counters unavailable. All prior cost records retained; this scoped update uses no external model API.",
+  "runs": [
+    {
+      "date": "2026-10-07T12:14:39.384258+00:00",
+      "code_files": 414,
+      "semantic_files": 44,
+      "input_tokens": null,
+      "output_tokens": null,
+      "external_api_calls": 0
+    },
+    {
+      "date": "2026-10-07T13:01:34.722055+00:00",
+      "stage": "applicant-account-stage-1-identity-administration",
+      "code_files": 16,
+      "semantic_files": 5,
+      "input_tokens": null,
+      "output_tokens": null,
+      "external_api_calls": 0
+    },
+    {
+      "date": "2026-10-07T13:45:03.390706+00:00",
+      "stage": "applicant-account-final-cutover",
+      "code_files": 66,
+      "blade_files": 5,
+      "semantic_documents": 15,
+      "artifact_provenance": 1,
+      "input_tokens": null,
+      "output_tokens": null,
+      "external_api_calls": 0
+    },
+    {
+      "date": "2026-10-07T13:46:28.465336+00:00",
+      "stage": "applicant-account-final-cutover",
+      "code_files": 66,
+      "blade_files": 5,
+      "semantic_documents": 15,
+      "artifact_provenance": 1,
+      "input_tokens": null,
+      "output_tokens": null,
+      "external_api_calls": 0
+    },
+    {
+      "date": "2026-10-07T13:48:02.111792+00:00",
+      "stage": "applicant-account-final-cutover",
+      "code_files": 66,
+      "blade_files": 5,
+      "semantic_documents": 15,
+      "artifact_provenance": 1,
+      "input_tokens": null,
+      "output_tokens": null,
+      "external_api_calls": 0
+    },
+    {
+      "date": "2026-10-07T23:03:36.725886+00:00",
+      "stage": "chapter-one-input-progress-site-plan",
+      "code_files": 8,
+      "blade_files": 1,
+      "semantic_documents": 7,
+      "input_tokens": null,
+      "output_tokens": null,
+      "external_api_calls": 0
+    },
+    {
+      "date": "2026-10-07T23:25:21.481140+00:00",
+      "stage": "map-measurement-and-manual-value-difference",
+      "code_files": 3,
+      "blade_files": 1,
+      "semantic_documents": 6,
+      "input_tokens": null,
+      "output_tokens": null,
+      "external_api_calls": 0
+    },
+    {
+      "date": "2026-10-07T23:26:22.643330+00:00",
+      "stage": "map-measurement-and-manual-value-difference",
+      "code_files": 3,
+      "blade_files": 1,
+      "semantic_documents": 6,
+      "input_tokens": null,
+      "output_tokens": null,
+      "external_api_calls": 0
+    }
+  ]
 }

@@ -169,4 +169,26 @@ class ProposalProgressTest extends TestCase
         $payload['shape_type'] = 'unknown';
         $this->assertContains('fields.shape_type', app(ProposalProgress::class)->evaluate($payload)->errors['bag-1']);
     }
+
+    #[Test]
+    public function optional_permit_details_and_documents_do_not_block_chapter_five(): void
+    {
+        $payload = ['has_existing_permits' => true, 'bag-5' => ['permit_type' => 'Izin usaha', 'permit_year' => '2025', 'permit_status' => 'Berlaku']];
+        $state = app(ProposalProgress::class)->evaluate($payload)->chapters['bag-5'];
+        $this->assertSame('complete', $state['status']);
+        $this->assertSame(3, $state['total']);
+        unset($payload['bag-5']['permit_type']);
+        $this->assertSame('incomplete', app(ProposalProgress::class)->evaluate($payload)->chapters['bag-5']['status']);
+    }
+
+    #[Test]
+    public function adjacent_land_without_permits_counts_only_required_land_information(): void
+    {
+        $payload = ['land_relation' => 'adjacent', 'has_existing_permits' => false, 'bag-5' => [
+            'land_status' => 'Berhimpitan dengan lahan yang dikuasai pemohon.', 'land_evidence_type' => 'Sertifikat', 'land_acquisition_year' => '2024',
+        ]];
+        $state = app(ProposalProgress::class)->evaluate($payload)->chapters['bag-5'];
+        $this->assertSame('complete', $state['status']);
+        $this->assertSame(3, $state['total']);
+    }
 }

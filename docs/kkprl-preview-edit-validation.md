@@ -1,5 +1,7 @@
 # Validasi koreksi draft melalui chat dan editor pratinjau
 
+> Regresi akses akun tanggal 2026-10-07: suite final **461 tests, 2429 assertions, lulus**, mencakup fitur pada laporan ini. Fixture kini memakai akun approved/owner; tiket/HP tidak lagi autentikasi. Hasil dan batas browser baru ada pada [validasi akun](kkprl-applicant-account-validation.md). Angka dan screenshot tahapan sebelumnya di bawah tetap bukti historis; batas ilmiah/validasi fitur dipertahankan.
+
 Tanggal: 2026-10-04.
 
 ## Perilaku yang diterapkan
@@ -77,3 +79,7 @@ Saat respons hanya berisi data draft atau penjelasan teknis, chat menampilkan ar
 Browser memakai context terisolasi, database SQLite sintetis, dan respons Gemini simulasi. Draft tampil di pratinjau tanpa JSON atau key teknis dalam chat; payload kosong sebelum konfirmasi dan berisi narasi setelah konfirmasi. Respons terpotong tidak mengubah narasi sebelumnya. Setelah refresh, pesan ramah dan pratinjau tetap tersedia. Viewport 320 px tidak memiliki overflow horizontal, dan console tidak memiliki error atau warning. API Gemini aktual tidak dipanggil pada pengujian ini.
 
 Evidence sementara: `/tmp/kkprl-friendly-chat-mobile.png` dan laporan `friendly-*.xml` di `/tmp/kkprl-preview-validation/`. Server dan database uji dibersihkan setelah pemeriksaan.
+
+## Validasi lanjutan Bab 1 — 8 Oktober 2026
+
+Laporan di atas tetap merupakan bukti historis. Bug penimpaan ketikan pada respons autosave lambat, field depth_unit yang tidak tersedia, dan konten awal editor rencana tapak ditangani dalam [validasi Bab 1](kkprl-chapter-one-input-validation.md). State UI memakai struktur stabil, payload storage legacy tetap dipertahankan, dan narasi tersimpan tidak dihapus. Regresi final perubahan Bab 1 menghasilkan 469 tests/2462 assertions; lihat laporan baru untuk perintah, browser dan batas cakupan.

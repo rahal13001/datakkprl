@@ -16,11 +16,13 @@ use App\Services\KkprlProposalSubmissionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Permission;
+use Tests\Support\KkprlApplicantFixture;
 use Tests\Support\KkprlPayloadFixture;
 use Tests\TestCase;
 
 class KkprlProposalEditApprovalTest extends TestCase
 {
+    use KkprlApplicantFixture;
     use RefreshDatabase;
 
     #[Test]
@@ -361,8 +363,8 @@ class KkprlProposalEditApprovalTest extends TestCase
         if ($giveApprovalToRequester) {
             $requester->givePermissionTo(Permission::findOrCreate('ApproveEdit:KkprlProposal', 'web'));
         }
-        $proposal = KkprlProposal::create(['phone' => '0812-3456-7890', 'root_proposal_id' => null]);
-        $revision = KkprlProposal::create([
+        $proposal = $this->ownedProposal(['phone' => '0812-3456-7890', 'root_proposal_id' => null]);
+        $revision = $this->ownedProposal([
             'root_proposal_id' => $proposal->id,
             'revision_of_id' => $proposal->id,
             'revision_number' => 1,

@@ -10,9 +10,13 @@ Jalankan sebelum UAT dan sebelum release:
 
 Perintah harus melaporkan PASS untuk private storage, session-cookie security, ZIP/DOCX, PDF generator/parser, PDF renderer format, PDF attachment renderer, image normalization (WebP dan BMP bila mode BMP), dan seluruh template KKPRL. Binary dan mode dikonfigurasi melalui `KKPRL_PDF_RENDERER_BINARY` serta `KKPRL_PDF_RENDERER_FORMAT`; host audit Windows memakai Poppler `pdftobmp.exe` dengan mode `bmp` dan strict preflight lulus.
 
-Sebelum UAT fresh environment, jalankan migration lalu `php artisan db:seed --class=KkprlPermissionSeeder --force`; seeder hanya mendaftarkan permission KKPRL dan tidak membuat role baru.
+Sebelum UAT pada fixture terisolasi yang disepakati, jalankan migration additive serta `rtk proxy php artisan db:seed --class=KkprlPermissionSeeder --force` untuk permission review/edit lama dan `rtk proxy php artisan db:seed --class=KkprlApplicantPermissionSeeder --force` untuk akun. Seeder akun memberi permission khusus hanya ke admin/pimpinan/super_admin. Database pengguna belum dimigrasikan pada pekerjaan ini.
 
-## Evidence host UAT 2026-08-24
+## Evidence akun 2026-10-07
+
+Browser fixture desktop/mobile 320 px, registrasi/login/logout, pending empty/dokumen, approved wizard dan admin reset sudah diperiksa. Full suite 461 tests/2429 assertions dan build lulus; lihat [laporan akun](kkprl-applicant-account-validation.md). Ini tidak menggantikan perangkat fisik, production UAT, atau viewer eksternal.
+
+## Evidence host UAT 2026-08-24 (historis sebelum akun)
 
 - [x] Chrome Windows headless localhost-only: create draft, resume tiket + HP, autosave, conditional Bab 4/5, submit lengkap 5 bab, status lock, dan download DOCX/PDF.
 - [x] Credential salah menampilkan pesan generik tanpa indikasi proposal ditemukan/tidak ditemukan.
@@ -32,11 +36,14 @@ Sebelum UAT fresh environment, jalankan migration lalu `php artisan db:seed --cl
 
 ## Pemohon mobile
 
-- [ ] Buka `Buat Proposal Baru` pada Android Chrome.
-- [ ] Buat draft; salin nomor tiket; pastikan disclaimer bukan sistem perizinan.
+- [ ] Daftar/login email dan password pada Android Chrome; pendaftaran pending tanpa draft atau AI.
+- [ ] Pending hanya melihat generated dokumen sendiri atau empty state, tanpa wizard/chat/progres/upload/generate.
+- [ ] Setelah approval, buat draft; pastikan owner backend dan disclaimer bukan sistem perizinan.
 - [ ] Isi Bab 1–3 bertahap; refresh; pastikan data dan waktu autosave tetap ada.
-- [ ] Coba tiket benar + HP benar, tiket benar + HP salah, tiket saja, dan proposal lain.
-- [ ] Verifikasi rate limit dan pesan credential generik.
+- [ ] Coba akun lain, ID proposal/dokumen asing, URL/sesi tiket/HP lama; semua akses lintas owner/legacy ditolak.
+- [ ] Verifikasi throttle registrasi/login dan pesan credential generik.
+- [ ] Cabut approval/reset ketika AI/GMRT/generate berjalan; tidak ada persistence tanpa izin.
+- [ ] Reset oleh petugas: password lama dan seluruh sesi lama gagal; login password baru berhasil, audit tanpa password.
 - [ ] Uji reklamasi aktif/nonaktif; hubungan daratan; izin pendukung; pastikan form dan dokumen hanya merender bagian aktif.
 - [ ] Uji upload PDF, JPG/JPEG, PNG, WebP; file signature salah; batas 10 file; batas 15 MiB.
 - [ ] Uji daftar lampiran, hapus, dan ganti file; pastikan kuota dihitung ulang dan file lama tidak menjadi file publik.
@@ -45,6 +52,11 @@ Sebelum UAT fresh environment, jalankan migration lalu `php artisan db:seed --cl
 - [ ] Submit; pastikan payload dan lampiran tidak dapat diubah.
 
 ## Petugas Filament
+
+- [ ] Akun pemohon pending/approved tidak bisa masuk panel atau API petugas.
+- [ ] Navigation/list/detail akun memerlukan permission khusus. Permission daftar tidak memberi approval/reset/assign.
+- [ ] Request langsung action approve/revoke/reset/assign ditolak tanpa permission. ApproveEdit tidak memberi approval akun.
+- [ ] Penetapan proposal legacy memerlukan verifikasi manual, alasan/ref dan audit; family/revisi utuh, owner berbeda ditolak.
 
 - [x] Host browser tanpa session pada `/layananruanglaut/kkprl-proposals` diarahkan ke login; role-matrix browser belum ditandai lulus karena login memakai Summary identity service dan environment lokal mengembalikan `The identity service is temporarily unavailable.`
 - [ ] User hanya dengan permission review dapat membuka proposal.
@@ -58,5 +70,5 @@ Sebelum UAT fresh environment, jalankan migration lalu `php artisan db:seed --cl
 ## Artefak
 
 - [ ] Bandingkan hasil dengan sample template resmi yang disamarkan.
-- [ ] Pastikan file berada di storage privat dan route download menolak session/proposal lain.
+- [ ] Pastikan file berada di storage privat dan route download menolak akun/proposal lain.
 - [ ] Simpan hasil UAT, screenshot viewport HP, dan sample Word/PDF pada artefak release.

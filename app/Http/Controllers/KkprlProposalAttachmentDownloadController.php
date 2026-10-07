@@ -14,7 +14,7 @@ final class KkprlProposalAttachmentDownloadController
         KkprlProposalAccessService $access,
     ): Response {
         $current = $access->current();
-        $staffAllowed = auth()->check() && auth()->user()->can('Download:KkprlProposalAttachment');
+        $staffAllowed = auth('web')->check() && auth('web')->user()->can('Download:KkprlProposalAttachment');
 
         if (! $staffAllowed && ($current === null || $attachment->proposal_id !== $current->id)) {
             abort(404);

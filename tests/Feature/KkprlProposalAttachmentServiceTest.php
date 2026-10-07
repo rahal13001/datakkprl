@@ -13,11 +13,13 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\KkprlApplicantFixture;
 use Tests\Support\KkprlPayloadFixture;
 use Tests\TestCase;
 
 class KkprlProposalAttachmentServiceTest extends TestCase
 {
+    use KkprlApplicantFixture;
     use RefreshDatabase;
 
     protected function setUp(): void

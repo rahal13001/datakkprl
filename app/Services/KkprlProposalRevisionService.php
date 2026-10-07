@@ -28,7 +28,8 @@ final class KkprlProposalRevisionService
 
         try {
             return DB::transaction(function () use ($submitted, $reason, $actor, $rootId, &$copiedPaths): KkprlProposal {
-                KkprlProposal::query()->lockForUpdate()->findOrFail($rootId);
+                $root = KkprlProposal::query()->lockForUpdate()->findOrFail($rootId);
+                $submitted = KkprlProposal::query()->lockForUpdate()->findOrFail($submitted->id);
 
                 if (KkprlProposal::query()->where('root_proposal_id', $rootId)->where('status', 'draft')->where('revision_number', '>', 0)->exists()) {
                     throw new ActiveRevisionExists;
@@ -62,6 +63,8 @@ final class KkprlProposalRevisionService
                     'template_version' => $submitted->template_version,
                     'last_saved_at' => now(),
                 ]);
+
+                $revision->forceFill(['applicant_id' => $root->applicant_id])->save();
 
                 foreach ($submitted->attachments as $attachment) {
                     if ($attachment->storage_disk !== config('kkprl.storage_disk', 'kkprl_private')) {

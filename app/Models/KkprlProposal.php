@@ -112,6 +112,11 @@ class KkprlProposal extends Model
         });
     }
 
+    public function applicant(): BelongsTo
+    {
+        return $this->belongsTo(KkprlApplicant::class, 'applicant_id');
+    }
+
     public function rootProposal(): BelongsTo
     {
         return $this->belongsTo(self::class, 'root_proposal_id');

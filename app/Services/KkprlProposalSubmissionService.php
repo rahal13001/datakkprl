@@ -21,9 +21,12 @@ final class KkprlProposalSubmissionService
 
     public function submit(KkprlProposal $proposal): KkprlProposal
     {
+        app(KkprlProposalAccessService::class)->assertCanBuild($proposal);
+
         return DB::transaction(function () use ($proposal): KkprlProposal {
             $locked = KkprlProposal::query()->lockForUpdate()->findOrFail($proposal->id);
 
+            app(KkprlProposalAccessService::class)->assertCanBuild($locked, lock: true);
             if ($locked->isLocked()) {
                 throw new ProposalLocked;
             }
@@ -60,7 +63,7 @@ final class KkprlProposalSubmissionService
                 'proposal_id' => $locked->id,
                 'event_type' => 'submitted',
                 'actor_type' => 'applicant',
-                'actor_id' => null,
+                'actor_id' => $locked->applicant_id,
                 'reason' => 'Proposal dikirim untuk ditinjau.',
                 'before_payload' => $payload,
                 'after_payload' => $payload,

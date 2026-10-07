@@ -1,0 +1,14 @@
+Direktorat Sistem Referensi Geospasial
+Badan Informasi Geospasial
+Station Name: PAAM
+Email : srgi@big.go.id
+Lon : 130.803
+Lat : -0.43258
+Datum : MSL
+
+
+timestamp_utc,timestamp_local,predicted_height_m
+"2026-09-01 00:00:00","2026-09-01 09:00:00 WIT",0.643
+"2026-09-01 00:01:00","2026-09-01 09:01:00 WIT",0.643
+"2026-09-01 00:02:00","2026-09-01 09:02:00 WIT",0.643
+"2026-09-01 00:03:00","2026-09-01 09:03:00 WIT",0.642
