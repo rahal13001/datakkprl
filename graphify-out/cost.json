@@ -2,7 +2,7 @@
   "ast_input_tokens": 0,
   "ast_output_tokens": 0,
   "semantic_usage_available": false,
-  "note": "Delegated host semantic token counters unavailable. All prior cost records retained; this scoped update uses no external model API.",
+  "note": "Delegated host semantic token counters unavailable. All prior cost records retained; scoped institution repair update uses no external model API.",
   "runs": [
     {
       "date": "2026-10-07T12:14:39.384258+00:00",
@@ -80,6 +80,15 @@
       "code_files": 3,
       "blade_files": 1,
       "semantic_documents": 6,
+      "input_tokens": null,
+      "output_tokens": null,
+      "external_api_calls": 0
+    },
+    {
+      "date": "2026-10-09T08:49:40.734318+00:00",
+      "stage": "additive-institution-schema-repair",
+      "code_files": 2,
+      "semantic_documents": 4,
       "input_tokens": null,
       "output_tokens": null,
       "external_api_calls": 0

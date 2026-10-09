@@ -2700,10 +2700,10 @@
     "semantic_hash": "abc7e30fde8463bb4b4314fe5c22aa1b"
   },
   "docs/kkprl-proposal-builder-spec.md": {
-    "mtime": 1791415281.427713,
-    "seen": 1791415524.9663444,
-    "ast_hash": "72de04537e461860bf16b4687d649755",
-    "semantic_hash": "72de04537e461860bf16b4687d649755"
+    "mtime": 1791535337.280329,
+    "seen": 1791535784.6944547,
+    "ast_hash": "518d9ff8eb847b5323c4ece6561f6bfa",
+    "semantic_hash": "518d9ff8eb847b5323c4ece6561f6bfa"
   },
   "docs/kkprl-release-evidence.md": {
     "mtime": 1787910948.483782,
@@ -3034,5 +3034,35 @@
     "seen": 1791415524.9663367,
     "ast_hash": "fe3d39f4b35f2bc3785535a578fd4617",
     "semantic_hash": "fe3d39f4b35f2bc3785535a578fd4617"
+  },
+  "database/migrations/2026_10_09_000001_repair_kkprl_proposal_institution_columns.php": {
+    "mtime": 1791535358.8375914,
+    "seen": 1791535784.6944466,
+    "ast_hash": "3c67420627c13c6b74a7f2f008235d7f",
+    "semantic_hash": "3c67420627c13c6b74a7f2f008235d7f"
+  },
+  "tests/Feature/KkprlInstitutionSchemaRepairTest.php": {
+    "mtime": 1791535180.0147958,
+    "seen": 1791535784.69445,
+    "ast_hash": "590c24c6cee3330a30ce16354566ad45",
+    "semantic_hash": "590c24c6cee3330a30ce16354566ad45"
+  },
+  "docs/kkprl-institution-schema-repair-spec.md": {
+    "mtime": 1791535179.8241858,
+    "seen": 1791535784.6944516,
+    "ast_hash": "15c9072b305cb68b3fb28bb8d81044b9",
+    "semantic_hash": "15c9072b305cb68b3fb28bb8d81044b9"
+  },
+  "docs/kkprl-institution-schema-repair-validation.md": {
+    "mtime": 1791535733.144305,
+    "seen": 1791535784.6944523,
+    "ast_hash": "0f9e5c988a5a03f343b3ff94e4b2d0ef",
+    "semantic_hash": "0f9e5c988a5a03f343b3ff94e4b2d0ef"
+  },
+  "docs/decisions/ADR-029-additive-institution-schema-repair.md": {
+    "mtime": 1791535337.051369,
+    "seen": 1791535784.694453,
+    "ast_hash": "789243f09535bf59fa6e66915f70bf70",
+    "semantic_hash": "789243f09535bf59fa6e66915f70bf70"
   }
 }
