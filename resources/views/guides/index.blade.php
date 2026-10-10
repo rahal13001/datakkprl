@@ -18,6 +18,16 @@
                             <a href="{{ route('pedoman-kkprl.pdf', ['guide' => $guide, 'view_token' => (string) \Illuminate\Support\Str::uuid()]) }}" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-sky-700 px-4 py-3 font-semibold text-sky-700">Buka PDF <span class="sr-only">{{ $guide->title }} (tab baru)</span></a>
                             <a href="{{ route('pedoman-kkprl.download', $guide) }}" class="rounded-xl bg-sky-700 px-4 py-3 font-semibold text-white">Unduh PDF <span class="sr-only">{{ $guide->title }}</span></a>
                         </div>
+                        <dl class="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600" aria-label="Statistik dokumen">
+                            <div class="flex items-center gap-2">
+                                <dt class="inline-flex items-center gap-2"><i class="fa-solid fa-eye" aria-hidden="true"></i> Telah dilihat</dt>
+                                <dd class="font-semibold text-slate-950">{{ number_format((int) $guide->view_count, 0, ',', '.') }} kali</dd>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <dt class="inline-flex items-center gap-2"><i class="fa-solid fa-download" aria-hidden="true"></i> Telah diunduh</dt>
+                                <dd class="font-semibold text-slate-950">{{ number_format((int) $guide->download_count, 0, ',', '.') }} kali</dd>
+                            </div>
+                        </dl>
                     </div>
                     <iframe src="{{ route('pedoman-kkprl.pdf', ['guide' => $guide, 'view_token' => (string) \Illuminate\Support\Str::uuid()]) }}" title="{{ $guide->title }}" loading="lazy" class="h-[72vh] min-h-[400px] w-full border-0 bg-slate-100"></iframe>
                 </section>
