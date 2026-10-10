@@ -1,0 +1,76 @@
+{
+  "updated_at": "2026-10-10T02:25:03.197635+00:00",
+  "stage": "proposal-guide-counters",
+  "source_commit": "0c0cfdc",
+  "scope": [
+    "app/Models/ProposalGuide.php",
+    "app/Http/Controllers/ProposalGuideController.php",
+    "app/Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+    "database/migrations/2026_10_10_000001_add_counters_to_proposal_guides_table.php",
+    "tests/Feature/ProposalGuideCountersTest.php",
+    "resources/views/guides/index.blade.php",
+    "docs/pedoman-kkprl-counters.md",
+    "docs/pedoman-kkprl.md"
+  ],
+  "source_sha256": {
+    "app/Models/ProposalGuide.php": "df5bcf93c4b7e147c0d00431ac8d6cb35b76e1fb93f7b2f6079b6051e72b1ca4",
+    "app/Http/Controllers/ProposalGuideController.php": "05eb94be384d77c6d6ce08bf7a7f894763cc22523ed556bdbd6e9072105acad2",
+    "app/Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php": "5668c84188afba8f9a592adfd273c5c2275de1eb4b9582cab966794c47eb0b38",
+    "database/migrations/2026_10_10_000001_add_counters_to_proposal_guides_table.php": "3a61e5ba41354f64c116cfb89dca73581df459ba3398db5ecf77ac631d964475",
+    "tests/Feature/ProposalGuideCountersTest.php": "28d74dd703efcce485937d54374b83c7f16838ad250b03eb699bfb7d6153877a",
+    "resources/views/guides/index.blade.php": "bdc47a4b4137eea39aacfc927bf470f5111f8a8b6d576fd945aa0e9834d32b7a",
+    "docs/pedoman-kkprl-counters.md": "805c891ee9d6fef70cd8f5d188c5ea1e69449e75ca8ed4e37ebd9e294abdfae3",
+    "docs/pedoman-kkprl.md": "b3ebbc8471bc4a3b670ee82b864f58d97e35b5da0018b4182ec83b539c0b344f"
+  },
+  "source_state": "Selected local source files; no graph-agent database mutation, deployment or Git action.",
+  "baseline": {
+    "nodes": 3491,
+    "edges": 8967
+  },
+  "counts": {
+    "nodes": 3523,
+    "edges": 9075,
+    "communities": 174,
+    "hyperedges": 4
+  },
+  "retained_non_scope_edges": 8912,
+  "ast_nodes": 62,
+  "ast_edges": 106,
+  "semantic_nodes": 17,
+  "semantic_edges": 57,
+  "fresh_ambiguous_calls": 17,
+  "reclustered": false,
+  "community_policy": "Old assignments retained; new entities placed in the existing ProposalGuide community.",
+  "semantic_token_usage": "Host counters unavailable; unknown, not zero.",
+  "external_api_calls": 0,
+  "validation_provenance": "Implementation agent and finalized counters document report focused30tests299assertions PASS; Pint5PHPfiles PASS; viewer regression RED2-versus-1 then GREEN; finalfullsuite483tests2714assertions PASS189.34s. Browser fixture one render adds one view, refresh adds another, download adds one; admin draft96/65 verified and public console clean. Temporary fixture/file and account removed; original draft96/65 remains unpublished without PDF. Review/diff-check PASS. Graph update does not independently rerun application tests or browser checks.",
+  "manifest_policy": "Only processed scope hashes stamped; all other manifest rows retained unchanged.",
+  "health": {
+    "dangling_endpoints": 0,
+    "missing_endpoints": 0,
+    "missing_source_files": [],
+    "parallel_endpoint_pairs": 136,
+    "parallel_edges": 136,
+    "self_loops": 22,
+    "ambiguous_edges": 733,
+    "unrelated_node_and_edge_metadata_preserved": true,
+    "old_community_assignments_preserved": true,
+    "hyperedges_preserved": true
+  },
+  "baseline_health": {
+    "self_loops": 22,
+    "ambiguous_edges": 721
+  },
+  "health_delta": {
+    "new_self_loop_identities": 0,
+    "retained_self_loop_identities": 22,
+    "new_ambiguous_markings": 12,
+    "reclassified_existing_relations": 0,
+    "new_ambiguous_relation_identities": 12
+  },
+  "diagnostic_warnings": [
+    "22 retained parser self-loop candidates; none newly introduced.",
+    "733 AMBIGUOUS relations: baseline 721, new ambiguity markings 12, including 0 reclassified existing relations. These are unresolved receiver candidates, not proven calls or recursion."
+  ],
+  "manifest_files": 514
+}

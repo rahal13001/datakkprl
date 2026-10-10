@@ -606,10 +606,10 @@
     "semantic_hash": "e9c3a37146cc1d4b053a2272ba65d711"
   },
   "app/Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php": {
-    "mtime": 1791255765.8092036,
-    "seen": 1791256761.28555,
-    "ast_hash": "faa80e2cf38d03528b4990d3e5ceb82d",
-    "semantic_hash": "faa80e2cf38d03528b4990d3e5ceb82d"
+    "mtime": 1791598708.8648877,
+    "seen": 1791599104.69213,
+    "ast_hash": "a589c681623cbfe17b218d12848bf536",
+    "semantic_hash": "a589c681623cbfe17b218d12848bf536"
   },
   "app/Filament/Layanankkprl/Resources/PublicFeedbackResource/Pages/CreatePublicFeedback.php": {
     "mtime": 1782459887.5403662,
@@ -1146,10 +1146,10 @@
     "semantic_hash": "0d9188258b87351f07f6dde6e53062ed"
   },
   "app/Http/Controllers/ProposalGuideController.php": {
-    "mtime": 1791255651.7195504,
-    "seen": 1791256761.285593,
-    "ast_hash": "602d50cb19ce61bc59c5f36edfda5f80",
-    "semantic_hash": "602d50cb19ce61bc59c5f36edfda5f80"
+    "mtime": 1791598708.7512124,
+    "seen": 1791599104.6873672,
+    "ast_hash": "2e063acb3ffe9f52c0ee59396c485846",
+    "semantic_hash": "2e063acb3ffe9f52c0ee59396c485846"
   },
   "app/Http/Middleware/AttachRequestId.php": {
     "mtime": 1785057561.9134326,
@@ -1524,10 +1524,10 @@
     "semantic_hash": "183fd3623356c92c8076aaf239eb04b4"
   },
   "app/Models/ProposalGuide.php": {
-    "mtime": 1791255651.4433408,
-    "seen": 1791256761.2856207,
-    "ast_hash": "ddfd15da759a5bd0c27020999fac7cbd",
-    "semantic_hash": "ddfd15da759a5bd0c27020999fac7cbd"
+    "mtime": 1791598096.6716123,
+    "seen": 1791599104.6804392,
+    "ast_hash": "6756ad300e3354ddcbfefceb5d124ff0",
+    "semantic_hash": "6756ad300e3354ddcbfefceb5d124ff0"
   },
   "app/Models/Province.php": {
     "mtime": 1764032328.9096682,
@@ -2034,10 +2034,10 @@
     "semantic_hash": "ce6817865e3f0451e7bf6cee2cb714f9"
   },
   "resources/views/guides/index.blade.php": {
-    "mtime": 1791255652.106765,
-    "seen": 1791256761.2856617,
-    "ast_hash": "d3effb2526c447d0ded9d872a51dc0cd",
-    "semantic_hash": "d3effb2526c447d0ded9d872a51dc0cd"
+    "mtime": 1791598709.1866345,
+    "seen": 1791599104.7040792,
+    "ast_hash": "624043bbccc7a488544a78ff4d61390b",
+    "semantic_hash": "624043bbccc7a488544a78ff4d61390b"
   },
   "resources/views/livewire/landing-page.blade.php": {
     "mtime": 1791353675.5940316,
@@ -2046,10 +2046,10 @@
     "semantic_hash": "dba00e64d9eb1216bc0dd155868a31bb"
   },
   "docs/pedoman-kkprl.md": {
-    "mtime": 1791257623.7956505,
-    "seen": 1791257790.961106,
+    "mtime": 1791598221.2086816,
+    "seen": 1791599104.7095053,
     "ast_hash": "1ce27ab5dfce1c00f32816fccb2f144a",
-    "semantic_hash": "1ce27ab5dfce1c00f32816fccb2f144a"
+    "semantic_hash": "c1a3905c49170fc16e88dbeb61ebcb7f"
   },
   "docs/landing-navbar-branding.md": {
     "mtime": 1791257623.6443925,
@@ -3064,5 +3064,23 @@
     "seen": 1791535784.694453,
     "ast_hash": "789243f09535bf59fa6e66915f70bf70",
     "semantic_hash": "789243f09535bf59fa6e66915f70bf70"
+  },
+  "database/migrations/2026_10_10_000001_add_counters_to_proposal_guides_table.php": {
+    "mtime": 1791598097.2099428,
+    "seen": 1791599104.6958766,
+    "ast_hash": "e0c1345f5c3f3d64ab32b841d876ef0c",
+    "semantic_hash": "e0c1345f5c3f3d64ab32b841d876ef0c"
+  },
+  "tests/Feature/ProposalGuideCountersTest.php": {
+    "mtime": 1791598677.9379218,
+    "seen": 1791599104.6988409,
+    "ast_hash": "9270b47421514a2961bf11b0cb2c6cdc",
+    "semantic_hash": "9270b47421514a2961bf11b0cb2c6cdc"
+  },
+  "docs/pedoman-kkprl-counters.md": {
+    "mtime": 1791598974.8570068,
+    "seen": 1791599104.7071126,
+    "ast_hash": "",
+    "semantic_hash": "fe3b2f80c40ab20202ec96dd50476a07"
   }
 }

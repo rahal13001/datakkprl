@@ -1,7 +1,75 @@
 {
   "directed": false,
   "multigraph": false,
-  "graph": {},
+  "graph": {
+    "hyperedges": [],
+    "proposal_guide_counters_update": {
+      "updated_at": "2026-10-10T02:25:05.896792+00:00",
+      "stage": "proposal-guide-counters",
+      "source_commit": "0c0cfdc",
+      "scope": [
+        "Models/ProposalGuide.php",
+        "Http/Controllers/ProposalGuideController.php",
+        "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php"
+      ],
+      "source_sha256": {
+        "Models/ProposalGuide.php": "df5bcf93c4b7e147c0d00431ac8d6cb35b76e1fb93f7b2f6079b6051e72b1ca4",
+        "Http/Controllers/ProposalGuideController.php": "05eb94be384d77c6d6ce08bf7a7f894763cc22523ed556bdbd6e9072105acad2",
+        "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php": "5668c84188afba8f9a592adfd273c5c2275de1eb4b9582cab966794c47eb0b38"
+      },
+      "source_state": "Selected local source files; no graph-agent database mutation, deployment or Git action.",
+      "baseline": {
+        "nodes": 2251,
+        "edges": 5947
+      },
+      "counts": {
+        "nodes": 2261,
+        "edges": 5973,
+        "communities": 104,
+        "hyperedges": 0
+      },
+      "retained_non_scope_edges": 5898,
+      "ast_nodes": 35,
+      "ast_edges": 62,
+      "semantic_nodes": 7,
+      "semantic_edges": 15,
+      "fresh_ambiguous_calls": 5,
+      "reclustered": false,
+      "community_policy": "Old assignments retained; new entities placed in the existing ProposalGuide community.",
+      "semantic_token_usage": "Host counters unavailable; unknown, not zero.",
+      "external_api_calls": 0,
+      "validation_provenance": "Implementation agent and finalized counters document report focused30tests299assertions PASS; Pint5PHPfiles PASS; viewer regression RED2-versus-1 then GREEN; finalfullsuite483tests2714assertions PASS189.34s. Browser fixture one render adds one view, refresh adds another, download adds one; admin draft96/65 verified and public console clean. Temporary fixture/file and account removed; original draft96/65 remains unpublished without PDF. Review/diff-check PASS. Graph update does not independently rerun application tests or browser checks.",
+      "manifest_policy": "Only processed scope hashes stamped; all other manifest rows retained unchanged.",
+      "health": {
+        "dangling_endpoints": 0,
+        "missing_endpoints": 0,
+        "missing_source_files": [],
+        "parallel_endpoint_pairs": 0,
+        "parallel_edges": 0,
+        "self_loops": 19,
+        "ambiguous_edges": 5,
+        "unrelated_node_and_edge_metadata_preserved": true,
+        "old_community_assignments_preserved": true,
+        "hyperedges_preserved": true
+      },
+      "baseline_health": {
+        "self_loops": 19,
+        "ambiguous_edges": 0
+      },
+      "health_delta": {
+        "new_self_loop_identities": 0,
+        "retained_self_loop_identities": 19,
+        "new_ambiguous_markings": 5,
+        "reclassified_existing_relations": 5,
+        "new_ambiguous_relation_identities": 0
+      },
+      "diagnostic_warnings": [
+        "19 retained parser self-loop candidates; none newly introduced.",
+        "5 AMBIGUOUS relations: baseline 0, new ambiguity markings 5, including 5 reclassified existing relations. These are unresolved receiver candidates, not proven calls or recursion."
+      ],
+      "manifest_files": 334
+    }
+  },
   "nodes": [
     {
       "id": "filament_layanankkprl_resources_clients_schemas_clientform_clientform",
@@ -1119,7 +1187,7 @@
       "file_type": "code",
       "norm_label": "proposalguideresource",
       "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
-      "source_location": "L21"
+      "source_location": "L22"
     },
     {
       "id": "filament_layanankkprl_resources_satisfactionsurveyresults_pages_createsatisfactionsurveyresult_createsatisfactionsurveyresult",
@@ -3355,7 +3423,7 @@
       "file_type": "code",
       "norm_label": "proposalguidecontroller",
       "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L8"
+      "source_location": "L11"
     },
     {
       "id": "models_proposalguide_proposalguide",
@@ -4631,7 +4699,7 @@
       "file_type": "code",
       "norm_label": ".form()",
       "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
-      "source_location": "L37"
+      "source_location": "L38"
     },
     {
       "id": "filament_layanankkprl_resources_regulations_regulationresource_regulationresource_form",
@@ -5843,7 +5911,7 @@
       "file_type": "code",
       "norm_label": ".getpages()",
       "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
-      "source_location": "L65"
+      "source_location": "L68"
     },
     {
       "id": "http_middleware_authenticatemobile_authenticatemobile_unauthenticated",
@@ -16895,7 +16963,7 @@
       "file_type": "code",
       "norm_label": ".assertavailable()",
       "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L38"
+      "source_location": "L66"
     },
     {
       "id": "http_controllers_proposalguidecontroller_proposalguidecontroller_download",
@@ -16907,7 +16975,7 @@
       "file_type": "code",
       "norm_label": ".download()",
       "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L28"
+      "source_location": "L35"
     },
     {
       "id": "http_controllers_proposalguidecontroller_proposalguidecontroller_filename",
@@ -16919,7 +16987,7 @@
       "file_type": "code",
       "norm_label": ".filename()",
       "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L43"
+      "source_location": "L71"
     },
     {
       "id": "http_controllers_proposalguidecontroller_proposalguidecontroller_index",
@@ -16931,7 +16999,7 @@
       "file_type": "code",
       "norm_label": ".index()",
       "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L10"
+      "source_location": "L13"
     },
     {
       "id": "http_controllers_proposalguidecontroller_proposalguidecontroller_pdf",
@@ -16943,7 +17011,19 @@
       "file_type": "code",
       "norm_label": ".pdf()",
       "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L17"
+      "source_location": "L20"
+    },
+    {
+      "id": "http_controllers_proposalguidecontroller_proposalguidecontroller_recordaccess",
+      "label": ".recordAccess()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "Community 60",
+      "file_type": "code",
+      "norm_label": ".recordaccess()",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L49"
     },
     {
       "id": "policies_proposalguidepolicy_proposalguidepolicy_create",
@@ -18143,7 +18223,7 @@
       "file_type": "code",
       "norm_label": ".table()",
       "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
-      "source_location": "L50"
+      "source_location": "L51"
     },
     {
       "id": "filament_layanankkprl_resources_regulations_regulationresource_regulationresource_table",
@@ -25259,6 +25339,28 @@
       "source_location": "L1"
     },
     {
+      "id": "app_filament_layanankkprl_resources_proposalguides_pages_manageproposalguides",
+      "label": "App\\Filament\\Layanankkprl\\Resources\\ProposalGuides\\Pages\\ManageProposalGuides",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "Community 60",
+      "file_type": "code",
+      "norm_label": "app\\filament\\layanankkprl\\resources\\proposalguides\\pages\\manageproposalguides",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "controller",
+      "label": "Controller",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "Community 60",
+      "file_type": "code",
+      "norm_label": "controller",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "http_controllers_proposalguidecontroller",
       "label": "ProposalGuideController.php",
       "_origin": "ast",
@@ -26787,9 +26889,155 @@
       "norm_label": "trigger",
       "source_file": "",
       "type": "external"
+    },
+    {
+      "id": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_download_count_column",
+      "label": "Diunduh sortable numeric column",
+      "_origin": "semantic",
+      "community": 60,
+      "community_name": "Community 60",
+      "file_type": "code",
+      "norm_label": "diunduh sortable numeric column",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L57"
+    },
+    {
+      "id": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_preview_view_token",
+      "label": "Admin preview UUID view_token",
+      "_origin": "semantic",
+      "community": 60,
+      "community_name": "Community 60",
+      "file_type": "code",
+      "norm_label": "admin preview uuid view_token",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L62-L64"
+    },
+    {
+      "id": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_view_count_column",
+      "label": "Dilihat sortable numeric column",
+      "_origin": "semantic",
+      "community": 60,
+      "community_name": "Community 60",
+      "file_type": "code",
+      "norm_label": "dilihat sortable numeric column",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L56"
+    },
+    {
+      "id": "http_controllers_proposalguidecontroller_proposalguidecontroller_full_get_counter_policy",
+      "label": "Atomic full-GET counter policy",
+      "_origin": "semantic",
+      "community": 60,
+      "community_name": "Community 60",
+      "file_type": "code",
+      "norm_label": "atomic full-get counter policy",
+      "rationale": "Record only GET without Range after assertAvailable and successful response construction; atomic database increment avoids lost updates. Valid view UUIDs also pass the cache deduplication gate. This records an accepted request, not completion of all bytes.",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L49-L63"
+    },
+    {
+      "id": "http_controllers_proposalguidecontroller_proposalguidecontroller_uuid_view_deduplication",
+      "label": "UUID view_token cache deduplication",
+      "_origin": "semantic",
+      "community": 60,
+      "community_name": "Community 60",
+      "file_type": "code",
+      "norm_label": "uuid view_token cache deduplication",
+      "rationale": "Valid UUID view tokens use atomic Cache::add with a guide-specific SHA256 key for 30 minutes, so repeated viewer GETs count once. Cache loss can permit recounting; bare/invalid-token PDF URLs count each full GET. Download counters bypass this view-only gate.",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L55-L60"
+    },
+    {
+      "id": "models_proposalguide_proposalguide_download_count",
+      "label": "ProposalGuide download_count counter",
+      "_origin": "semantic",
+      "community": 60,
+      "community_name": "Community 60",
+      "file_type": "code",
+      "norm_label": "proposalguide download_count counter",
+      "rationale": "Integer cast; excluded from content fillable fields so title/PDF edits cannot mass assign counters.",
+      "source_file": "Models/ProposalGuide.php",
+      "source_location": "L9-L15"
+    },
+    {
+      "id": "models_proposalguide_proposalguide_view_count",
+      "label": "ProposalGuide view_count counter",
+      "_origin": "semantic",
+      "community": 60,
+      "community_name": "Community 60",
+      "file_type": "code",
+      "norm_label": "proposalguide view_count counter",
+      "rationale": "Integer cast; excluded from content fillable fields so title/PDF edits cannot mass assign counters.",
+      "source_file": "Models/ProposalGuide.php",
+      "source_location": "L9-L15"
     }
   ],
   "links": [
+    {
+      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_getpages",
+      "target": "filament_layanankkprl_resources_proposalguides_pages_manageproposalguides_manageproposalguides",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.2,
+      "context": "call",
+      "resolution_note": "Name-only PHP AST call candidate; receiver type was not independently resolved.",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_assertavailable",
+      "target": "domain_kkprl_proposalprogress_proposalprogress_filled",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.2,
+      "context": "call",
+      "resolution_note": "Name-only PHP AST call candidate; receiver type was not independently resolved.",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L68",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_download",
+      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_download",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.2,
+      "context": "call",
+      "resolution_note": "Name-only PHP AST call candidate; receiver type was not independently resolved.",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_download",
+      "target": "services_privatefileservice_privatefileservice_response",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.2,
+      "context": "call",
+      "resolution_note": "Name-only PHP AST call candidate; receiver type was not independently resolved.",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_pdf",
+      "target": "services_privatefileservice_privatefileservice_response",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.2,
+      "context": "call",
+      "resolution_note": "Name-only PHP AST call candidate; receiver type was not independently resolved.",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L24",
+      "weight": 1.0
+    },
     {
       "source": "actions_mobile_createassignments_createassignments_conflicts",
       "target": "models_assignment_assignment",
@@ -28627,18 +28875,6 @@
       "weight": 1.0
     },
     {
-      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_getpages",
-      "target": "filament_layanankkprl_resources_proposalguides_pages_manageproposalguides_manageproposalguides",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
-      "source_location": "L67",
-      "weight": 1.0
-    },
-    {
       "source": "filament_layanankkprl_resources_regulations_pages_createregulation_createregulation_aftercreate",
       "target": "jobs_chunkregulationjob_chunkregulationjob",
       "relation": "calls",
@@ -30159,19 +30395,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L30",
-      "weight": 1.0
-    },
-    {
-      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_download",
-      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_download",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L32",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -30183,7 +30407,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L32",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_download",
+      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_recordaccess",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L44",
       "weight": 1.0
     },
     {
@@ -30195,7 +30431,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L19",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
@@ -30207,7 +30443,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L23",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_pdf",
+      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_recordaccess",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -35695,6 +35943,42 @@
       "weight": 1.0
     },
     {
+      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource",
+      "target": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "declaration",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller",
+      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "declaration",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "models_proposalguide",
+      "target": "models_proposalguide_proposalguide",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "declaration",
+      "source_file": "Models/ProposalGuide.php",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
       "source": "console_commands_backfilldataprotection_backfilldataprotection",
       "target": "services_datahashservice_datahashservice",
       "relation": "references",
@@ -36003,7 +36287,7 @@
       "confidence_score": 1.0,
       "context": "field",
       "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0
     },
     {
@@ -36015,7 +36299,7 @@
       "confidence_score": 1.0,
       "context": "field",
       "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -43112,7 +43396,7 @@
     },
     {
       "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource",
-      "target": "unitenum",
+      "target": "illuminate_support_str",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -43124,7 +43408,19 @@
     },
     {
       "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource",
-      "target": "filament_layanankkprl_resources_proposalguides_pages_manageproposalguides_manageproposalguides",
+      "target": "unitenum",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource",
+      "target": "app_filament_layanankkprl_resources_proposalguides_pages_manageproposalguides",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -49880,7 +50176,7 @@
     },
     {
       "source": "http_controllers_proposalguidecontroller",
-      "target": "illuminate_support_facades_storage",
+      "target": "illuminate_http_request",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -49888,6 +50184,42 @@
       "context": "import",
       "source_file": "Http/Controllers/ProposalGuideController.php",
       "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller",
+      "target": "illuminate_support_facades_cache",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller",
+      "target": "illuminate_support_facades_storage",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller",
+      "target": "illuminate_support_str",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -58819,6 +59151,150 @@
       "weight": 1.0
     },
     {
+      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource",
+      "target": "filament_resources_resource",
+      "relation": "inherits",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "inheritance",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller",
+      "target": "controller",
+      "relation": "inherits",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "inheritance",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "models_proposalguide_proposalguide",
+      "target": "illuminate_database_eloquent_model",
+      "relation": "inherits",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "inheritance",
+      "source_file": "Models/ProposalGuide.php",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource",
+      "target": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_form",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "method",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource",
+      "target": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_table",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "method",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource",
+      "target": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_getpages",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "method",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L68",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller",
+      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_index",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "method",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller",
+      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_pdf",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "method",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller",
+      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_download",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "method",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller",
+      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_recordaccess",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "method",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller",
+      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_assertavailable",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "method",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller",
+      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_filename",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "method",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
       "source": "actions_mobile_createassignments_createassignments_conflicts",
       "target": "illuminate_support_collection",
       "relation": "references",
@@ -59644,30 +60120,6 @@
       "context": "parameter_type",
       "source_file": "Filament/Layanankkprl/Resources/LearningSessions/LearningSessionResource.php",
       "source_location": "L58",
-      "weight": 1.0
-    },
-    {
-      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_form",
-      "target": "filament_schemas_schema",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
-      "source_location": "L37",
-      "weight": 1.0
-    },
-    {
-      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_table",
-      "target": "filament_tables_table",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
-      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -61707,7 +62159,19 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L38",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_download",
+      "target": "illuminate_http_request",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L35",
       "weight": 1.0
     },
     {
@@ -61719,7 +62183,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L28",
+      "source_location": "L35",
       "weight": 1.0
     },
     {
@@ -61731,7 +62195,19 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L43",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_pdf",
+      "target": "illuminate_http_request",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L20",
       "weight": 1.0
     },
     {
@@ -61743,7 +62219,31 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L17",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_recordaccess",
+      "target": "illuminate_http_request",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_recordaccess",
+      "target": "models_proposalguide_proposalguide",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L49",
       "weight": 1.0
     },
     {
@@ -69235,6 +69735,30 @@
       "weight": 1.0
     },
     {
+      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_form",
+      "target": "filament_schemas_schema",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "return_type",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_table",
+      "target": "filament_tables_table",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "return_type",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
       "source": "filament_layanankkprl_resources_publicfeedbackresource_publicfeedbackresource_geteloquentquery",
       "target": "illuminate_database_eloquent_builder",
       "relation": "references",
@@ -73214,17 +73738,6 @@
       "weight": 1.0
     },
     {
-      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource",
-      "target": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
-      "source_location": "L21",
-      "weight": 1.0
-    },
-    {
       "source": "filament_layanankkprl_resources_publicfeedbackresource",
       "target": "filament_layanankkprl_resources_publicfeedbackresource_publicfeedbackresource",
       "relation": "contains",
@@ -74193,17 +74706,6 @@
       "weight": 1.0
     },
     {
-      "source": "http_controllers_proposalguidecontroller",
-      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L8",
-      "weight": 1.0
-    },
-    {
       "source": "http_middleware_attachrequestid",
       "target": "http_middleware_attachrequestid_attachrequestid",
       "relation": "contains",
@@ -74883,17 +75385,6 @@
       "confidence_score": 1.0,
       "source_file": "Models/NotificationLog.php",
       "source_location": "L9",
-      "weight": 1.0
-    },
-    {
-      "source": "models_proposalguide",
-      "target": "models_proposalguide_proposalguide",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Models/ProposalGuide.php",
-      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -76569,17 +77060,6 @@
       "weight": 1.0
     },
     {
-      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource",
-      "target": "filament_resources_resource",
-      "relation": "inherits",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
-      "source_location": "L21",
-      "weight": 1.0
-    },
-    {
       "source": "filament_layanankkprl_resources_publicfeedbackresource_pages_createpublicfeedback_createpublicfeedback",
       "target": "filament_resources_pages_createrecord",
       "relation": "inherits",
@@ -77427,17 +77907,6 @@
       "weight": 1.0
     },
     {
-      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller",
-      "target": "http_controllers_controller_controller",
-      "relation": "inherits",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L8",
-      "weight": 1.0
-    },
-    {
       "source": "http_middleware_authenticatemobile_authenticatemobile",
       "target": "illuminate_auth_middleware_authenticate",
       "relation": "inherits",
@@ -78051,17 +78520,6 @@
       "confidence_score": 1.0,
       "source_file": "Models/NotificationLog.php",
       "source_location": "L9",
-      "weight": 1.0
-    },
-    {
-      "source": "models_proposalguide_proposalguide",
-      "target": "illuminate_database_eloquent_model",
-      "relation": "inherits",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Models/ProposalGuide.php",
-      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -81134,39 +81592,6 @@
       "weight": 1.0
     },
     {
-      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource",
-      "target": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_form",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
-      "source_location": "L37",
-      "weight": 1.0
-    },
-    {
-      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource",
-      "target": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_table",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
-      "source_location": "L50",
-      "weight": 1.0
-    },
-    {
-      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource",
-      "target": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_getpages",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
-      "source_location": "L65",
-      "weight": 1.0
-    },
-    {
       "source": "filament_layanankkprl_resources_publicfeedbackresource_pages_editpublicfeedback_editpublicfeedback",
       "target": "filament_layanankkprl_resources_publicfeedbackresource_pages_editpublicfeedback_editpublicfeedback_getheaderactions",
       "relation": "method",
@@ -83738,61 +84163,6 @@
       "confidence_score": 1.0,
       "source_file": "Http/Controllers/LearningTrackingController.php",
       "source_location": "L96",
-      "weight": 1.0
-    },
-    {
-      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller",
-      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_index",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L10",
-      "weight": 1.0
-    },
-    {
-      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller",
-      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_pdf",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L17",
-      "weight": 1.0
-    },
-    {
-      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller",
-      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_download",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L28",
-      "weight": 1.0
-    },
-    {
-      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller",
-      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_assertavailable",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L38",
-      "weight": 1.0
-    },
-    {
-      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller",
-      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_filename",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L43",
       "weight": 1.0
     },
     {
@@ -95445,42 +95815,6 @@
       "weight": 1.0
     },
     {
-      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_assertavailable",
-      "target": "domain_kkprl_proposalprogress_proposalprogress_filled",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "context": "call",
-      "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L40",
-      "weight": 1.0
-    },
-    {
-      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_download",
-      "target": "services_privatefileservice_privatefileservice_response",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "context": "call",
-      "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L32",
-      "weight": 1.0
-    },
-    {
-      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_pdf",
-      "target": "services_privatefileservice_privatefileservice_response",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "context": "call",
-      "source_file": "Http/Controllers/ProposalGuideController.php",
-      "source_location": "L21",
-      "weight": 1.0
-    },
-    {
       "source": "http_middleware_ensuremobileuserisactive_ensuremobileuserisactive_handle",
       "target": "services_privatefileservice_privatefileservice_response",
       "relation": "calls",
@@ -96102,6 +96436,186 @@
       "context": "call",
       "source_file": "Support/EnsuresMobileVersion.php",
       "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_download_count_column",
+      "target": "models_proposalguide_proposalguide_download_count",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "admin_column",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_table",
+      "target": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_view_count_column",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "admin_column",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_table",
+      "target": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_download_count_column",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "admin_column",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_view_count_column",
+      "target": "models_proposalguide_proposalguide_view_count",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "admin_column",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_recordaccess",
+      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_full_get_counter_policy",
+      "relation": "implements",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "counter_behavior",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L49-L63",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_recordaccess",
+      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_uuid_view_deduplication",
+      "relation": "implements",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "counter_behavior",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L55-L60",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_download",
+      "target": "models_proposalguide_proposalguide_download_count",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "counter_behavior",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L44",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_full_get_counter_policy",
+      "target": "models_proposalguide_proposalguide_view_count",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "counter_behavior",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L30-L63",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_full_get_counter_policy",
+      "target": "models_proposalguide_proposalguide_download_count",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "counter_behavior",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L44-L63",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_pdf",
+      "target": "models_proposalguide_proposalguide_view_count",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "counter_behavior",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "models_proposalguide_proposalguide",
+      "target": "models_proposalguide_proposalguide_download_count",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "counter_cast_and_mass_assignment",
+      "source_file": "Models/ProposalGuide.php",
+      "source_location": "L9-L15",
+      "weight": 1.0
+    },
+    {
+      "source": "models_proposalguide_proposalguide",
+      "target": "models_proposalguide_proposalguide_view_count",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "counter_cast_and_mass_assignment",
+      "source_file": "Models/ProposalGuide.php",
+      "source_location": "L9-L15",
+      "weight": 1.0
+    },
+    {
+      "source": "http_controllers_proposalguidecontroller_proposalguidecontroller_uuid_view_deduplication",
+      "target": "models_proposalguide_proposalguide_view_count",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "view_only_deduplication",
+      "source_file": "Http/Controllers/ProposalGuideController.php",
+      "source_location": "L55-L63",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_table",
+      "target": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_preview_view_token",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "view_token_generation",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L62-L64",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_proposalguides_proposalguideresource_proposalguideresource_preview_view_token",
+      "target": "http_controllers_proposalguidecontroller_proposalguidecontroller_uuid_view_deduplication",
+      "relation": "shares_data_with",
+      "_origin": "semantic",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "context": "view_token_generation",
+      "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
+      "source_location": "L63",
       "weight": 1.0
     }
   ],

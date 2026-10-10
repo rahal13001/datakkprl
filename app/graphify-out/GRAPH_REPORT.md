@@ -4,14 +4,22 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 2251 nodes · 5947 edges · 104 communities (63 shown, 41 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 121 edges (avg confidence: 0.85)
-- Token cost: 0 input · 0 output
+- Current durable graph: 2261 nodes · 5973 undirected edges · 104 retained communities.
+- Confidence counts: {'AMBIGUOUS': 5, 'EXTRACTED': 5849, 'INFERRED': 119}.
+- Counter-update AST: zero model tokens; host semantic usage unavailable (unknown, not zero).
 
 ## Graph Freshness
 - Built from commit: `35c14bf1`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
+
+## Counter Source Freshness
+
+Selected counter sources are committed at `0c0cfdc`; their current SHA-256 and scoped manifests are verified. The original build commit and all older update/audit metadata are retained separately. This is an incremental source refresh, not a complete repository extraction at that commit.
+
+## Historical community analytics
+
+The following hubs, community membership summaries, cohesion, questions and prior audit sections describe the previous graph snapshot. No reclustering or centrality recomputation occurred for the counter update. Old assignments and all old audit sections are retained; new entities join the existing guide community.
 
 ## Community Hubs (Navigation)
 - Community 0
@@ -420,3 +428,13 @@ _Questions this graph is uniquely positioned to answer:_
   _Cohesion score 0.06376811594202898 - nodes in this community are weakly interconnected._
 - **Should `Community 3` be split into smaller, more focused modules?**
   _Cohesion score 0.057692307692307696 - nodes in this community are weakly interconnected._
+## Proposal Guide Counters Refresh Audit
+
+- Counter feature source commit: `0c0cfdc`. Old build and earlier provenance/audits preserved.
+- Baseline → current: 2251 → 2261 nodes; 5947 → 5973 relations; 104 retained communities; 0 preserved hyperedges.
+- Refreshed 3 PHP sources through native Graphify AST; added 7 semantic entities/15 relations with actual source locations and contexts. 5898 non-scope edges retained.
+- Successful full GET PDF/download requests atomically increment separate counters; HEAD, Range, unavailable documents, index and redirect requests do not count. Valid UUID view_token requests deduplicate for 30 minutes via atomic Cache::add, preventing repeated browser PDF fetches from inflating one rendered opening. Bare/invalid-token URLs retain request counting; a new render creates fresh tokens. Numeric admin columns are sortable; content mass assignment excludes counters.
+- Existing unrelated nodes/edges/confidence, community assignments and hyperedges preserved. Endpoint checks pass; 0 parallel endpoint pairs survive. Fresh unresolved PHP receiver candidates (5) marked AMBIGUOUS 0.2.
+- Source hashes and health: `proposal-guide-counters-audit.json`; 3 selected manifest rows stamped, 334 total rows retained. Missing source files: 0 (historical metadata is not silently removed).
+- Diagnostic warnings: baseline 19 parser self loops and 0 AMBIGUOUS edges; current 19 self loops and 5 AMBIGUOUS edges. No new self-loop identities. 5 new ambiguity markings include 5 reclassified existing relations and 0 new unresolved AST relation candidates. These warnings do not imply proven recursion. No dangling/missing endpoints or unrelated relation loss.
+- Final implementation evidence: focused 30 tests/299 assertions PASS; Pint five PHP files PASS; full suite **483 tests/2,714 assertions PASS (189.34 s)**. Viewer regression first failed 2-versus-1, then passed. Browser fixture verified one view per render, another on refresh, one download per click, real admin draft96/65 and clean public console. Temporary fixture/file and account removed; original draft remains96/65, unpublished, without PDF. Review/diff-check PASS. Graph update does not independently rerun application/browser checks or mutate user database/deploy/commit. Host semantic tokens unavailable, not zero.

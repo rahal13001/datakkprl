@@ -4,9 +4,17 @@
 - Existing main project and KKPRL index retained. Institution schema repair refresh: 2 PHP code sources and 4 Markdown documents through ADR-029. Main specification read in full; unchanged contribution retained with corrected locations and added repair references. Not a full repository rebuild or live hosting/database audit.
 
 ## Summary
-- 3491 nodes · 8967 edges · 174 communities (105 shown, 69 thin omitted)
-- Extraction: 91% EXTRACTED · 1% INFERRED · 8% AMBIGUOUS · INFERRED: 80 edges (avg confidence: 0.89)
-- Token cost: AST 0 tokens; delegated host semantic usage unavailable (unknown, not zero). External model API calls: 0.
+- Current durable graph: 3523 nodes · 9075 directed multiedges · 174 retained communities.
+- Confidence counts: {'AMBIGUOUS': 733, 'EXTRACTED': 8260, 'INFERRED': 82}.
+- Counter-update AST: zero model tokens; host semantic usage unavailable (unknown, not zero).
+
+## Counter Source Freshness
+
+Selected counter sources are committed at `0c0cfdc`; their current SHA-256 and scoped manifests are verified. The original build commit and all older update/audit metadata are retained separately. This is an incremental source refresh, not a complete repository extraction at that commit.
+
+## Historical community analytics
+
+The following hubs, community membership summaries, cohesion, questions and prior audit sections describe the previous graph snapshot. No reclustering or centrality recomputation occurred for the counter update. Old assignments and all old audit sections are retained; new entities join the existing guide community.
 
 ## Community Hubs (Navigation)
 - Filament Form Schemas
@@ -2105,3 +2113,15 @@ _Questions this graph is uniquely positioned to answer:_
 - Source SHA-256, extraction counts and provenance: `.graphify_update.json`; only extracted scope stamped in manifest.
 - Validation provenance: Root actual RED7tests/2assertions/7errors (missing repair file) reproduces failing autosave on absent columns; GREEN7tests/180assertions PASS1.395s; Pint2filesPASS; fullPHPUnit476tests/2642assertions PASS261.142s exit0; gitdiff--check exit0 (existing CRLF warnings) and 6-source trailing-whitespace check empty. Tests use isolated SQLite/fake private storage/HTTP guard. No new UI build/browser run, paid API call, live MySQL hosting test, deployment or commit. Graph refresh does not rerun application tests.
 - No fixture/private data or passwords included. No live MySQL hosting query, deployment or data recovery performed by this graph update.
+
+## Proposal Guide Counters Refresh Audit
+
+- Counter feature source commit: `0c0cfdc`. Old build and earlier provenance/audits preserved.
+- Baseline → current: 3491 → 3523 nodes; 8967 → 9075 relations; 174 retained communities; 4 preserved hyperedges.
+- Refreshed 6 PHP sources through native Graphify AST; added 17 semantic entities/57 relations with actual source locations and contexts. 8912 non-scope edges retained.
+- Successful full GET PDF/download requests atomically increment separate counters; HEAD, Range, unavailable documents, index and redirect requests do not count. Valid UUID view_token requests deduplicate for 30 minutes via atomic Cache::add, preventing repeated browser PDF fetches from inflating one rendered opening. Bare/invalid-token URLs retain request counting; a new render creates fresh tokens. Numeric admin columns are sortable; content mass assignment excludes counters.
+- New one-time migration restores archived legacy counts with original-guide minimum 96/65 and unrelated-document zero. Runtime local draft recovery is documentation evidence, not a source-code seed. Seven new regression methods cover counting, viewer deduplication, exclusions, redirects, admin protection, PDF replacement and migration restoration.
+- Existing unrelated nodes/edges/confidence, community assignments and hyperedges preserved. Endpoint checks pass; 136 parallel endpoint pairs survive. Fresh unresolved PHP receiver candidates (17) marked AMBIGUOUS 0.2.
+- Source hashes and health: `proposal-guide-counters-audit.json`; 8 selected manifest rows stamped, 514 total rows retained. Missing source files: 0 (historical metadata is not silently removed).
+- Diagnostic warnings: baseline 22 parser self loops and 721 AMBIGUOUS edges; current 22 self loops and 733 AMBIGUOUS edges. No new self-loop identities. 12 new ambiguity markings include 0 reclassified existing relations and 12 new unresolved AST relation candidates. These warnings do not imply proven recursion. No dangling/missing endpoints or unrelated relation loss.
+- Final implementation evidence: focused 30 tests/299 assertions PASS; Pint five PHP files PASS; full suite **483 tests/2,714 assertions PASS (189.34 s)**. Viewer regression first failed 2-versus-1, then passed. Browser fixture verified one view per render, another on refresh, one download per click, real admin draft96/65 and clean public console. Temporary fixture/file and account removed; original draft remains96/65, unpublished, without PDF. Review/diff-check PASS. Graph update does not independently rerun application/browser checks or mutate user database/deploy/commit. Host semantic tokens unavailable, not zero.

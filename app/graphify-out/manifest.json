@@ -1788,10 +1788,10 @@
     "semantic_hash": ""
   },
   "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php": {
-    "mtime": 1791255765.8092036,
-    "seen": 1791255915.7770777,
-    "ast_hash": "faa80e2cf38d03528b4990d3e5ceb82d",
-    "semantic_hash": ""
+    "mtime": 1791598708.8648877,
+    "seen": 1791599106.7894528,
+    "ast_hash": "a589c681623cbfe17b218d12848bf536",
+    "semantic_hash": "a589c681623cbfe17b218d12848bf536"
   },
   "Filament/Layanankkprl/Resources/RunningTextResource.php": {
     "mtime": 1790323447.8457503,
@@ -1830,10 +1830,10 @@
     "semantic_hash": ""
   },
   "Http/Controllers/ProposalGuideController.php": {
-    "mtime": 1791255651.7195504,
-    "seen": 1791255915.7771423,
-    "ast_hash": "602d50cb19ce61bc59c5f36edfda5f80",
-    "semantic_hash": ""
+    "mtime": 1791598708.7512124,
+    "seen": 1791599106.7827845,
+    "ast_hash": "2e063acb3ffe9f52c0ee59396c485846",
+    "semantic_hash": "2e063acb3ffe9f52c0ee59396c485846"
   },
   "Livewire/Concerns/InteractsWithKkprlEvidence.php": {
     "mtime": 1791160221.4801805,
@@ -1914,10 +1914,10 @@
     "semantic_hash": ""
   },
   "Models/ProposalGuide.php": {
-    "mtime": 1791255651.4433408,
-    "seen": 1791255915.7771938,
-    "ast_hash": "ddfd15da759a5bd0c27020999fac7cbd",
-    "semantic_hash": ""
+    "mtime": 1791598096.6716123,
+    "seen": 1791599106.7766194,
+    "ast_hash": "6756ad300e3354ddcbfefceb5d124ff0",
+    "semantic_hash": "6756ad300e3354ddcbfefceb5d124ff0"
   },
   "Models/RunningText.php": {
     "mtime": 1790321735.285727,

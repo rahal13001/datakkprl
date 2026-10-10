@@ -1,0 +1,66 @@
+{
+  "updated_at": "2026-10-10T02:25:05.896792+00:00",
+  "stage": "proposal-guide-counters",
+  "source_commit": "0c0cfdc",
+  "scope": [
+    "Models/ProposalGuide.php",
+    "Http/Controllers/ProposalGuideController.php",
+    "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php"
+  ],
+  "source_sha256": {
+    "Models/ProposalGuide.php": "df5bcf93c4b7e147c0d00431ac8d6cb35b76e1fb93f7b2f6079b6051e72b1ca4",
+    "Http/Controllers/ProposalGuideController.php": "05eb94be384d77c6d6ce08bf7a7f894763cc22523ed556bdbd6e9072105acad2",
+    "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php": "5668c84188afba8f9a592adfd273c5c2275de1eb4b9582cab966794c47eb0b38"
+  },
+  "source_state": "Selected local source files; no graph-agent database mutation, deployment or Git action.",
+  "baseline": {
+    "nodes": 2251,
+    "edges": 5947
+  },
+  "counts": {
+    "nodes": 2261,
+    "edges": 5973,
+    "communities": 104,
+    "hyperedges": 0
+  },
+  "retained_non_scope_edges": 5898,
+  "ast_nodes": 35,
+  "ast_edges": 62,
+  "semantic_nodes": 7,
+  "semantic_edges": 15,
+  "fresh_ambiguous_calls": 5,
+  "reclustered": false,
+  "community_policy": "Old assignments retained; new entities placed in the existing ProposalGuide community.",
+  "semantic_token_usage": "Host counters unavailable; unknown, not zero.",
+  "external_api_calls": 0,
+  "validation_provenance": "Implementation agent and finalized counters document report focused30tests299assertions PASS; Pint5PHPfiles PASS; viewer regression RED2-versus-1 then GREEN; finalfullsuite483tests2714assertions PASS189.34s. Browser fixture one render adds one view, refresh adds another, download adds one; admin draft96/65 verified and public console clean. Temporary fixture/file and account removed; original draft96/65 remains unpublished without PDF. Review/diff-check PASS. Graph update does not independently rerun application tests or browser checks.",
+  "manifest_policy": "Only processed scope hashes stamped; all other manifest rows retained unchanged.",
+  "health": {
+    "dangling_endpoints": 0,
+    "missing_endpoints": 0,
+    "missing_source_files": [],
+    "parallel_endpoint_pairs": 0,
+    "parallel_edges": 0,
+    "self_loops": 19,
+    "ambiguous_edges": 5,
+    "unrelated_node_and_edge_metadata_preserved": true,
+    "old_community_assignments_preserved": true,
+    "hyperedges_preserved": true
+  },
+  "baseline_health": {
+    "self_loops": 19,
+    "ambiguous_edges": 0
+  },
+  "health_delta": {
+    "new_self_loop_identities": 0,
+    "retained_self_loop_identities": 19,
+    "new_ambiguous_markings": 5,
+    "reclassified_existing_relations": 5,
+    "new_ambiguous_relation_identities": 0
+  },
+  "diagnostic_warnings": [
+    "19 retained parser self-loop candidates; none newly introduced.",
+    "5 AMBIGUOUS relations: baseline 0, new ambiguity markings 5, including 5 reclassified existing relations. These are unresolved receiver candidates, not proven calls or recursion."
+  ],
+  "manifest_files": 334
+}
