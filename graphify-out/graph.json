@@ -218,6 +218,71 @@
         "733 AMBIGUOUS relations: baseline 721, new ambiguity markings 12, including 0 reclassified existing relations. These are unresolved receiver candidates, not proven calls or recursion."
       ],
       "manifest_files": 514
+    },
+    "public_guide_statistics_update": {
+      "updated_at": "2026-10-10T03:28:52.451078+00:00",
+      "stage": "public-guide-statistics",
+      "source_commit": "0f825b5",
+      "scope": [
+        "docs/pedoman-kkprl-counters.md",
+        "resources/views/guides/index.blade.php"
+      ],
+      "source_sha256": {
+        "docs/pedoman-kkprl-counters.md": "9eab1a233a62f7a67e7bb92d7ca97c7f9ff5632105c473e4d219ce714e6e9746",
+        "resources/views/guides/index.blade.php": "b42ff358db630311fbb1e79016a1cdc0be5390b47477dab1b145672c5b060b30"
+      },
+      "source_state": "Selected committed Blade/document sources; compiled CSS/manifest verified by implementation agent but not graph sources.",
+      "baseline": {
+        "nodes": 3523,
+        "edges": 9075,
+        "communities": 174,
+        "hyperedges": 4
+      },
+      "counts": {
+        "nodes": 3530,
+        "edges": 9092,
+        "communities": 174,
+        "hyperedges": 4
+      },
+      "ast": {
+        "nodes": 1,
+        "edges": 0,
+        "method": "Native Graphify Blade parser plus delegated source-backed host semantic extraction."
+      },
+      "semantic": {
+        "new_nodes": 7,
+        "new_edges": 17,
+        "existing_contributions": "Retained with corrected source line locations; unchanged confidence and edge metadata."
+      },
+      "baseline_health": {
+        "self_loops": 22,
+        "ambiguous_edges": 733
+      },
+      "health": {
+        "dangling_endpoints": 0,
+        "missing_endpoints": 0,
+        "self_loops": 22,
+        "ambiguous_edges": 733,
+        "parallel_endpoint_pairs": 136,
+        "parallel_edges": 136,
+        "missing_source_files": []
+      },
+      "health_delta": {
+        "new_self_loops": 0,
+        "new_ambiguous_edges": 0,
+        "unrelated_relation_loss": 0
+      },
+      "diagnostic_warnings": [
+        "22 existing PHP parser self-loop candidates and733 existing AMBIGUOUS relations remain; UI update introduces neither. These are unresolved parser candidates, not proven recursion."
+      ],
+      "reclustered": false,
+      "community_policy": "All prior assignments retained; new statistics entities use existing Proposal Guide Interface community.",
+      "prior_counter_audit": "proposal-guide-counters-audit.json retained byte-for-byte as historical implementation evidence; its two changed source hashes are intentionally superseded only by this sidecar.",
+      "app_graph_policy": "All app/graphify-out files retained byte-for-byte; no app source change.",
+      "semantic_token_usage": "Host usage unavailable; unknown, not zero.",
+      "external_model_api_calls": 0,
+      "validation_provenance": "Implementation agent/doc evidence: existing18tests174assertions PASS4.02s; Vitebuild PASS10.72s; existing published90-pagePDF snapshots99/65 then103/65; above-iframe positions/nohorizontaloverflow at320/768/1024/1440; rowwrap320; semanticdl/decorativeiconsariahidden; consoleclean. No fixtures or direct database writes; natural PDF requests increment views. Vite manifest artifacts exist and older assets retained. Prior483tests2714assertions is historical counter-suite evidence, not a UI rerun. Graph agent does not rerun browser/build/tests.",
+      "manifest_policy": "Only two processed source rows stamped; all other entries preserved."
     }
   },
   "nodes": [
@@ -37308,7 +37373,7 @@
       "file_type": "document",
       "norm_label": "app graph counter audit",
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L38"
+      "source_location": "L46"
     },
     {
       "id": "docs_pedoman_kkprl_counters_root_graph_counter_audit",
@@ -37320,7 +37385,19 @@
       "file_type": "document",
       "norm_label": "root graph counter audit",
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L38"
+      "source_location": "L46"
+    },
+    {
+      "id": "docs_pedoman_kkprl_counters_public_statistics_audit",
+      "label": "Public guide statistics graph audit",
+      "_origin": "semantic",
+      "artifact_path": "graphify-out/public-guide-statistics-audit.json",
+      "community": 174,
+      "community_name": "Proposal Guide Interface",
+      "file_type": "document",
+      "norm_label": "public guide statistics graph audit",
+      "source_file": "docs/pedoman-kkprl-counters.md",
+      "source_location": "L48"
     },
     {
       "id": "public_img_djprl_djprl_logo",
@@ -40926,7 +41003,7 @@
       "file_type": "code",
       "norm_label": "pedoman kkprl public document listing",
       "source_file": "resources/views/guides/index.blade.php",
-      "source_location": "L1-L29",
+      "source_location": "L1-L39",
       "source_url": null
     },
     {
@@ -43570,6 +43647,76 @@
       "source_url": null
     },
     {
+      "id": "resources_views_guides_index_blade_download_count_display",
+      "label": "Telah diunduh \u2014 database download_count display",
+      "_origin": "semantic",
+      "community": 174,
+      "community_name": "Proposal Guide Interface",
+      "file_type": "code",
+      "norm_label": "telah diunduh \u2014 database download_count display",
+      "source_file": "resources/views/guides/index.blade.php",
+      "source_location": "L26-L29"
+    },
+    {
+      "id": "resources_views_guides_index_blade_public_statistics",
+      "label": "Public guide statistics above PDF",
+      "_origin": "semantic",
+      "community": 174,
+      "community_name": "Proposal Guide Interface",
+      "file_type": "code",
+      "norm_label": "public guide statistics above pdf",
+      "rationale": "A semantic dl with accessible label Statistik dokumen displays each guide\u2019s loaded counters directly above its iframe. Flex wrapping lets the two values wrap on small screens; icons use aria-hidden.",
+      "source_file": "resources/views/guides/index.blade.php",
+      "source_location": "L21-L30"
+    },
+    {
+      "id": "resources_views_guides_index_blade_view_count_display",
+      "label": "Telah dilihat \u2014 database view_count display",
+      "_origin": "semantic",
+      "community": 174,
+      "community_name": "Proposal Guide Interface",
+      "file_type": "code",
+      "norm_label": "telah dilihat \u2014 database view_count display",
+      "source_file": "resources/views/guides/index.blade.php",
+      "source_location": "L22-L25"
+    },
+    {
+      "id": "docs_pedoman_kkprl_counters_public_statistics_validation",
+      "label": "Public statistics UI validation",
+      "_origin": "semantic",
+      "community": 174,
+      "community_name": "Proposal Guide Interface",
+      "file_type": "concept",
+      "norm_label": "public statistics ui validation",
+      "rationale": "Existing published guide/PDF used without fixture creation or counter resets. Existing18tests174assertions and Vite build pass; original483-test suite is prior counter implementation evidence, not a rerun for this UI change.",
+      "source_file": "docs/pedoman-kkprl-counters.md",
+      "source_location": "L40-L42"
+    },
+    {
+      "id": "resources_views_guides_index_blade_indonesian_count_formatting",
+      "label": "Indonesian integer counter formatting",
+      "_origin": "semantic",
+      "community": 174,
+      "community_name": "Proposal Guide Interface",
+      "file_type": "concept",
+      "norm_label": "indonesian integer counter formatting",
+      "rationale": "number_format((int) counter, 0, ',', '.') displays integer counts with Indonesian thousands separators and the suffix kali.",
+      "source_file": "resources/views/guides/index.blade.php",
+      "source_location": "L24-L28"
+    },
+    {
+      "id": "docs_pedoman_kkprl_counters_public_statistics_display",
+      "label": "Database snapshot for public document statistics",
+      "_origin": "semantic",
+      "community": 174,
+      "community_name": "Proposal Guide Interface",
+      "file_type": "rationale",
+      "norm_label": "database snapshot for public document statistics",
+      "rationale": "Counters are read from the database when the page renders and update on reload. Reading the labels does not increment counters; the iframe PDF request still follows the existing access policy.",
+      "source_file": "docs/pedoman-kkprl-counters.md",
+      "source_location": "L5"
+    },
+    {
       "id": "trigger",
       "label": "trigger",
       "_origin": "semantic",
@@ -43747,7 +43894,7 @@
       "norm_label": "per-render iframe/open pdf uuid view_token urls",
       "rationale": "The PDF open link and iframe each receive a freshly generated UUID at render time; download URL has no view token.",
       "source_file": "resources/views/guides/index.blade.php",
-      "source_location": "L18-L22"
+      "source_location": "L18-L32"
     },
     {
       "id": "docs_pedoman_kkprl_counters_counter_regression_validation",
@@ -43758,7 +43905,7 @@
       "file_type": "concept",
       "norm_label": "counter regression validation",
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L25-L34"
+      "source_location": "L27-L36"
     },
     {
       "id": "docs_landing_navbar_branding_identitas_navbar",
@@ -43781,7 +43928,7 @@
       "file_type": "document",
       "norm_label": "laravel 13 cache store if not present",
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L7",
+      "source_location": "L9",
       "source_url": "https://laravel.com/docs/13.x/cache#store-if-not-present"
     },
     {
@@ -43793,7 +43940,7 @@
       "file_type": "document",
       "norm_label": "penghitung pedoman kkprl",
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L1-L38"
+      "source_location": "L1-L48"
     },
     {
       "id": "docs_pedoman_kkprl_counters_legacy_counter_restoration",
@@ -43805,7 +43952,7 @@
       "norm_label": "legacy guide counter restoration 96/65",
       "rationale": "Use archived legacy_material_id and recognized guide slugs; preserve larger archived totals; original guide minimum 96/65; unrelated new documents zero. Add a new one-time migration without altering the executed initial migration.",
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L13-L15"
+      "source_location": "L15-L17"
     },
     {
       "id": "docs_pedoman_kkprl_counters_local_draft_recovery",
@@ -43815,9 +43962,9 @@
       "community_name": "Proposal Guide Administration",
       "file_type": "rationale",
       "norm_label": "local draft counter recovery without fabricated pdf",
-      "rationale": "Local absence is recovered through a runtime draft with 96/65 and no PDF; an admin must upload and publish. This is operating evidence, not a source-code seed or a deployment claim.",
+      "rationale": "Historical initial counter implementation recovered local absence through a draft96/65 without PDF. Current statistics UI validation uses an already published guide; this operating history is not a source-code seed or a current unpublished-state claim.",
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L21"
+      "source_location": "L23"
     },
     {
       "id": "docs_pedoman_kkprl_counters_non_counting_requests",
@@ -43829,7 +43976,7 @@
       "norm_label": "non-counting head/range/unavailable/index/redirect requests",
       "rationale": "Exclude probes, PDF chunks, unavailable documents, listing requests and redirects; record accesses at the requested destination only.",
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L5"
+      "source_location": "L7"
     },
     {
       "id": "docs_pedoman_kkprl_counters_request_metrics_not_unique_visitors",
@@ -43841,7 +43988,7 @@
       "norm_label": "request metrics, not unique visitors or completed transfers",
       "rationale": "PDF iframe, open button and published admin preview use the PDF endpoint. A new render can add views; repeated valid-token PDF GETs deduplicate for 30 minutes. Browser viewer save and direct storage links bypass the download endpoint.",
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L9"
+      "source_location": "L11"
     }
   ],
   "links": [
@@ -151044,7 +151191,7 @@
       "context": "audit_artifact_link",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L38",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -151057,7 +151204,33 @@
       "context": "audit_artifact_link",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L38",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_pedoman_kkprl_counters_penghitung_pedoman_kkprl",
+      "target": "docs_pedoman_kkprl_counters_public_statistics_audit",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "audit_artifact_link",
+      "key": 0,
+      "source_file": "docs/pedoman-kkprl-counters.md",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_pedoman_kkprl_counters_public_statistics_audit",
+      "target": "resources_views_guides_index_blade_public_statistics",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "audit_scope",
+      "key": 0,
+      "source_file": "docs/pedoman-kkprl-counters.md",
+      "source_location": "L48",
       "weight": 1.0
     },
     {
@@ -151217,6 +151390,45 @@
       "weight": 1.0
     },
     {
+      "source": "resources_views_guides_index_blade_download_count_display",
+      "target": "app_models_proposalguide_proposalguide_download_count",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "database_counter_render",
+      "key": 0,
+      "source_file": "resources/views/guides/index.blade.php",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "resources_views_guides_index_blade_view_count_display",
+      "target": "app_models_proposalguide_proposalguide_view_count",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "database_counter_render",
+      "key": 0,
+      "source_file": "resources/views/guides/index.blade.php",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_pedoman_kkprl_counters_penghitung_pedoman_kkprl",
+      "target": "docs_pedoman_kkprl_counters_request_metrics_not_unique_visitors",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "document_evidence",
+      "key": 0,
+      "source_file": "docs/pedoman-kkprl-counters.md",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
       "source": "docs_pedoman_kkprl_counters_penghitung_pedoman_kkprl",
       "target": "database_migrations_2026_10_10_000001_add_counters_to_proposal_guides_table",
       "relation": "references",
@@ -151226,7 +151438,7 @@
       "context": "document_evidence",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L13-L18",
+      "source_location": "L15-L20",
       "weight": 1.0
     },
     {
@@ -151239,7 +151451,7 @@
       "context": "document_evidence",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L13-L18",
+      "source_location": "L15-L20",
       "weight": 1.0
     },
     {
@@ -151252,7 +151464,7 @@
       "context": "document_evidence",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L3-L5",
+      "source_location": "L3-L7",
       "weight": 1.0
     },
     {
@@ -151265,7 +151477,7 @@
       "context": "document_evidence",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L3-L5",
+      "source_location": "L3-L7",
       "weight": 1.0
     },
     {
@@ -151278,7 +151490,7 @@
       "context": "document_evidence",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L3-L5",
+      "source_location": "L3-L7",
       "weight": 1.0
     },
     {
@@ -151291,7 +151503,7 @@
       "context": "document_evidence",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L3-L5",
+      "source_location": "L3-L7",
       "weight": 1.0
     },
     {
@@ -151304,7 +151516,7 @@
       "context": "document_evidence",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L3-L5",
+      "source_location": "L3-L7",
       "weight": 1.0
     },
     {
@@ -151317,7 +151529,7 @@
       "context": "document_evidence",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L3-L5",
+      "source_location": "L3-L7",
       "weight": 1.0
     },
     {
@@ -151330,7 +151542,7 @@
       "context": "document_evidence",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L7",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -151343,25 +151555,12 @@
       "context": "document_evidence",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L7",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
       "source": "docs_pedoman_kkprl_counters_penghitung_pedoman_kkprl",
       "target": "resources_views_guides_index_blade_view_tokens",
-      "relation": "references",
-      "_origin": "semantic",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "document_evidence",
-      "key": 0,
-      "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L7",
-      "weight": 1.0
-    },
-    {
-      "source": "docs_pedoman_kkprl_counters_penghitung_pedoman_kkprl",
-      "target": "docs_pedoman_kkprl_counters_request_metrics_not_unique_visitors",
       "relation": "references",
       "_origin": "semantic",
       "confidence": "EXTRACTED",
@@ -151395,7 +151594,33 @@
       "context": "migration_rationale",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L13-L15",
+      "source_location": "L15-L17",
+      "weight": 1.0
+    },
+    {
+      "source": "resources_views_guides_index_blade_download_count_display",
+      "target": "resources_views_guides_index_blade_indonesian_count_formatting",
+      "relation": "implements",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "number_format",
+      "key": 0,
+      "source_file": "resources/views/guides/index.blade.php",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "resources_views_guides_index_blade_view_count_display",
+      "target": "resources_views_guides_index_blade_indonesian_count_formatting",
+      "relation": "implements",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "number_format",
+      "key": 0,
+      "source_file": "resources/views/guides/index.blade.php",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -151408,7 +151633,7 @@
       "context": "official_api_citation",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L7",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -151421,7 +151646,98 @@
       "context": "operating_evidence",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L21",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_pedoman_kkprl_counters_penghitung_pedoman_kkprl",
+      "target": "docs_pedoman_kkprl_counters_public_statistics_display",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "public_display_definition",
+      "key": 0,
+      "source_file": "docs/pedoman-kkprl-counters.md",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_pedoman_kkprl_counters_public_statistics_display",
+      "target": "resources_views_guides_index_blade_indonesian_count_formatting",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "public_statistics_format",
+      "key": 0,
+      "source_file": "docs/pedoman-kkprl-counters.md",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_pedoman_kkprl_counters_public_statistics_display",
+      "target": "resources_views_guides_index_blade_download_count_display",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "public_statistics_labels",
+      "key": 0,
+      "source_file": "docs/pedoman-kkprl-counters.md",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_pedoman_kkprl_counters_public_statistics_display",
+      "target": "resources_views_guides_index_blade_view_count_display",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "public_statistics_labels",
+      "key": 0,
+      "source_file": "docs/pedoman-kkprl-counters.md",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_pedoman_kkprl_counters_public_statistics_display",
+      "target": "resources_views_guides_index_blade_public_statistics",
+      "relation": "rationale_for",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "render_snapshot_policy",
+      "key": 0,
+      "source_file": "docs/pedoman-kkprl-counters.md",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "resources_views_guides_index_blade_public_statistics",
+      "target": "resources_views_guides_index_blade_view_count_display",
+      "relation": "contains",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "semantic_definition_list",
+      "key": 0,
+      "source_file": "resources/views/guides/index.blade.php",
+      "source_location": "L22-L25",
+      "weight": 1.0
+    },
+    {
+      "source": "resources_views_guides_index_blade_public_statistics",
+      "target": "resources_views_guides_index_blade_download_count_display",
+      "relation": "contains",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "semantic_definition_list",
+      "key": 0,
+      "source_file": "resources/views/guides/index.blade.php",
+      "source_location": "L26-L29",
       "weight": 1.0
     },
     {
@@ -151434,7 +151750,7 @@
       "context": "template_route",
       "key": 0,
       "source_file": "resources/views/guides/index.blade.php",
-      "source_location": "L18-L22",
+      "source_location": "L18-L32",
       "weight": 1.0
     },
     {
@@ -151461,6 +151777,32 @@
       "key": 0,
       "source_file": "resources/views/guides/index.blade.php",
       "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "resources_views_guides_index_blade",
+      "target": "resources_views_guides_index_blade_public_statistics",
+      "relation": "contains",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "template_statistics",
+      "key": 0,
+      "source_file": "resources/views/guides/index.blade.php",
+      "source_location": "L21-L30",
+      "weight": 1.0
+    },
+    {
+      "source": "resources_views_guides_index_blade_pedoman_kkprl",
+      "target": "resources_views_guides_index_blade_public_statistics",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "template_statistics",
+      "key": 0,
+      "source_file": "resources/views/guides/index.blade.php",
+      "source_location": "L21-L30",
       "weight": 1.0
     },
     {
@@ -151608,6 +151950,32 @@
     },
     {
       "source": "docs_pedoman_kkprl_counters_penghitung_pedoman_kkprl",
+      "target": "docs_pedoman_kkprl_counters_public_statistics_validation",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "ui_validation_evidence",
+      "key": 0,
+      "source_file": "docs/pedoman-kkprl-counters.md",
+      "source_location": "L40-L42",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_pedoman_kkprl_counters_public_statistics_validation",
+      "target": "resources_views_guides_index_blade_public_statistics",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "ui_validation_evidence",
+      "key": 0,
+      "source_file": "docs/pedoman-kkprl-counters.md",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_pedoman_kkprl_counters_penghitung_pedoman_kkprl",
       "target": "docs_pedoman_kkprl_counters_counter_regression_validation",
       "relation": "references",
       "_origin": "semantic",
@@ -151616,7 +151984,7 @@
       "context": "validation_evidence",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L25-L34",
+      "source_location": "L27-L36",
       "weight": 1.0
     },
     {
@@ -151629,7 +151997,7 @@
       "context": "validation_evidence",
       "key": 0,
       "source_file": "docs/pedoman-kkprl-counters.md",
-      "source_location": "L25-L34",
+      "source_location": "L27-L36",
       "weight": 1.0
     },
     {
@@ -151668,7 +152036,7 @@
       "context": "view_token_generation",
       "key": 0,
       "source_file": "resources/views/guides/index.blade.php",
-      "source_location": "L18-L22",
+      "source_location": "L18-L32",
       "weight": 1.0
     },
     {
@@ -157734,7 +158102,7 @@
       "context": "guide_fields",
       "key": 0,
       "source_file": "resources/views/guides/index.blade.php",
-      "source_location": "L10-L22",
+      "source_location": "L10-L32",
       "weight": 1.0
     },
     {
@@ -158165,7 +158533,7 @@
       "context": "view_token_generation",
       "key": 0,
       "source_file": "resources/views/guides/index.blade.php",
-      "source_location": "L18-L22",
+      "source_location": "L18-L32",
       "weight": 1.0
     },
     {

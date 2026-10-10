@@ -4,13 +4,13 @@
 - Existing main project and KKPRL index retained. Institution schema repair refresh: 2 PHP code sources and 4 Markdown documents through ADR-029. Main specification read in full; unchanged contribution retained with corrected locations and added repair references. Not a full repository rebuild or live hosting/database audit.
 
 ## Summary
-- Current durable graph: 3523 nodes · 9075 directed multiedges · 174 retained communities.
-- Confidence counts: {'AMBIGUOUS': 733, 'EXTRACTED': 8260, 'INFERRED': 82}.
-- Counter-update AST: zero model tokens; host semantic usage unavailable (unknown, not zero).
+- Current durable graph: 3530 nodes · 9092 directed multiedges · 174 retained communities · 4 preserved hyperedges.
+- Current confidence counts: {'AMBIGUOUS': 733, 'EXTRACTED': 8277, 'INFERRED': 82}.
+- Public-statistics AST: zero model tokens; host semantic usage unavailable (unknown, not zero).
 
-## Counter Source Freshness
+## Historical Counter Source Freshness
 
-Selected counter sources are committed at `0c0cfdc`; their current SHA-256 and scoped manifests are verified. The original build commit and all older update/audit metadata are retained separately. This is an incremental source refresh, not a complete repository extraction at that commit.
+Selected counter sources are committed at `0c0cfdc`; their SHA-256 and scoped manifests were verified at that counter refresh. The current two UI-source hashes are recorded in the public-statistics audit. The original build commit and all older update/audit metadata are retained separately. This is an incremental source refresh, not a complete repository extraction at that commit.
 
 ## Historical community analytics
 
@@ -2114,7 +2114,7 @@ _Questions this graph is uniquely positioned to answer:_
 - Validation provenance: Root actual RED7tests/2assertions/7errors (missing repair file) reproduces failing autosave on absent columns; GREEN7tests/180assertions PASS1.395s; Pint2filesPASS; fullPHPUnit476tests/2642assertions PASS261.142s exit0; gitdiff--check exit0 (existing CRLF warnings) and 6-source trailing-whitespace check empty. Tests use isolated SQLite/fake private storage/HTTP guard. No new UI build/browser run, paid API call, live MySQL hosting test, deployment or commit. Graph refresh does not rerun application tests.
 - No fixture/private data or passwords included. No live MySQL hosting query, deployment or data recovery performed by this graph update.
 
-## Proposal Guide Counters Refresh Audit
+## Historical Proposal Guide Counters Refresh Audit
 
 - Counter feature source commit: `0c0cfdc`. Old build and earlier provenance/audits preserved.
 - Baseline → current: 3491 → 3523 nodes; 8967 → 9075 relations; 174 retained communities; 4 preserved hyperedges.
@@ -2125,3 +2125,13 @@ _Questions this graph is uniquely positioned to answer:_
 - Source hashes and health: `proposal-guide-counters-audit.json`; 8 selected manifest rows stamped, 514 total rows retained. Missing source files: 0 (historical metadata is not silently removed).
 - Diagnostic warnings: baseline 22 parser self loops and 721 AMBIGUOUS edges; current 22 self loops and 733 AMBIGUOUS edges. No new self-loop identities. 12 new ambiguity markings include 0 reclassified existing relations and 12 new unresolved AST relation candidates. These warnings do not imply proven recursion. No dangling/missing endpoints or unrelated relation loss.
 - Final implementation evidence: focused 30 tests/299 assertions PASS; Pint five PHP files PASS; full suite **483 tests/2,714 assertions PASS (189.34 s)**. Viewer regression first failed 2-versus-1, then passed. Browser fixture verified one view per render, another on refresh, one download per click, real admin draft96/65 and clean public console. Temporary fixture/file and account removed; original draft remains96/65, unpublished, without PDF. Review/diff-check PASS. Graph update does not independently rerun application/browser checks or mutate user database/deploy/commit. Host semantic tokens unavailable, not zero.
+
+## Public Guide Statistics Refresh Audit
+
+- Feature source commit `0f825b5`; scope only `resources/views/guides/index.blade.php` and `docs/pedoman-kkprl-counters.md`. Previous audit sections and counters sidecar remain historical; app graph untouched.
+- Baseline → current: 3523 → 3530 nodes; 9075 → 9092 directed relations; 174 retained communities; 4 preserved hyperedges. Added 7 named semantic entities and 17 EXTRACTED relations; native Blade AST contributes one existing file node and no edges.
+- Semantic dl directly above each iframe displays Telah dilihat/Telah diunduh from database counter fields with Indonesian integer formatting; flex wrapping and aria-hidden decorative icons preserve readable narrow layouts. Snapshot values update on page reload; rendering labels does not change counting logic.
+- Unrelated node/edge metadata, directed parallel relations, existing confidence and old community assignments preserved. Existing scoped contributions retained with audited line shifts. Endpoint/hyperedge/source/hash checks pass; all 136 parallel endpoint pairs remain.
+- Diagnostic warnings unchanged: 22 existing parser self loops and 733 existing AMBIGUOUS relations. No new self loops, ambiguous relations, dangling/missing endpoints, source-file faults or unrelated relation loss. Unresolved parser self-call candidates are not proven recursion.
+- Existing18tests174assertions PASS; build PASS10.72s; browser existing90-pagePDF snapshot99/65 then103/65 verified; statistics above PDF and no overflow at320/768/1024/1440, wrap at320, semanticdl/decorativeiconsariahidden, consoleclean. No fixture/direct database write; PDF requests naturally increment views. Prior483tests2714assertions is historical, not a UI-suite rerun. Compiled CSS/manifest validation and old-asset retention reported by implementation agent.
+- SHA-256/manifest hashes stamp only two sources. Source provenance and warning delta: `public-guide-statistics-audit.json`. Old analytics remain historical because no reclustering occurred. Host semantic token usage unknown, not zero.

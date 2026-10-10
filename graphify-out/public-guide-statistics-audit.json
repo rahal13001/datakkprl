@@ -1,0 +1,65 @@
+{
+  "updated_at": "2026-10-10T03:28:52.451078+00:00",
+  "stage": "public-guide-statistics",
+  "source_commit": "0f825b5",
+  "scope": [
+    "docs/pedoman-kkprl-counters.md",
+    "resources/views/guides/index.blade.php"
+  ],
+  "source_sha256": {
+    "docs/pedoman-kkprl-counters.md": "9eab1a233a62f7a67e7bb92d7ca97c7f9ff5632105c473e4d219ce714e6e9746",
+    "resources/views/guides/index.blade.php": "b42ff358db630311fbb1e79016a1cdc0be5390b47477dab1b145672c5b060b30"
+  },
+  "source_state": "Selected committed Blade/document sources; compiled CSS/manifest verified by implementation agent but not graph sources.",
+  "baseline": {
+    "nodes": 3523,
+    "edges": 9075,
+    "communities": 174,
+    "hyperedges": 4
+  },
+  "counts": {
+    "nodes": 3530,
+    "edges": 9092,
+    "communities": 174,
+    "hyperedges": 4
+  },
+  "ast": {
+    "nodes": 1,
+    "edges": 0,
+    "method": "Native Graphify Blade parser plus delegated source-backed host semantic extraction."
+  },
+  "semantic": {
+    "new_nodes": 7,
+    "new_edges": 17,
+    "existing_contributions": "Retained with corrected source line locations; unchanged confidence and edge metadata."
+  },
+  "baseline_health": {
+    "self_loops": 22,
+    "ambiguous_edges": 733
+  },
+  "health": {
+    "dangling_endpoints": 0,
+    "missing_endpoints": 0,
+    "self_loops": 22,
+    "ambiguous_edges": 733,
+    "parallel_endpoint_pairs": 136,
+    "parallel_edges": 136,
+    "missing_source_files": []
+  },
+  "health_delta": {
+    "new_self_loops": 0,
+    "new_ambiguous_edges": 0,
+    "unrelated_relation_loss": 0
+  },
+  "diagnostic_warnings": [
+    "22 existing PHP parser self-loop candidates and733 existing AMBIGUOUS relations remain; UI update introduces neither. These are unresolved parser candidates, not proven recursion."
+  ],
+  "reclustered": false,
+  "community_policy": "All prior assignments retained; new statistics entities use existing Proposal Guide Interface community.",
+  "prior_counter_audit": "proposal-guide-counters-audit.json retained byte-for-byte as historical implementation evidence; its two changed source hashes are intentionally superseded only by this sidecar.",
+  "app_graph_policy": "All app/graphify-out files retained byte-for-byte; no app source change.",
+  "semantic_token_usage": "Host usage unavailable; unknown, not zero.",
+  "external_model_api_calls": 0,
+  "validation_provenance": "Implementation agent/doc evidence: existing18tests174assertions PASS4.02s; Vitebuild PASS10.72s; existing published90-pagePDF snapshots99/65 then103/65; above-iframe positions/nohorizontaloverflow at320/768/1024/1440; rowwrap320; semanticdl/decorativeiconsariahidden; consoleclean. No fixtures or direct database writes; natural PDF requests increment views. Vite manifest artifacts exist and older assets retained. Prior483tests2714assertions is historical counter-suite evidence, not a UI rerun. Graph agent does not rerun browser/build/tests.",
+  "manifest_policy": "Only two processed source rows stamped; all other entries preserved."
+}
