@@ -76,3 +76,5 @@ Graph tambahan menghasilkan **2.304 node, 6.212 relasi terarah, 108 komunitas, d
 Hasil disimpan sebagai `graph.json`, `graph.html`, `GRAPH_REPORT.md`, `manifest.json`, dan `pedoman-audit.json`. Cache dan berkas ekstraksi sementara merupakan data kerja generator. Graph aplikasi mencatat 2.251 node, 5.947 relasi, dan 104 komunitas. Implementasi fitur tercatat pada commit `59717e4`; pembaruan dokumentasi dan graph dicatat terpisah.
 
 Penambahan identitas KKP/DJPRL pada navbar dilakukan setelah fitur pedoman selesai. Perubahan tampilan tersebut dicatat terpisah dalam [Identitas navbar landing page](landing-navbar-branding.md); keterangan tampilan tidak berubah di atas berlaku untuk commit pemisahan pedoman.
+
+Penghitung lihat/unduh dan pemulihan angka terakhir 96/65 ditambahkan melalui migrasi terpisah. Definisi pencatatan, pengoperasian, dan bukti validasi tersedia dalam [Penghitung pedoman KKPRL](pedoman-kkprl-counters.md).

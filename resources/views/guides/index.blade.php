@@ -15,11 +15,11 @@
                             <p class="mt-3 whitespace-pre-line leading-relaxed text-slate-600">{{ $guide->description }}</p>
                         @endif
                         <div class="mt-5 flex flex-wrap gap-3">
-                            <a href="{{ route('pedoman-kkprl.pdf', $guide) }}" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-sky-700 px-4 py-3 font-semibold text-sky-700">Buka PDF <span class="sr-only">{{ $guide->title }} (tab baru)</span></a>
+                            <a href="{{ route('pedoman-kkprl.pdf', ['guide' => $guide, 'view_token' => (string) \Illuminate\Support\Str::uuid()]) }}" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-sky-700 px-4 py-3 font-semibold text-sky-700">Buka PDF <span class="sr-only">{{ $guide->title }} (tab baru)</span></a>
                             <a href="{{ route('pedoman-kkprl.download', $guide) }}" class="rounded-xl bg-sky-700 px-4 py-3 font-semibold text-white">Unduh PDF <span class="sr-only">{{ $guide->title }}</span></a>
                         </div>
                     </div>
-                    <iframe src="{{ route('pedoman-kkprl.pdf', $guide) }}" title="{{ $guide->title }}" loading="lazy" class="h-[72vh] min-h-[400px] w-full border-0 bg-slate-100"></iframe>
+                    <iframe src="{{ route('pedoman-kkprl.pdf', ['guide' => $guide, 'view_token' => (string) \Illuminate\Support\Str::uuid()]) }}" title="{{ $guide->title }}" loading="lazy" class="h-[72vh] min-h-[400px] w-full border-0 bg-slate-100"></iframe>
                 </section>
             @empty
                 <p class="rounded-2xl border border-slate-200 bg-white p-6">Pedoman sedang diperbarui. Silakan kembali lagi nanti.</p>

@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProposalGuide;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProposalGuideController extends Controller
 {
@@ -14,25 +17,50 @@ class ProposalGuideController extends Controller
         return view('guides.index', compact('guides'));
     }
 
-    public function pdf(ProposalGuide $guide)
+    public function pdf(Request $request, ProposalGuide $guide)
     {
         $this->assertAvailable($guide);
 
-        return response()->file(Storage::disk('public')->path($guide->pdf_path), [
+        $response = response()->file(Storage::disk('public')->path($guide->pdf_path), [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="'.$this->filename($guide).'"',
             'Cache-Control' => 'no-store, private',
         ]);
+
+        $this->recordAccess($request, $guide, 'view_count');
+
+        return $response;
     }
 
-    public function download(ProposalGuide $guide)
+    public function download(Request $request, ProposalGuide $guide)
     {
         $this->assertAvailable($guide);
 
-        return response()->download(Storage::disk('public')->path($guide->pdf_path), $this->filename($guide), [
+        $response = response()->download(Storage::disk('public')->path($guide->pdf_path), $this->filename($guide), [
             'Content-Type' => 'application/pdf',
             'Cache-Control' => 'no-store, private',
         ]);
+
+        $this->recordAccess($request, $guide, 'download_count');
+
+        return $response;
+    }
+
+    private function recordAccess(Request $request, ProposalGuide $guide, string $counter): void
+    {
+        if (! $request->isMethod('GET') || $request->headers->has('Range')) {
+            return;
+        }
+
+        $viewToken = $request->query('view_token');
+        if ($counter === 'view_count' && is_string($viewToken) && Str::isUuid($viewToken)) {
+            $key = 'proposal-guide-view:'.$guide->getKey().':'.hash('sha256', $viewToken);
+            if (! Cache::add($key, true, now()->addMinutes(30))) {
+                return;
+            }
+        }
+
+        ProposalGuide::whereKey($guide->getKey())->increment($counter);
     }
 
     private function assertAvailable(ProposalGuide $guide): void

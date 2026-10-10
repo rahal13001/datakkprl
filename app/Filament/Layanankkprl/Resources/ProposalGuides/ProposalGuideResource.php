@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use UnitEnum;
 
 class ProposalGuideResource extends Resource
@@ -52,12 +53,14 @@ class ProposalGuideResource extends Resource
         return $table->columns([
             TextColumn::make('title')->label('Judul Pedoman')->searchable()->wrap(),
             TextColumn::make('sort_order')->label('Urutan')->sortable(),
+            TextColumn::make('view_count')->label('Dilihat')->numeric()->sortable()->alignEnd(),
+            TextColumn::make('download_count')->label('Diunduh')->numeric()->sortable()->alignEnd(),
             IconColumn::make('is_published')->label('Terbit')->boolean(),
             TextColumn::make('updated_at')->label('Diperbarui')->dateTime('d M Y H:i')->sortable(),
         ])->defaultSort('sort_order')->recordActions([
             EditAction::make(),
             Action::make('preview')->label('Lihat PDF')->icon('heroicon-o-arrow-top-right-on-square')
-                ->url(fn (ProposalGuide $record): string => route('pedoman-kkprl.pdf', $record))
+                ->url(fn (ProposalGuide $record): string => route('pedoman-kkprl.pdf', ['guide' => $record, 'view_token' => (string) Str::uuid()]))
                 ->openUrlInNewTab()->visible(fn (ProposalGuide $record): bool => $record->is_published),
         ]);
     }
