@@ -2,6 +2,9 @@
 
 namespace App\Filament\Layanankkprl\Resources\Clients\Tables;
 
+use App\Models\Client;
+use App\Services\ClientDocumentArchiveService;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -14,6 +17,8 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Filament\Actions\Action;
 use Filament\Forms\Get;
+use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Collection;
 
 class ClientsTable
 {
@@ -457,6 +462,9 @@ class ClientsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    self::downloadDocumentsAction('downloadReports', 'Unduh Laporan', true, false),
+                    self::downloadDocumentsAction('downloadBeritaAcara', 'Unduh Berita Acara', false, true),
+                    self::downloadDocumentsAction('downloadClientDocuments', 'Unduh Keduanya', true, true),
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
@@ -554,5 +562,27 @@ class ClientsTable
                         ]),
                 ]),
             ]);
+    }
+
+    private static function downloadDocumentsAction(string $name, string $label, bool $reports, bool $beritaAcara): BulkAction
+    {
+        return BulkAction::make($name)
+            ->label($label)
+            ->icon('heroicon-o-arrow-down-tray')
+            ->authorize('viewAny', Client::class)
+            ->authorizeIndividualRecords('view')
+            ->deselectRecordsAfterCompletion()
+            ->action(function (Collection $records) use ($reports, $beritaAcara) {
+                $response = app(ClientDocumentArchiveService::class)->download($records, $reports, $beritaAcara);
+                if ($response === null) {
+                    Notification::make()
+                        ->title('Tidak ada dokumen yang tersedia')
+                        ->body('Klien yang dipilih belum memiliki dokumen yang diminta.')
+                        ->warning()
+                        ->send();
+                }
+
+                return $response;
+            });
     }
 }
