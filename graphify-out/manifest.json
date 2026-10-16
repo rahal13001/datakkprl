@@ -162,10 +162,10 @@
     "semantic_hash": "9b534760e08a8a0c87a5c626151350a3"
   },
   "app/Domain/Kkprl/ProposalPayloadSanitizer.php": {
-    "mtime": 1791104709.3468387,
-    "seen": 1791256761.2855122,
-    "ast_hash": "08f83f15a6e73a9a3323f83b858d8a98",
-    "semantic_hash": "08f83f15a6e73a9a3323f83b858d8a98"
+    "mtime": 1791767049.8811543,
+    "seen": 1791769044.3187935,
+    "ast_hash": "cdb21b501ba9b397ee55b2172bab7dc4",
+    "semantic_hash": ""
   },
   "app/Domain/Kkprl/ProposalProgress.php": {
     "mtime": 1791412692.5522404,
@@ -252,10 +252,10 @@
     "semantic_hash": "77a06daf2f6bd689bb234cfdadf053de"
   },
   "app/Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php": {
-    "mtime": 1789803228.590697,
-    "seen": 1791256761.28552,
-    "ast_hash": "5ff7e1f737cbd7ed92c1d5d5cd3bb286",
-    "semantic_hash": "5ff7e1f737cbd7ed92c1d5d5cd3bb286"
+    "mtime": 1792108551.5203042,
+    "seen": 1792109520.9245293,
+    "ast_hash": "1da8f3f10a0fb859c9a32bdd4c13ace2",
+    "semantic_hash": "1da8f3f10a0fb859c9a32bdd4c13ace2"
   },
   "app/Filament/Layanankkprl/Resources/Clients/Widgets/ClientStatsOverview.php": {
     "mtime": 1789803682.5526378,
@@ -414,10 +414,10 @@
     "semantic_hash": "9ae5c2f8e0eef6c055f4980e7b289e44"
   },
   "app/Filament/Layanankkprl/Resources/KkprlProposals/RelationManagers/DocumentsRelationManager.php": {
-    "mtime": 1787550316.4924726,
-    "seen": 1791256761.2855337,
-    "ast_hash": "6d255c8795d41606468bdd1591b6c3ff",
-    "semantic_hash": "6d255c8795d41606468bdd1591b6c3ff"
+    "mtime": 1791791350.4191475,
+    "seen": 1791796572.5989811,
+    "ast_hash": "ab4c9cf7982fac34eaa5d1c4df5fa337",
+    "semantic_hash": ""
   },
   "app/Filament/Layanankkprl/Resources/KkprlProposals/RelationManagers/ReviewEventsRelationManager.php": {
     "mtime": 1787559841.673072,
@@ -1128,10 +1128,10 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/KkprlProposalDocumentDownloadController.php": {
-    "mtime": 1791379361.8944619,
-    "seen": 1791380706.9799962,
-    "ast_hash": "29cb70deb6cce50cc81236812b34afa5",
-    "semantic_hash": ""
+    "mtime": 1791791350.2635963,
+    "seen": 1791796573.8114812,
+    "ast_hash": "92b0a0de255830473cc4d413910b609d",
+    "semantic_hash": "92b0a0de255830473cc4d413910b609d"
   },
   "app/Http/Controllers/LearningMaterialController.php": {
     "mtime": 1791255766.506114,
@@ -1230,9 +1230,9 @@
     "semantic_hash": "c75d1cec8f493b489f66f10b33d8ac90"
   },
   "app/Livewire/KkprlAiChat.php": {
-    "mtime": 1791379692.1238391,
-    "seen": 1791380706.9800043,
-    "ast_hash": "f14fe91e4790cb7d02f19581eb82ff32",
+    "mtime": 1791766922.624831,
+    "seen": 1791769044.318796,
+    "ast_hash": "042f2fc93d9cbb36e378542e018d6ae9",
     "semantic_hash": ""
   },
   "app/Livewire/KkprlProposalAccess.php": {
@@ -1254,10 +1254,10 @@
     "semantic_hash": "591693fe198e2934f0a9adffec10400e"
   },
   "app/Livewire/KkprlProposalWizard.php": {
-    "mtime": 1791413588.28653,
-    "seen": 1791414219.2352936,
-    "ast_hash": "ca62fdb6de315e6a670a425e3a9c0b27",
-    "semantic_hash": "ca62fdb6de315e6a670a425e3a9c0b27"
+    "mtime": 1791795699.9147592,
+    "seen": 1791796573.8114862,
+    "ast_hash": "c50fb807c2538b22f8169166fe83ca4e",
+    "semantic_hash": "c50fb807c2538b22f8169166fe83ca4e"
   },
   "app/Livewire/LandingPage.php": {
     "mtime": 1775519070.0168169,
@@ -1452,10 +1452,10 @@
     "semantic_hash": "83aaa1969a19043d8144db75be428cf1"
   },
   "app/Models/KkprlProposalDocument.php": {
-    "mtime": 1787910233.183399,
-    "seen": 1791256761.2856152,
-    "ast_hash": "e12161d71068e12029f562914a966668",
-    "semantic_hash": "e12161d71068e12029f562914a966668"
+    "mtime": 1791790941.820297,
+    "seen": 1791796573.8114874,
+    "ast_hash": "8d71a3cf13f01203d5c9af5f3489110c",
+    "semantic_hash": "8d71a3cf13f01203d5c9af5f3489110c"
   },
   "app/Models/KkprlProposalEditApproval.php": {
     "mtime": 1787546868.0749404,
@@ -1896,10 +1896,10 @@
     "semantic_hash": ""
   },
   "app/Services/KkprlProposalDocumentService.php": {
-    "mtime": 1791379691.3307736,
-    "seen": 1791380706.979984,
-    "ast_hash": "04250d406ee9284f667c2740d005e46a",
-    "semantic_hash": ""
+    "mtime": 1791791349.6572423,
+    "seen": 1791796573.8114924,
+    "ast_hash": "69ef7b8737ba7cd7c59da70b45f30926",
+    "semantic_hash": "69ef7b8737ba7cd7c59da70b45f30926"
   },
   "app/Services/KkprlProposalDraftService.php": {
     "mtime": 1791414068.7993865,
@@ -1920,10 +1920,10 @@
     "semantic_hash": ""
   },
   "app/Services/KkprlProposalSnapshotService.php": {
-    "mtime": 1791357482.1675205,
-    "seen": 1791375286.3279178,
-    "ast_hash": "305591c568fdb848d40b9de63e8f3309",
-    "semantic_hash": "305591c568fdb848d40b9de63e8f3309"
+    "mtime": 1791806382.5620039,
+    "seen": 1791807896.003301,
+    "ast_hash": "489fda6e39aa26992dd53ec4a2129749",
+    "semantic_hash": "489fda6e39aa26992dd53ec4a2129749"
   },
   "app/Services/KkprlProposalSubmissionService.php": {
     "mtime": 1791379691.3708427,
@@ -2160,10 +2160,10 @@
     "semantic_hash": "2939e33cb5e7ab3d7862117e6c37fd40"
   },
   "config/kkprl.php": {
-    "mtime": 1787568588.6120842,
-    "seen": 1791375286.3279285,
-    "ast_hash": "ec0ab932c3a680d2046eda317bef2c67",
-    "semantic_hash": "ec0ab932c3a680d2046eda317bef2c67"
+    "mtime": 1791806382.3410819,
+    "seen": 1791807896.0033023,
+    "ast_hash": "29970e248d1313a0dfe8e8d615dc6afd",
+    "semantic_hash": "29970e248d1313a0dfe8e8d615dc6afd"
   },
   "database/migrations/2026_08_24_000001_create_kkprl_proposal_tables.php": {
     "mtime": 1789801955.847274,
@@ -2226,10 +2226,10 @@
     "semantic_hash": "67314ce5804bbb50abc44073e560c21f"
   },
   "resources/views/livewire/kkprl-proposal-wizard.blade.php": {
-    "mtime": 1791414765.0674708,
-    "seen": 1791415524.9663465,
-    "ast_hash": "9458a76165c3046f00edade6da9ee46e",
-    "semantic_hash": "9458a76165c3046f00edade6da9ee46e"
+    "mtime": 1791806382.8032362,
+    "seen": 1791807896.0033169,
+    "ast_hash": "4b6ed83be9def5b830e1b33dc1b18446",
+    "semantic_hash": "fd2cc4cc7a3f5182662b8cf194bb4d80"
   },
   "resources/views/livewire/partials/kkprl-bathymetry-builder.blade.php": {
     "mtime": 1791359274.4608846,
@@ -2286,10 +2286,10 @@
     "semantic_hash": "3ac98195b04334253e32955f279a4ae0"
   },
   "resources/views/pdf/kkprl-proposal-chapter.blade.php": {
-    "mtime": 1791328549.258733,
-    "seen": 1791375286.327941,
-    "ast_hash": "8b2021579dda18c39d54d09445e45f3a",
-    "semantic_hash": "8b2021579dda18c39d54d09445e45f3a"
+    "mtime": 1791720292.256118,
+    "seen": 1791722258.7537088,
+    "ast_hash": "8bbb9f4fedaaf246f0bf6cf2bfda5096",
+    "semantic_hash": "8bbb9f4fedaaf246f0bf6cf2bfda5096"
   },
   "tests/Feature/BelajarKkprlTest.php": {
     "mtime": 1782778648.7489345,
@@ -2358,10 +2358,10 @@
     "semantic_hash": ""
   },
   "tests/Feature/KkprlProposalDocumentGenerationTest.php": {
-    "mtime": 1791379694.5310888,
-    "seen": 1791380706.980033,
-    "ast_hash": "28b5bbc212eb04cbadc9c18af150d9b7",
-    "semantic_hash": ""
+    "mtime": 1791719490.967104,
+    "seen": 1791722258.7537131,
+    "ast_hash": "c17810812220601210194034369fdb94",
+    "semantic_hash": "c17810812220601210194034369fdb94"
   },
   "tests/Feature/KkprlProposalDraftTest.php": {
     "mtime": 1791379694.7522058,
@@ -2700,10 +2700,10 @@
     "semantic_hash": "abc7e30fde8463bb4b4314fe5c22aa1b"
   },
   "docs/kkprl-proposal-builder-spec.md": {
-    "mtime": 1791535337.280329,
-    "seen": 1791535784.6944547,
-    "ast_hash": "518d9ff8eb847b5323c4ece6561f6bfa",
-    "semantic_hash": "518d9ff8eb847b5323c4ece6561f6bfa"
+    "mtime": 1791807326.798692,
+    "seen": 1791807896.0033119,
+    "ast_hash": "4a2478a130369f6c47641381f6434b05",
+    "semantic_hash": "77a1e4c2d4e3ab9d271c6c818b8383f9"
   },
   "docs/kkprl-release-evidence.md": {
     "mtime": 1787910948.483782,
@@ -2712,16 +2712,16 @@
     "semantic_hash": "593c7d5190295b7ff090d9bfdf7fcc8a"
   },
   "docs/kkprl-security-review.md": {
-    "mtime": 1791379953.796193,
-    "seen": 1791380709.2239087,
-    "ast_hash": "aebc29439cd474ae0a7052ccf843fd6d",
-    "semantic_hash": "fe218a22a8b3ea480ac1d4e73d422822"
+    "mtime": 1791807327.1515186,
+    "seen": 1791807896.003313,
+    "ast_hash": "849af1b244e71e1efe2e0a9a44cb92f7",
+    "semantic_hash": "630c13ad97504b0758a29b50c309ed53"
   },
   "docs/kkprl-template-field-map.md": {
-    "mtime": 1791415281.3055685,
-    "seen": 1791415524.966343,
-    "ast_hash": "a95d66456a1cc5b67de5432d6c05a673",
-    "semantic_hash": "a95d66456a1cc5b67de5432d6c05a673"
+    "mtime": 1791807327.0111952,
+    "seen": 1791807896.0033138,
+    "ast_hash": "bea052e9c9eb3b23e95b53e5853860c6",
+    "semantic_hash": "4ae4cb9089968416697a7702978581ae"
   },
   "docs/kkprl-tide-chart-validation.md": {
     "mtime": 1791380082.2914934,
@@ -2736,10 +2736,10 @@
     "semantic_hash": "783bf16134dd2b9e23f002c6fe237c47"
   },
   "docs/kkprl-user-and-staff-guide.md": {
-    "mtime": 1791415281.1724825,
-    "seen": 1791415524.96634,
-    "ast_hash": "193a5ef7b478766e5574f2d63d7165d0",
-    "semantic_hash": "193a5ef7b478766e5574f2d63d7165d0"
+    "mtime": 1791807326.906431,
+    "seen": 1791807896.0033147,
+    "ast_hash": "41c23e1fab12d554eaf2a51aabce4425",
+    "semantic_hash": "56cc527c96895657400b3e41a58f8129"
   },
   "docs/servicekkprl-mobile-bug-security-audit.md": {
     "mtime": 1785146369.5196698,
@@ -2910,10 +2910,10 @@
     "semantic_hash": ""
   },
   "app/Livewire/KkprlApplicantPortal.php": {
-    "mtime": 1791379626.9784997,
-    "seen": 1791380706.979998,
-    "ast_hash": "628d9c0854c84ee6ce4d357a8335d8d2",
-    "semantic_hash": ""
+    "mtime": 1791795699.8082125,
+    "seen": 1791796573.8114843,
+    "ast_hash": "74bdb93220e23d389a9a877152cfbbf3",
+    "semantic_hash": "74bdb93220e23d389a9a877152cfbbf3"
   },
   "app/Livewire/Concerns/WithKkprlFileUploads.php": {
     "mtime": 1791379692.1373606,
@@ -2934,9 +2934,9 @@
     "semantic_hash": ""
   },
   "tests/Feature/KkprlApplicantBoundaryTest.php": {
-    "mtime": 1791379692.7712302,
-    "seen": 1791380706.9800212,
-    "ast_hash": "008168e6b34b93f417e50e74401c90f7",
+    "mtime": 1791767335.8004997,
+    "seen": 1791769044.3188105,
+    "ast_hash": "f413e6f98fa26bc935ba06aa712de07f",
     "semantic_hash": ""
   },
   "tests/Feature/KkprlApplicantMigrationTest.php": {
@@ -2952,10 +2952,10 @@
     "semantic_hash": "036bef176ee041ea023babb9d356736a"
   },
   "resources/views/livewire/kkprl-applicant-portal.blade.php": {
-    "mtime": 1791377971.8132117,
-    "seen": 1791380709.2239275,
+    "mtime": 1791795700.0176208,
+    "seen": 1791796573.8115013,
     "ast_hash": "092ed5d764f251a8d69da7f7a64ff30d",
-    "semantic_hash": "092ed5d764f251a8d69da7f7a64ff30d"
+    "semantic_hash": "a0a42d833d900ef0478cf722f80b1bc6"
   },
   "resources/views/components/layouts/kkprl-applicant.blade.php": {
     "mtime": 1791378533.1996574,
@@ -3082,5 +3082,269 @@
     "seen": 1791602936.4401114,
     "ast_hash": "",
     "semantic_hash": "c05ce31580dc15481fd95caeb9418082"
+  },
+  "app/Domain/Kkprl/ProposalDocumentPresentation.php": {
+    "mtime": 1791720427.7507117,
+    "seen": 1791722258.7536912,
+    "ast_hash": "aa6f9b8dc30dd7798cf4e8f3bac74433",
+    "semantic_hash": "aa6f9b8dc30dd7798cf4e8f3bac74433"
+  },
+  "app/Services/KkprlProposalDocxRenderer.php": {
+    "mtime": 1791772942.1185715,
+    "seen": 1791783737.7194734,
+    "ast_hash": "4fcd9a4014ad364f7ad4dc5cfc786151",
+    "semantic_hash": ""
+  },
+  "app/Services/KkprlProposalPdfRenderer.php": {
+    "mtime": 1791772817.3078604,
+    "seen": 1791783737.7194743,
+    "ast_hash": "233c8491b0913ced5f232578a1d114a6",
+    "semantic_hash": ""
+  },
+  "resources/views/pdf/partials/kkprl-document-paragraph.blade.php": {
+    "mtime": 1791719133.0292258,
+    "seen": 1791722258.7537096,
+    "ast_hash": "abf41d0a272b9e40f80eb3ad98fb08c4",
+    "semantic_hash": "abf41d0a272b9e40f80eb3ad98fb08c4"
+  },
+  "resources/views/pdf/partials/kkprl-document-caption.blade.php": {
+    "mtime": 1791720009.8877351,
+    "seen": 1791722258.7537103,
+    "ast_hash": "8b091c6ac6096fbcd191f2ea1e48e058",
+    "semantic_hash": "8b091c6ac6096fbcd191f2ea1e48e058"
+  },
+  "tests/Feature/KkprlDocumentLayoutTest.php": {
+    "mtime": 1791722060.4356081,
+    "seen": 1791722258.7537115,
+    "ast_hash": "c21e0c5ed2a0ce8124b6a7b6c061e1e7",
+    "semantic_hash": "c21e0c5ed2a0ce8124b6a7b6c061e1e7"
+  },
+  "tests/Unit/Kkprl/ProposalDocumentPresentationTest.php": {
+    "mtime": 1791720380.1333814,
+    "seen": 1791722258.753712,
+    "ast_hash": "e27d925c9e7cffd8378ad7d5f78ed4ec",
+    "semantic_hash": "e27d925c9e7cffd8378ad7d5f78ed4ec"
+  },
+  "tools/kkprl-document-layout-preview.php": {
+    "mtime": 1791720868.9043558,
+    "seen": 1791722258.7537138,
+    "ast_hash": "f670176a64c82fad79cfa18ca6131e38",
+    "semantic_hash": "f670176a64c82fad79cfa18ca6131e38"
+  },
+  "tools/kkprl-document-schema-smoke.php": {
+    "mtime": 1791721454.7133002,
+    "seen": 1791722258.7537148,
+    "ast_hash": "95df9aec88e5cf11dcd22b6d16cacb96",
+    "semantic_hash": "95df9aec88e5cf11dcd22b6d16cacb96"
+  },
+  "docs/kkprl-document-layout-spec.md": {
+    "mtime": 1791721965.9780152,
+    "seen": 1791722258.7537162,
+    "ast_hash": "a9de167d9cdcd6e95d1cd3f787760609",
+    "semantic_hash": "a9de167d9cdcd6e95d1cd3f787760609"
+  },
+  "docs/decisions/ADR-030-versioned-professional-document-layout.md": {
+    "mtime": 1791721966.0617528,
+    "seen": 1791722258.7537208,
+    "ast_hash": "dd9b32a9ac683520f10c9017c8953bf0",
+    "semantic_hash": "dd9b32a9ac683520f10c9017c8953bf0"
+  },
+  "docs/kkprl-document-layout-validation.md": {
+    "mtime": 1791722119.5097847,
+    "seen": 1791722258.7537217,
+    "ast_hash": "07b91c9b4a765d25a427ed3d0f0c2aff",
+    "semantic_hash": "07b91c9b4a765d25a427ed3d0f0c2aff"
+  },
+  "app/Domain/Kkprl/ProposalLocationGeometry.php": {
+    "mtime": 1791767397.168472,
+    "seen": 1791769044.3187866,
+    "ast_hash": "0e4073bad18860247dc12f78e6fad261",
+    "semantic_hash": ""
+  },
+  "app/Services/KkprlWorldCoverTiles.php": {
+    "mtime": 1791770316.399311,
+    "seen": 1791770717.5045974,
+    "ast_hash": "be310e3ca36461be003dfaab9717a37e",
+    "semantic_hash": ""
+  },
+  "app/Services/KkprlLocationMapRenderer.php": {
+    "mtime": 1791806738.4499137,
+    "seen": 1791807896.0032969,
+    "ast_hash": "9215c4b585a110946924e257068f6322",
+    "semantic_hash": "9215c4b585a110946924e257068f6322"
+  },
+  "tests/Feature/KkprlLocationMapTest.php": {
+    "mtime": 1791806382.6622415,
+    "seen": 1791807896.003318,
+    "ast_hash": "8d8d86c16da5ac793b1ed381a5cd98dc",
+    "semantic_hash": "8d8d86c16da5ac793b1ed381a5cd98dc"
+  },
+  "tools/kkprl-location-map-preview.php": {
+    "mtime": 1791806613.7202828,
+    "seen": 1791807896.0033207,
+    "ast_hash": "f07fba148677f32415768f0854c28dfa",
+    "semantic_hash": "f07fba148677f32415768f0854c28dfa"
+  },
+  "docs/kkprl-chapter-one-map-spec.md": {
+    "mtime": 1791807243.858477,
+    "seen": 1791807896.0033073,
+    "ast_hash": "",
+    "semantic_hash": "ead38a76ec3d232755a0ad50045e8848"
+  },
+  "docs/kkprl-chapter-one-map-validation.md": {
+    "mtime": 1791770468.8315804,
+    "seen": 1791770720.7542024,
+    "ast_hash": "",
+    "semantic_hash": "c6bcfc6ace3fa2ca397a390c7e87a70d"
+  },
+  "docs/decisions/ADR-031-private-landscape-location-map.md": {
+    "mtime": 1791767851.3857124,
+    "seen": 1791769046.8036313,
+    "ast_hash": "",
+    "semantic_hash": "b16af1b3c42b211fa38654965f5aca43"
+  },
+  "phpunit.xml": {
+    "mtime": 1791806382.4460287,
+    "seen": 1791807896.0033154,
+    "ast_hash": "",
+    "semantic_hash": "5d5e4cc2a3e13022c1535151fad26c55"
+  },
+  "docs/kkprl-chapter-one-map-cache-validation.md": {
+    "mtime": 1791770639.7241814,
+    "seen": 1791770720.7541938,
+    "ast_hash": "",
+    "semantic_hash": "588d25f97342849c1b46252bf5173205"
+  },
+  "docs/decisions/ADR-032-text-safe-map-tile-cache.md": {
+    "mtime": 1791770468.6932092,
+    "seen": 1791770720.7541986,
+    "ast_hash": "",
+    "semantic_hash": "7bcd9840bdb5cfa660eade6053157dbb"
+  },
+  "app/Domain/Kkprl/ProposalLocationMapViewport.php": {
+    "mtime": 1791806382.099507,
+    "seen": 1791807896.0032916,
+    "ast_hash": "9fbf4e232ff815d02f77846384a137f3",
+    "semantic_hash": "9fbf4e232ff815d02f77846384a137f3"
+  },
+  "tests/Unit/Kkprl/ProposalLocationMapViewportTest.php": {
+    "mtime": 1791772671.4909778,
+    "seen": 1791783737.7194757,
+    "ast_hash": "e39195df98e0fe0d70ef65fa50c734b5",
+    "semantic_hash": ""
+  },
+  "docs/kkprl-map-scale-inset-spec.md": {
+    "mtime": 1791807243.656176,
+    "seen": 1791807896.003308,
+    "ast_hash": "",
+    "semantic_hash": "f38b2ba9496ccdd77a9c0c1d4a4d6890"
+  },
+  "docs/kkprl-map-scale-inset-validation.md": {
+    "mtime": 1791783882.2113295,
+    "seen": 1791783933.7529342,
+    "ast_hash": "",
+    "semantic_hash": "1ab266c9435e2508b0275509d8299b89"
+  },
+  "docs/decisions/ADR-033-print-scale-and-location-inset.md": {
+    "mtime": 1791807243.4744291,
+    "seen": 1791807896.0033042,
+    "ast_hash": "",
+    "semantic_hash": "09b58e28cba2186742ac9fdf7dc95d62"
+  },
+  "app/Services/KkprlProposalDocumentDeletionService.php": {
+    "mtime": 1791795699.7279556,
+    "seen": 1791796573.8114896,
+    "ast_hash": "55955b4039c38af18b9340a27318dbe7",
+    "semantic_hash": "55955b4039c38af18b9340a27318dbe7"
+  },
+  "app/Services/KkprlProposalDocumentListingService.php": {
+    "mtime": 1791791095.3354845,
+    "seen": 1791796573.811491,
+    "ast_hash": "ec96e6655eebe33921f170e719d1d833",
+    "semantic_hash": "ec96e6655eebe33921f170e719d1d833"
+  },
+  "database/migrations/2026_10_12_000001_add_document_deletion_metadata.php": {
+    "mtime": 1791790941.7231984,
+    "seen": 1791796573.8114934,
+    "ast_hash": "ac70dd073f6d64d8460221797d898ad1",
+    "semantic_hash": "ac70dd073f6d64d8460221797d898ad1"
+  },
+  "tests/Feature/KkprlProposalDocumentDeletionTest.php": {
+    "mtime": 1791795650.9601667,
+    "seen": 1791796572.5989823,
+    "ast_hash": "9a49cce6fe66c603e31717eb27a811c9",
+    "semantic_hash": ""
+  },
+  "docs/decisions/ADR-034-audited-generated-document-file-deletion.md": {
+    "mtime": 1791791589.8998425,
+    "seen": 1791796573.8114946,
+    "ast_hash": "",
+    "semantic_hash": "45633bc2654d3910b76f6369ef37363e"
+  },
+  "docs/kkprl-document-deletion-spec.md": {
+    "mtime": 1791790656.2155447,
+    "seen": 1791796573.8114958,
+    "ast_hash": "",
+    "semantic_hash": "31f55e7866614cd0198c45323fa4d9c0"
+  },
+  "docs/kkprl-document-deletion-validation.md": {
+    "mtime": 1791796515.9293873,
+    "seen": 1791796573.8114963,
+    "ast_hash": "",
+    "semantic_hash": "2aca5451e251fd76a0c45750ef608a9c"
+  },
+  "resources/views/components/kkprl/generated-document-list.blade.php": {
+    "mtime": 1791795755.2658973,
+    "seen": 1791796573.8115003,
+    "ast_hash": "",
+    "semantic_hash": "31590f7106a492afe29ae1d2327eaea4"
+  },
+  "app/Services/KkprlOpenStreetMapTiles.php": {
+    "mtime": 1791806432.6988013,
+    "seen": 1791807896.0032988,
+    "ast_hash": "e30716d5a0830c9bcf5265c1a0f2762a",
+    "semantic_hash": "e30716d5a0830c9bcf5265c1a0f2762a"
+  },
+  "tests/Feature/KkprlOpenStreetMapTest.php": {
+    "mtime": 1791806525.6529355,
+    "seen": 1791807896.0033193,
+    "ast_hash": "94a226e772ec155244d547363e86a80d",
+    "semantic_hash": "94a226e772ec155244d547363e86a80d"
+  },
+  "docs/decisions/ADR-035-openstreetmap-main-map-with-satellite-inset.md": {
+    "mtime": 1791807243.3433106,
+    "seen": 1791807896.003306,
+    "ast_hash": "",
+    "semantic_hash": "ee668bef58f3a4ff2892a314c1ead0be"
+  },
+  "docs/kkprl-osm-main-map-spec.md": {
+    "mtime": 1791807243.9686882,
+    "seen": 1791807896.0033092,
+    "ast_hash": "",
+    "semantic_hash": "a0016eb84902e91bca13fb9d5f79fb81"
+  },
+  "docs/kkprl-osm-main-map-validation.md": {
+    "mtime": 1791807835.9840999,
+    "seen": 1791807896.0033104,
+    "ast_hash": "",
+    "semantic_hash": "067d248953847036150b7aa75cee0135"
+  },
+  "app/Services/ClientDocumentArchiveService.php": {
+    "mtime": 1792108657.4584734,
+    "seen": 1792109520.9276426,
+    "ast_hash": "5071bd3ea48a903b463f885d1fc4f9da",
+    "semantic_hash": "5071bd3ea48a903b463f885d1fc4f9da"
+  },
+  "tests/Feature/ClientDocumentBulkDownloadTest.php": {
+    "mtime": 1792108657.5425642,
+    "seen": 1792109520.9315815,
+    "ast_hash": "378e610b2c4160215caee77be8699515",
+    "semantic_hash": "378e610b2c4160215caee77be8699515"
+  },
+  "docs/client-bulk-document-downloads.md": {
+    "mtime": 1792109216.717451,
+    "seen": 1792109520.934147,
+    "ast_hash": "",
+    "semantic_hash": "5a0fda1e83cbd8009d3562916cafa62b"
   }
 }

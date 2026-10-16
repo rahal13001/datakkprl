@@ -2,6 +2,8 @@
 
 namespace App\Domain\Kkprl;
 
+use Illuminate\Validation\ValidationException;
+
 final class ProposalPayloadSanitizer
 {
     /** @var list<string> */
@@ -10,6 +12,10 @@ final class ProposalPayloadSanitizer
     /** @param array<string, mixed> $payload @return array<string, mixed> */
     public function sanitize(array $payload): array
     {
+        $source = $payload['bag-1']['map_source'] ?? $payload['map_source'] ?? '';
+        if (! is_string($source) || mb_strlen($source) > 300) {
+            throw ValidationException::withMessages(['location_map' => 'Sumber data lokasi harus berupa teks maksimal 300 karakter.']);
+        }
         $sanitized = [];
 
         foreach (self::CONDITIONS as $condition) {
@@ -54,6 +60,7 @@ final class ProposalPayloadSanitizer
         // Preserve hidden UI states that shouldn't render in documents
         if ($chapter === 'bag-1') {
             $fields[] = 'coordinates_raw';
+            $fields[] = 'map_source';
         }
 
         $sanitized = array_intersect_key($chapterPayload, array_flip($fields));
@@ -75,7 +82,7 @@ final class ProposalPayloadSanitizer
     {
         return array_values(array_unique(array_merge(
             ProposalFieldCatalog::fields('bag-1'),
-            ['coordinates_raw'],
+            ['coordinates_raw', 'map_source'],
             ProposalFieldCatalog::fields('bag-2'),
             ProposalFieldCatalog::fields('bag-3'),
             ProposalFieldCatalog::fields('bag-4'),

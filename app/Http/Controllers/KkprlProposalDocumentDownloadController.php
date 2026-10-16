@@ -22,7 +22,7 @@ final class KkprlProposalDocumentDownloadController
             abort(404);
         }
 
-        abort_unless($document->generation_status === 'generated' && filled($document->storage_path), 404);
+        abort_unless($document->deleted_at === null && $document->generation_status === 'generated' && filled($document->storage_path), 404);
         abort_unless($document->storage_disk === config('kkprl.storage_disk', 'kkprl_private'), 404);
         abort_unless(Storage::disk($document->storage_disk)->exists($document->storage_path), 404);
 
@@ -30,7 +30,7 @@ final class KkprlProposalDocumentDownloadController
         abort_if($proposal === null, 404);
 
         try {
-            $snapshot = $snapshots->capture($proposal, $document->chapter);
+            $snapshot = $snapshots->captureForDocument($proposal, $document);
         } catch (ValidationException) {
             abort(404);
         }
@@ -42,6 +42,8 @@ final class KkprlProposalDocumentDownloadController
         );
 
         abort_unless($staffAllowed || $access->canReadDocuments($proposal), 404);
+        $document->refresh();
+        abort_unless($document->deleted_at === null && $document->generation_status === 'generated', 404);
 
         return Storage::disk($document->storage_disk)->download(
             $document->storage_path,

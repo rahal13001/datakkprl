@@ -1,5 +1,7 @@
 # Spesifikasi: Pembuat Proposal KKPRL
 
+> Penghapusan berkas dokumen, 12 Oktober 2026: pemohon approved dapat menghapus satu Word/PDF miliknya pada draft/revisi terbuka, termasuk versi lama yang tidak lagi dapat diunduh. Berkas dilepas; snapshot, audit, proposal, lampiran dan format lain tetap tersimpan. Pending hanya membaca hasil valid, submitted/needs_revision tetap menjadi arsip, dan batch generate yang berjalan tidak boleh menghidupkan dokumen terhapus. Lihat [spesifikasi penghapusan](kkprl-document-deletion-spec.md), [ADR-034](decisions/ADR-034-audited-generated-document-file-deletion.md), dan [validasi aktual](kkprl-document-deletion-validation.md). Migration additive diperlukan sebelum fitur dipakai; tidak dijalankan pada database pengguna.
+
 > Perbaikan skema hosting, 9 Oktober 2026: jika migration institusi tercatat selesai tetapi kolom institusi hilang, migration baru menambahkan hanya kolom yang belum ada tanpa mengubah row, ownership, payload atau hash dokumen. Lihat [spesifikasi perbaikan](kkprl-institution-schema-repair-spec.md), [validasi/runbook](kkprl-institution-schema-repair-validation.md) dan [ADR-029](decisions/ADR-029-additive-institution-schema-repair.md). Penerapan pada hosting tetap dilakukan operator; migration tidak memulihkan input yang gagal tersimpan.
 
 > Ukuran peta Bab 1, 8 Oktober 2026: Polygon menampilkan perkiraan luas hektar dan Line menampilkan jumlah panjang segmen kilometer, masing-masing dua desimal. Warning membandingkan hasil dengan dimensi isian pada satuan yang cocok dan tidak mengubah isian atau menghalangi workflow. Nilai computed hanya informasi frontend dan bukan hasil survei. Lihat [spesifikasi ukuran peta](kkprl-map-measurement-spec.md), [validasi](kkprl-map-measurement-validation.md), dan [ADR-028](decisions/ADR-028-informational-map-dimensions.md).
@@ -533,7 +535,7 @@ Persyaratan:
 
 - Mapping field ke bagian template terdokumentasi.
 - Setiap bab memiliki Word dan PDF sendiri.
-- Export hanya membaca payload dan lampiran yang relevan dengan bab tersebut.
+- Export membaca payload dan lampiran yang relevan dengan bab tersebut; nama institusi/pemohon Bab 1 ikut disnapshot sebagai identitas sampul bab lanjutan.
 - Lampiran yang dipetakan ke bab wajib ikut masuk ke Word dan PDF bab tersebut, bukan hanya muncul sebagai daftar file.
 - Lampiran disusun dalam urutan deterministik setelah bagian data yang merujuknya, dengan judul/caption dan nomor lampiran yang konsisten.
 - Gambar dengan `placement = inline` dirender tepat setelah field atau blok teks acuannya; gambar tidak boleh hanya muncul di bagian akhir jika pengguna memilih posisi inline.
@@ -550,6 +552,8 @@ Persyaratan:
 - Bagian kondisional tidak muncul jika tidak dipilih.
 - Dokumen menyimpan versi template.
 - Generate ulang memakai data terbaru yang tersimpan.
+
+Tata letak berversi mengikuti [ADR-030](decisions/ADR-030-versioned-professional-document-layout.md) dan [spesifikasi layout](kkprl-document-layout-spec.md): sampul terpisah, heading resmi, tabel identitas, paragraf editor aman, gambar/caption proporsional dan nomor halaman. Snapshot baru menyimpan versi layout serta nama sampul; dokumen lama tetap immutable dan diverifikasi dengan format hash legacy. Semua batas akses, lock dan checkpoint tetap berlaku. [Laporan validasi](kkprl-document-layout-validation.md) mencatat pemeriksaan aktual dan batas viewer Word.
 
 Karena lampiran ikut digabung, generator wajib memiliki batas ukuran/proses, cache berdasarkan `snapshot_hash`, dan retry yang aman. Jika proses terlalu berat untuk request langsung, UI menampilkan status pembuatan dan menyediakan download segera setelah file selesai; pengalaman pengguna tetap berupa download Word/PDF langsung dari proposal.
 - Snapshot hash memastikan Word dan PDF berasal dari data yang sama.
@@ -735,3 +739,12 @@ Saat memilih Batimetri, GMRT menjadi sumber default. Tombol **Buat peta batimetr
 Ringkasan menyatakan rentang elevasi **seluruh area peta**, jumlah sel dan jarak grid keluaran, bukan kedalaman titik usaha atau ketelitian asli. Datum vertikal, periode survei dan resolusi sumber asli belum diketahui. Angka positif tidak diperlakukan sebagai kedalaman dan peta tidak membuktikan jenis sedimen.
 
 PNG disimpan privat dengan sumber, kredit CC BY 4.0, identitas koordinat/bentuk, ringkasan, SHA-256 serta arsip grid gzip/base64 pada source_metadata. AI opsional hanya mendapat gambar dan ringkasan; arsip grid tidak dikirim. Ringkasan backend dan lisensi tetap dilampirkan setelah AI menarasikan. Narasi masuk pratinjau dahulu; pengguna melakukan Konfirmasi & Simpan Draft. Peta/sumber ikut snapshot dan ekspor Word/PDF. Koneksi gagal, perubahan lokasi, akses/kunci, checkpoint tab lain dan kuota tidak menimpa bukti sebelumnya. Semua koordinat harus valid; area dibatasi 50 km per sisi, 65.536 sel dan 4 MiB respons.
+
+
+## Peta lokasi ekspor Bab 1 — 12 Oktober 2026
+
+Ekspor baru Bab 1 menambahkan peta koordinat pada halaman A4 landscape. Citra awal adalah komposit Sentinel-2 WorldCover 2021, sekitar 10 m, CC BY 4.0, melalui WMTS Terrascope gratis. Polygon/line/point, nomor titik, grid WGS84, skala grafis, utara, legenda, dimensi dua desimal dan sumber pengguna opsional dirender PHP GD. Tidak ada AI, coastline overlay, logo wajib, API berbayar atau instalasi sistem baru. Sumber opsional tidak mengubah 36 field wajib/progres. Kegagalan citra menghentikan ekspor; operator dapat memilih grid tanpa citra secara eksplisit. Snapshot versi baru mempertahankan kompatibilitas dua versi lama dan checkpoint akses sebelum penyimpanan. Lihat [spesifikasi](kkprl-chapter-one-map-spec.md), [ADR-031](decisions/ADR-031-private-landscape-location-map.md) dan [validasi](kkprl-chapter-one-map-validation.md).
+
+Penyajian tahap `2026-10-12-map-inset` memakai geometri/grid pada peta utama, skala angka otomatis dengan pembesaran maksimum 1:500, dan inset citra paling dekat 1:50.000. Frame diperbesar di kertas tanpa buffer atau perubahan koordinat/luas. Skala di tengah peta dihitung dari ukuran cetak gambar 700 point yang sama pada Word/PDF; berlaku saat cetak 100%. Kotak inset adalah cakupan frame utama, bukan batas permohonan. Snapshot `2026-10-12-map` tetap didukung tanpa key baru. Lihat [spesifikasi skala/inset](kkprl-map-scale-inset-spec.md), [ADR-033](decisions/ADR-033-print-scale-and-location-inset.md) dan [validasi](kkprl-map-scale-inset-validation.md).
+
+Penyajian terbaru `2026-10-12-map-osm` menambahkan raster OpenStreetMap pada peta utama, mempertahankan inset WorldCover, geometri dan skala cetak tersebut. Provider utama dan inset dikonfigurasi terpisah, maksimum 16 tile per frame (zoom 19 OSM/14 WorldCover) dalam deadline fetch bersama 20 detik. Cache OSM Base64 minimum tujuh hari, identifikasi aplikasi dan atribusi tercetak mengikuti kebijakan provider. Kegagalan menghentikan generate dengan validasi. Metadata provider dokumen lama dibaca dari snapshot immutable agar perubahan konfigurasi tidak mengubah hash unduhan. Tidak ada migration, permission atau dependency baru. Lihat [spesifikasi OSM](kkprl-osm-main-map-spec.md), [ADR-035](decisions/ADR-035-openstreetmap-main-map-with-satellite-inset.md) dan [validasi](kkprl-osm-main-map-validation.md).

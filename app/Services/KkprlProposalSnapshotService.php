@@ -9,18 +9,36 @@ use App\Domain\Kkprl\ProposalProgress;
 use App\Domain\Kkprl\ProposalSnapshot;
 use App\Models\KkprlProposal;
 use App\Models\KkprlProposalAttachment;
+use App\Models\KkprlProposalDocument;
 use Illuminate\Validation\ValidationException;
 
 final class KkprlProposalSnapshotService
 {
+    public const DOCUMENT_LAYOUT_VERSION = '2026-10-12-map-osm';
+
+    private const SUPPORTED_LAYOUTS = ['2026-10-11', '2026-10-12-map', '2026-10-12-map-inset', self::DOCUMENT_LAYOUT_VERSION];
+
     public function __construct(
         private readonly ProposalChapterRules $chapterRules,
         private readonly ProposalProgress $progress,
         private readonly ProposalInlineAnchorResolver $anchors,
     ) {}
 
-    public function capture(KkprlProposal $proposal, string $chapter): ProposalSnapshot
+    public function captureForDocument(KkprlProposal $proposal, KkprlProposalDocument $document): ProposalSnapshot
     {
+        $version = $document->snapshot_payload_encrypted['document_layout_version'] ?? null;
+        if ($version !== null && ! in_array($version, self::SUPPORTED_LAYOUTS, true)) {
+            throw ValidationException::withMessages(['document' => 'Versi dokumen tidak dikenali.']);
+        }
+
+        return $this->capture($proposal, $document->chapter, $version, $document->snapshot_payload_encrypted['location_map'] ?? null);
+    }
+
+    public function capture(KkprlProposal $proposal, string $chapter, ?string $layoutVersion = self::DOCUMENT_LAYOUT_VERSION, ?array $mapSettings = null): ProposalSnapshot
+    {
+        if ($layoutVersion !== null && ! in_array($layoutVersion, self::SUPPORTED_LAYOUTS, true)) {
+            throw ValidationException::withMessages(['document' => 'Versi dokumen tidak dikenali.']);
+        }
         $payload = $proposal->payload ?? [];
 
         if (! $this->chapterRules->isRelevant($chapter, $payload)) {
@@ -89,6 +107,26 @@ final class KkprlProposalSnapshotService
             'payload' => $this->payloadForChapter($payload, $chapter),
             'template_version' => $proposal->template_version,
         ];
+
+        if ($layoutVersion !== null) {
+            $identity = is_array($payload['bag-1'] ?? null) ? $payload['bag-1'] : $payload;
+            $snapshotPayload['document_layout_version'] = $layoutVersion;
+            $snapshotPayload['cover_name'] = $identity['institution_name'] ?? $identity['applicant_name'] ?? '';
+            if (in_array($layoutVersion, ['2026-10-12-map', '2026-10-12-map-inset', self::DOCUMENT_LAYOUT_VERSION], true) && $chapter === 'bag-1') {
+                $snapshotPayload['location_map'] = [
+                    'coordinates_raw' => $identity['coordinates_raw'] ?? null,
+                    'map_source' => $identity['map_source'] ?? '',
+                    'basemap' => $mapSettings['basemap'] ?? config('kkprl.location_map.basemap', 'worldcover-2021'),
+                ];
+                if ($layoutVersion === '2026-10-12-map-inset') {
+                    $snapshotPayload['location_map']['layout'] = 'detail-inset-v1';
+                }
+                if ($layoutVersion === self::DOCUMENT_LAYOUT_VERSION) {
+                    $snapshotPayload['location_map']['layout'] = 'osm-detail-inset-v2';
+                    $snapshotPayload['location_map']['main_basemap'] = $mapSettings['main_basemap'] ?? config('kkprl.location_map.main_basemap', 'openstreetmap');
+                }
+            }
+        }
 
         return new ProposalSnapshot(
             $chapter,

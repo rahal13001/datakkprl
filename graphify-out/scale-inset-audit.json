@@ -1,0 +1,151 @@
+{
+  "updated_at": "2026-10-12T05:45:23.557008+00:00",
+  "stage": "physical-map-scale-and-context-inset",
+  "scope": "Existing main project and KKPRL source coverage retained; physical-scale/context-inset refresh of 8 code sources and 6 Markdown documents through ADR-033. Not a full repository rebuild. Private samples, ignored diagnostics, user environment/payload, generated previews and screenshots excluded.",
+  "source_state": "Selected final local sources after source freeze; not committed or deployed by this refresh.",
+  "files": {
+    "code": [
+      "app/Domain/Kkprl/ProposalLocationMapViewport.php",
+      "app/Services/KkprlLocationMapRenderer.php",
+      "app/Services/KkprlProposalSnapshotService.php",
+      "app/Services/KkprlProposalDocxRenderer.php",
+      "app/Services/KkprlProposalPdfRenderer.php",
+      "tests/Unit/Kkprl/ProposalLocationMapViewportTest.php",
+      "tests/Feature/KkprlLocationMapTest.php",
+      "tools/kkprl-location-map-preview.php"
+    ],
+    "document": [
+      "docs/kkprl-map-scale-inset-spec.md",
+      "docs/kkprl-map-scale-inset-validation.md",
+      "docs/decisions/ADR-033-print-scale-and-location-inset.md",
+      "docs/kkprl-user-and-staff-guide.md",
+      "docs/kkprl-proposal-builder-spec.md",
+      "docs/kkprl-chapter-one-map-spec.md"
+    ]
+  },
+  "source_sha256": {
+    "app/Domain/Kkprl/ProposalLocationMapViewport.php": "1a937543f1eb718888f45b59db1ad416e9e074bd8beec8987264e01a1878076b",
+    "app/Services/KkprlLocationMapRenderer.php": "8db6b8317c28b3f315a58faf434294281e2022414b0477cc6bcc91a5d8cb6453",
+    "app/Services/KkprlProposalDocxRenderer.php": "aa7b24dc0dda75af617582250cb5403108b29d9d657a0be3492ae36df26af98e",
+    "app/Services/KkprlProposalPdfRenderer.php": "7a7148444efabbfe7ff713eb5b31e24ea63528d73c35a6bc183265cfd7460cb1",
+    "app/Services/KkprlProposalSnapshotService.php": "02215fec3fbd1510f4021c46b2e0db606c2446edf974efcbcae85d568a5f51b8",
+    "docs/decisions/ADR-033-print-scale-and-location-inset.md": "edd2f26dfc2d94dcc46ec47ba6b39222aec86c3d0861772e6af637975b905757",
+    "docs/kkprl-chapter-one-map-spec.md": "0b6224d6d8d9900c6e406237231cbb417614b2f53803cfda9bcf83caa544e7a5",
+    "docs/kkprl-map-scale-inset-spec.md": "087449c8d8d054cd7fb519364db7748e36d3d780c86cadcff05b9aeb44149929",
+    "docs/kkprl-map-scale-inset-validation.md": "d79892418e8a888f40d87c40d5c89d7dbe58115f7b7251a3040dbd0e6159fff2",
+    "docs/kkprl-proposal-builder-spec.md": "4ed22a6c10817aab2798d9b89fc7ec790d89572d373ec9604918d58dfd254484",
+    "docs/kkprl-user-and-staff-guide.md": "9cb78f552e19550ded537048b11edb6f2c6aad4d48857679d07064581172a5c1",
+    "tests/Feature/KkprlLocationMapTest.php": "91b3e2e208a1301824d789b42ba5af797147cd4eef43111f1d5d4ae3b76be85c",
+    "tests/Unit/Kkprl/ProposalLocationMapViewportTest.php": "3db30c0191b3449d409ff58515a794ab2b69ec589653f2e22003424f9efc3263",
+    "tools/kkprl-location-map-preview.php": "5a3d266347ddf7f5eb8253fc8e7ec528cf224df15798d3c973f6854924391c16"
+  },
+  "baseline": {
+    "nodes": 3701,
+    "edges": 9468,
+    "hyperedges": 6
+  },
+  "counts": {
+    "nodes": 3745,
+    "edges": 9579,
+    "communities": 174,
+    "hyperedges": 7
+  },
+  "extraction": {
+    "ast_nodes": 124,
+    "ast_edges": 249,
+    "semantic_nodes": 51,
+    "semantic_edges": 120,
+    "method": "Graphify deterministic AST with unchanged read-only resolution context, delegated host semantic extraction of map code/docs and revalidated existing concepts in changed documents. Raw JSON scoped merge preserves all directed parallel relations.",
+    "parser_failures": [],
+    "unsupported_structural_sources": [],
+    "structural_scope": "Only explicitly frozen selected map viewport, renderer, snapshot, format, tool and tests are structurally refreshed."
+  },
+  "health": {
+    "missing_endpoints": 0,
+    "dangling_endpoints": 0,
+    "missing_hyperedge_members": 0,
+    "missing_source_files": [],
+    "self_loops": 23,
+    "ambiguous_edges": 880,
+    "fresh_ambiguous_call_candidates": 73,
+    "parallel_endpoint_pairs": 141,
+    "parallel_extra_edges": 143
+  },
+  "retained_non_scope_edges": 9210,
+  "directed": true,
+  "parallel_edges_preserved": true,
+  "unrelated_node_and_edge_metadata_preserved": true,
+  "reclustered": false,
+  "community_policy": "Existing assignments retained; new physical-scale/inset entities join source-associated or document-rendering community. Degrees/cohesion recomputed without reclustering.",
+  "semantic_token_usage": "Host counters unavailable; unknown, not zero.",
+  "external_model_api_calls": 0,
+  "manifest_policy": "Only actual scoped AST/semantic output is stamped; unrelated manifest rows preserved unchanged.",
+  "historical_audits": "map-cache-audit.json, location-map-audit.json, document-layout-audit.json and previous audits retained as historical evidence; their old source/artifact hashes are not assertions about the current refreshed state.",
+  "exclusions": [
+    "docs/export_sample/**",
+    "docs/sampel_peta/**",
+    "storage/** including ignored diagnostic scripts",
+    "environment/real proposal payload/binary/browser screenshots"
+  ],
+  "validation_provenance": "Application/visual/schema results are documented by the parent implementation agent in docs/kkprl-map-scale-inset-validation.md. This graph agent independently validates sources, hashes, endpoints, direction, parallel edges and scope without rerunning application tests or contacting any model API.",
+  "manifest_files": 542,
+  "artifact_sha256": {
+    "graph.json": "52822d1b5d16a6b850b12e0e93ee35fc42dbc5ee3366df4515135c7efe61c709",
+    "graph.html": "9c234c430c6ee187512bbcb9d4406585fb9e567eebc38efaf4ca349cb7d527c8",
+    "GRAPH_REPORT.md": "eae9db9a780571be4d67b56ae9be5f8dc18c01de54a02e0d44c73d78219aa05c",
+    "manifest.json": "43728d10a986912b8ae402383ac8f10fdcb8851c00578afe491bc9b445988923"
+  },
+  "verification_commands": [
+    {
+      "command": "rtk proxy /home/rahal/.local/share/uv/tools/graphifyy/bin/python3 /tmp/kkprl-map-scale-inset-graphify/extract_scope.py",
+      "result": "PASS: 124 AST nodes, 249 AST edges, no failed sources; final frozen eight PHP files."
+    },
+    {
+      "command": "rtk proxy /home/rahal/.local/share/uv/tools/graphifyy/bin/python3 /tmp/kkprl-map-scale-inset-graphify/semantic_scope.py",
+      "result": "PASS: delegated host extraction; 51 nodes, 120 edges, one new hyperedge; existing semantic tiers revalidated."
+    },
+    {
+      "command": "rtk proxy /home/rahal/.local/share/uv/tools/graphifyy/bin/python3 /tmp/kkprl-map-scale-inset-graphify/finalize_scope.py",
+      "result": "PASS: 3745 nodes/9579 directed multiedges; seven hyperedges; 542 manifest rows; 9210 non-scope edges and all non-scope metadata preserved."
+    },
+    {
+      "command": "rtk proxy /home/rahal/.local/share/uv/tools/graphifyy/bin/python3 /tmp/kkprl-map-scale-inset-graphify/verify_scope.py",
+      "result": "PASS: 14 source SHA256 and four artifact SHA256; zero missing endpoints/hyperedge members; HTML node/ordered-edge multiset identical; prior six hyperedges exact; new viewport/ADR/tests/verified calls discoverable."
+    },
+    {
+      "command": "rtk proxy /home/rahal/.local/share/uv/tools/graphifyy/bin/python3 -m graphify query 'ProposalLocationMapViewport print scale inset snapshot ADR-033' --graph graphify-out/graph.json --budget 1200",
+      "result": "PASS discovery: BFS found 180 nodes, displayed 26 under budget; 154 omitted, no claim that displayed result is complete."
+    },
+    {
+      "command": "rtk proxy /home/rahal/.local/share/uv/tools/graphifyy/bin/python3 -m graphify diagnose multigraph --graph graphify-out/graph.json --directed --json --max-examples 1",
+      "result": "PASS raw graph: 9579 valid edges, zero missing/dangling endpoints, zero exact duplicates. Simple directed build simulation would collapse 143 parallel edges; raw multigraph and HTML retain them."
+    },
+    {
+      "command": "rtk proxy /home/rahal/.local/share/uv/tools/graphifyy/bin/python3 (graphify.cache.save_semantic_cache/check_semantic_cache, explicit six documents and extraction-spec prompt)",
+      "result": "PASS: six saved entries; six hits, zero misses; 44 cached documentary nodes/93 edges/one hyperedge."
+    },
+    {
+      "command": "rtk git diff --check -- graphify-out",
+      "result": "PASS exit 0; Graphify artifacts only."
+    }
+  ],
+  "symbol_discovery": {
+    "viewport": true,
+    "ADR-033": true,
+    "unit_and_feature_tests": true,
+    "verified_scale_calls": true,
+    "query_bfs_found": 180,
+    "query_displayed": 26,
+    "query_budget": 1200,
+    "query_truncated": true
+  },
+  "semantic_cache": {
+    "saved_document_entries": 6,
+    "misses": 0,
+    "nodes": 44,
+    "edges": 93,
+    "hyperedges": 1,
+    "prompt": "/home/rahal/.agents/skills/graphify/references/extraction-spec.md"
+  },
+  "historical_hyperedges_exactly_preserved": 6
+}

@@ -93,11 +93,12 @@ class KkprlProposalDocumentGenerationTest extends TestCase
         $this->assertStringContainsString('Nama pemohon:', $xml);
         $this->assertStringContainsString('Narasi rencana tapak/site plan:', $xml);
         $this->assertStringNotContainsString('Applicant Name:', $xml);
-        $pageBreakPosition = strpos($xml, '<w:br w:type="page"/>');
+        $pageBreakPosition = strpos($xml, '<w:sectPr>');
         $informationPosition = strpos($xml, 'INFORMASI PEMOHON');
         $this->assertIsInt($pageBreakPosition);
         $this->assertIsInt($informationPosition);
         $this->assertLessThan($informationPosition, $pageBreakPosition);
+        $this->assertStringContainsString('<w:type w:val="nextPage"/>', $xml);
         $this->assertStringNotContainsString('6281234567890', $xml);
         $this->assertStringContainsString('Lampiran Bab 1-1', $xml);
         $this->assertStringContainsString('<wp:extent cx="5715000" cy="2857500"/>', $xml);

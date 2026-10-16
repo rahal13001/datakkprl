@@ -2,6 +2,8 @@
 
 Mapping ini adalah baseline MVP hasil pembacaan XML/text dari template DOCX pada `docs/template/`. Field yang tidak aktif tidak dirender ke form maupun output.
 
+Layout ekspor 11 Oktober 2026 mengikuti [ADR-030](decisions/ADR-030-versioned-professional-document-layout.md). Heading dan urutan resmi tetap bersumber `ProposalDocumentSectionCatalog`; label tetap dari `ProposalFieldCatalog`. Isian singkat menjadi tabel label/nilai, narasi menjadi paragraf dan HTML editor diubah ke format dasar aman. Nama institusi/pemohon Bab 1 menjadi metadata sampul semua bab; tidak menambah field wajib. Versi layout ikut snapshot baru, sedangkan hash legacy tetap direkonstruksi untuk artefak lama. [Spesifikasi](kkprl-document-layout-spec.md) dan [validasi](kkprl-document-layout-validation.md) mencatat detail serta batas viewer.
+
 ## Kelengkapan Bab 1 — 8 Oktober 2026
 
 Sumber executable: `ProposalFieldCatalog::requiredFields('bag-1')` dan `ProposalProgress`. Jumlah tetap 36; perubahan ini menyediakan input `depth_unit` yang sebelumnya hilang, bukan menambah persyaratan. Label `document_type` diselaraskan menjadi jenis dokumen permohonan PKKPRL/KKRL, sesuai katalog/template; nilai lama tidak dikonversi.
@@ -51,3 +53,8 @@ Pengukuran peta (ADR-028) membaca koordinat/bentuk serta membandingkan hasil den
 Kondisi keputusan disimpan sebagai metadata payload: `includes_reclamation`, `land_relation`, dan `has_existing_permits`. Pilihan `Tidak berlaku` adalah nilai eksplisit yang dapat menyelesaikan field ketika memang tidak relevan; sistem tidak mengambil keputusan perizinan dari nilai tersebut.
 
 Format koordinat MVP ditetapkan pada [ADR-010](decisions/ADR-010-coordinate-validation.md): desimal WGS84 dengan rentang latitude -90..90 dan longitude -180..180.
+
+
+## Tambahan peta Bab 1 — 12 Oktober 2026
+
+`coordinates_raw` tetap state editor dan bukan baris teks body, tetapi masuk metadata snapshot baru untuk geometri peta. `map_source` adalah sumber lokasi opsional maksimal 300 karakter; disimpan encrypted, diikutkan snapshot baru dan ditampilkan di panel peta hanya jika terisi. Tidak menambah field wajib/progres. Identitas panel berasal dari `institution_name`/`applicant_name` dan `village`, `subdistrict`, `regency`, `province`; data lengkap tetap pada body. `shape_type`, `coordinates`, `water_area` dan `water_area_unit` existing tetap diekspor seperti sebelumnya. Gambar peta merupakan halaman tambahan landscape setelah body/lampiran, bukan lampiran upload. Atribusi otomatis mengikuti provider aktif: OSM utama dan WorldCover inset. Snapshot `2026-10-12-map-osm` menyimpan `main_basemap`/`layout` dari backend, bukan field pemohon atau syarat progres. Lihat [spesifikasi peta](kkprl-chapter-one-map-spec.md) dan [pembaruan OSM](kkprl-osm-main-map-spec.md).

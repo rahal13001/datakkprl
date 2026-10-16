@@ -30,11 +30,13 @@ final class DocumentsRelationManager extends RelationManager
                 TextColumn::make('snapshot_hash')->label('Snapshot hash')->copyable()->limit(16),
                 TextColumn::make('attachment_manifest_hash')->label('Manifest hash')->copyable()->limit(16),
                 TextColumn::make('generated_at')->label('Dibuat')->dateTime(),
+                TextColumn::make('deleted_at')->label('Berkas dihapus')->dateTime()->placeholder('—'),
             ])
             ->recordActions([
                 Action::make('download')
                     ->label('Unduh')
                     ->visible(fn (KkprlProposalDocument $record): bool => $record->generation_status === 'generated'
+                        && $record->deleted_at === null
                         && auth()->user()?->can('Download:KkprlProposalDocument') === true)
                     ->url(fn (KkprlProposalDocument $record): string => route('kkprl.proposal.document.download', $record))
                     ->openUrlInNewTab(),

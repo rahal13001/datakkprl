@@ -1,0 +1,1 @@
+<p>@foreach ($paragraph['runs'] as $run)@if ($run['bold'])<strong>@endif@if ($run['italic'])<em>@endif{!! nl2br(e($run['text'])) !!}@if ($run['italic'])</em>@endif@if ($run['bold'])</strong>@endif@endforeach</p>

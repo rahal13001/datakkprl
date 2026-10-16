@@ -92,6 +92,76 @@
       "input_tokens": null,
       "output_tokens": null,
       "external_api_calls": 0
+    },
+    {
+      "date": "2026-10-11T12:37:36.251022+00:00",
+      "stage": "professional-proposal-document-layout",
+      "code_files": 17,
+      "semantic_documents": 7,
+      "input_tokens": null,
+      "output_tokens": null,
+      "external_api_calls": 0
+    },
+    {
+      "date": "2026-10-12T01:37:15.887674+00:00",
+      "stage": "private-landscape-chapter-one-location-map",
+      "files": 23,
+      "input_tokens": null,
+      "output_tokens": null,
+      "semantic_token_usage": "Host counters unavailable; unknown, not zero.",
+      "external_model_api_calls": 0
+    },
+    {
+      "date": "2026-10-12T02:05:06.219478+00:00",
+      "stage": "text-safe-public-map-tile-cache",
+      "files": 6,
+      "input_tokens": null,
+      "output_tokens": null,
+      "semantic_token_usage": "Host counters unavailable; unknown, not zero.",
+      "external_model_api_calls": 0
+    },
+    {
+      "date": "2026-10-12T05:42:00.932096+00:00",
+      "stage": "physical-map-scale-and-context-inset",
+      "files": 14,
+      "input_tokens": null,
+      "output_tokens": null,
+      "semantic_token_usage": "Host counters unavailable; unknown, not zero.",
+      "external_model_api_calls": 0
+    },
+    {
+      "date": "2026-10-12T05:43:51.763928+00:00",
+      "stage": "physical-map-scale-and-context-inset",
+      "files": 14,
+      "input_tokens": null,
+      "output_tokens": null,
+      "semantic_token_usage": "Host counters unavailable; unknown, not zero.",
+      "external_model_api_calls": 0
+    },
+    {
+      "date": "2026-10-12T05:45:23.557008+00:00",
+      "stage": "physical-map-scale-and-context-inset",
+      "files": 14,
+      "input_tokens": null,
+      "output_tokens": null,
+      "semantic_token_usage": "Host counters unavailable; unknown, not zero.",
+      "external_model_api_calls": 0
     }
-  ]
+  ],
+  "document_deletion_update": {
+    "updated_at": "2026-10-12T09:16:11.337513+00:00",
+    "input_tokens": null,
+    "output_tokens": null,
+    "host_usage": "Unknown, host counters unavailable.",
+    "external_model_api_calls": 0,
+    "source_files": 19
+  },
+  "osm_main_map_update": {
+    "updated_at": "2026-10-12T12:24:50.461232+00:00",
+    "input_tokens": null,
+    "output_tokens": null,
+    "host_usage": "Unknown, host counters unavailable.",
+    "external_model_api_calls": 0,
+    "source_files": 20
+  }
 }

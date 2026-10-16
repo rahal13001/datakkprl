@@ -1,60 +1,117 @@
 {
-  "updated_at": "2026-10-09T08:49:40.734318+00:00",
-  "stage": "additive-institution-schema-repair",
-  "scope": "Existing main project and KKPRL index retained. Institution schema repair refresh: 2 PHP code sources and 4 Markdown documents through ADR-029. Main specification read in full; unchanged contribution retained with corrected locations and added repair references. Not a full repository rebuild or live hosting/database audit.",
-  "source_state": "Frozen local sources after isolated tests; no user database mutation, commit, or deployment.",
+  "updated_at": "2026-10-12T12:24:50.461232+00:00",
+  "stage": "osm-main-basemap-with-worldcover-inset",
+  "scope": "Existing main project/KKPRL index retained; incremental refresh of 8 PHP, 1 Blade, 1 XML and 10 Markdown sources through ADR-035. Not a full repository rebuild. Private/user data, exports, fixture storage and screenshots excluded.",
+  "source_state": "Frozen local sources; no commit or deployment.",
   "files": {
     "code": [
-      "database/migrations/2026_10_09_000001_repair_kkprl_proposal_institution_columns.php",
-      "tests/Feature/KkprlInstitutionSchemaRepairTest.php"
+      "app/Domain/Kkprl/ProposalLocationMapViewport.php",
+      "app/Services/KkprlOpenStreetMapTiles.php",
+      "app/Services/KkprlLocationMapRenderer.php",
+      "app/Services/KkprlProposalSnapshotService.php",
+      "config/kkprl.php",
+      "tests/Feature/KkprlOpenStreetMapTest.php",
+      "tests/Feature/KkprlLocationMapTest.php",
+      "tools/kkprl-location-map-preview.php"
+    ],
+    "blade": [
+      "resources/views/livewire/kkprl-proposal-wizard.blade.php"
+    ],
+    "xml": [
+      "phpunit.xml"
     ],
     "document": [
-      "docs/kkprl-institution-schema-repair-spec.md",
-      "docs/kkprl-institution-schema-repair-validation.md",
-      "docs/decisions/ADR-029-additive-institution-schema-repair.md",
-      "docs/kkprl-proposal-builder-spec.md"
+      "docs/kkprl-osm-main-map-spec.md",
+      "docs/kkprl-osm-main-map-validation.md",
+      "docs/decisions/ADR-035-openstreetmap-main-map-with-satellite-inset.md",
+      "docs/decisions/ADR-033-print-scale-and-location-inset.md",
+      "docs/kkprl-chapter-one-map-spec.md",
+      "docs/kkprl-map-scale-inset-spec.md",
+      "docs/kkprl-proposal-builder-spec.md",
+      "docs/kkprl-user-and-staff-guide.md",
+      "docs/kkprl-template-field-map.md",
+      "docs/kkprl-security-review.md"
     ]
   },
   "source_sha256": {
-    "database/migrations/2026_10_09_000001_repair_kkprl_proposal_institution_columns.php": "88517befedb3639b88bce15e172999b8bd36b222b9a1d85bcb4519c9eba0dba4",
-    "tests/Feature/KkprlInstitutionSchemaRepairTest.php": "ee32e0c1c7ae38174220fd51e0b5339920feebbec4ac3e27708ab17d5afb71c7",
-    "docs/kkprl-institution-schema-repair-spec.md": "18060fbc6383ea5a15efaf4eb5215e27a88bcf9cc639ba9db820ed63cfcf54cf",
-    "docs/kkprl-institution-schema-repair-validation.md": "91415e288762e947a64439228289b0bf1353b605a7fbc2443334c4d25d11dd8f",
-    "docs/decisions/ADR-029-additive-institution-schema-repair.md": "02eabc72b74df878849e97478f3ea8fdbca8f3f1ef8e7ef93abae819277b79f5",
-    "docs/kkprl-proposal-builder-spec.md": "eed237f6ecfa9d14d76aeb55986d329f8574d2e8278d1ed59ac860f09fc4d204"
+    "app/Domain/Kkprl/ProposalLocationMapViewport.php": "305bc8cee855ef12afe4de1d9070cf67e2add8a44e702a1fca1eeccd2dd1ec9f",
+    "app/Services/KkprlLocationMapRenderer.php": "7646d13a3bf74aab87d212fcfe87517b2dc6aa5bd51d24477ea9f5f0c800bd87",
+    "app/Services/KkprlOpenStreetMapTiles.php": "94cd1ea8e7e4f4bd31bf4ca2f68befbb05b438207a8d73e5945dfb8a86435287",
+    "app/Services/KkprlProposalSnapshotService.php": "78737771a7a3efed9e2bcfc367e8a0347ec0209d5bd55216cdfb196285a5e884",
+    "config/kkprl.php": "0b6399c72a42b7fd2ed793b501f1c8366f63062af553a3397fd93d94237132e9",
+    "docs/decisions/ADR-033-print-scale-and-location-inset.md": "8d90ce093e25d15f1a7330b7ebbb6b6c160719f3e962cd7f438f1ec8047baeec",
+    "docs/decisions/ADR-035-openstreetmap-main-map-with-satellite-inset.md": "987962108274f430174295ef5ed960418b97630f42aa4deb0aa1c802616a1f16",
+    "docs/kkprl-chapter-one-map-spec.md": "2566cf6dfdc24b364f8adb3341ac4041437b901fbd0bb168a3cc9e528a2c54e5",
+    "docs/kkprl-map-scale-inset-spec.md": "cf9174ad3005bfcfae1ad352bd2bec4c65c29c49502a51003f4b011348be9ce2",
+    "docs/kkprl-osm-main-map-spec.md": "0ff5591e2ba5a69826aa02f14f3233c236b0508a56b9bf6b111865d7c1ca7766",
+    "docs/kkprl-osm-main-map-validation.md": "fa349e8b31ab9c28eaf9aa537aee8f846b2a95ba7563a883d49de7e22a6aaf7c",
+    "docs/kkprl-proposal-builder-spec.md": "9b3a483712ff7cd16fc36ba7bcfc6776bf90d7fbc5c69c2d27056bf4c3aec069",
+    "docs/kkprl-security-review.md": "563a9bae8148f8c2c8f8be89b58521efac4fb58bf2ecf6b50406c8470c41854f",
+    "docs/kkprl-template-field-map.md": "f4cb43467bb3efa3d3390ebdb92b4f51ff5d48ed760fd8d25778069cbaad561b",
+    "docs/kkprl-user-and-staff-guide.md": "53ce16306d5d62c04811804d33397982505fd330b438f1d47cc9ada65c8d8ee4",
+    "phpunit.xml": "05027e3c55f669f308891cdbbf5cac529175b17cea9ec6c96123a6dd28474e85",
+    "resources/views/livewire/kkprl-proposal-wizard.blade.php": "8287709ef2c865e8a4105333926e207effc3327024e1867b260877ea6e6c8a06",
+    "tests/Feature/KkprlLocationMapTest.php": "a66577b04679ad54527c0b70a3042d396ad109ce77286a53b2796cbead4b382d",
+    "tests/Feature/KkprlOpenStreetMapTest.php": "a1d01373202cca732aae07218f9d152feaf7900f80ecdd9c16069b41fd8df846",
+    "tools/kkprl-location-map-preview.php": "ef14aad688c8705bea0e4d5033bbe0dbcf1e7057cb3e2acb9fa182b2ac8fcba0"
   },
-  "prior_update_at": "2026-10-07T23:26:22.643330+00:00",
-  "old_nodes": 3465,
-  "old_edges": 8901,
-  "new_nodes": 3491,
-  "new_edges": 8967,
-  "communities": 174,
-  "reclustered": true,
-  "retained_edges": 8870,
-  "fresh_edges": 97,
+  "baseline": {
+    "nodes": 3807,
+    "edges": 9762,
+    "hyperedges": 8
+  },
+  "counts": {
+    "nodes": 3855,
+    "edges": 9893,
+    "communities": 174,
+    "hyperedges": 9
+  },
   "extraction": {
-    "ast_nodes": 30,
-    "ast_edges": 35,
-    "semantic_nodes": 29,
-    "semantic_edges": 62,
-    "main_spec_retained_nodes": 13,
-    "main_spec_retained_edges": 31,
-    "method": "Graphify deterministic PHP AST and delegated host semantic extraction from actual final source reads; full main specification read with audited two-line delta."
+    "ast_nodes": 124,
+    "ast_edges": 276,
+    "semantic_nodes": 112,
+    "semantic_edges": 224,
+    "parser_failures": [],
+    "unsupported_structural_sources": [
+      "resources/views/livewire/kkprl-proposal-wizard.blade.php",
+      "phpunit.xml"
+    ],
+    "method": "Graphify AST with unchanged read-only resolution context; delegated host semantic code/docs/UI/XML extraction. Existing named concepts revalidated. Raw JSON merge retains directed parallel edges."
   },
+  "health": {
+    "missing_endpoints": 0,
+    "missing_hyperedge_members": 0,
+    "missing_source_files": [],
+    "self_loops": 24,
+    "ambiguous_edges": 951,
+    "fresh_ambiguous_call_candidates": 74,
+    "parallel_endpoint_pairs": 146,
+    "parallel_extra_edges": 149,
+    "external_or_unresolved_source_nodes": 374,
+    "resolved_former_scope_placeholder_nodes": []
+  },
+  "retained_non_scope_edges": 9393,
   "directed": true,
   "parallel_edges_preserved": true,
-  "health": {
-    "dangling_endpoints": 0,
-    "missing_endpoints": 0,
-    "self_loops": 22,
-    "fresh_ambiguous_calls": 3,
-    "total_ambiguous_edges": 721,
-    "parallel_endpoint_pairs": 136,
-    "note": "Name-only PHP parser calls and self-loop candidates flagged ambiguous; directional parallel relations retained without graph simplification."
-  },
+  "unrelated_node_and_edge_metadata_preserved": true,
+  "reclustered": false,
+  "community_policy": "Retain assignments; associate new map entities with document rendering. Recompute raw cohesion without reclustering.",
   "semantic_token_usage": "Host counters unavailable; unknown, not zero.",
-  "external_api_calls": 0,
-  "validation_provenance": "Root actual RED7tests/2assertions/7errors (missing repair file) reproduces failing autosave on absent columns; GREEN7tests/180assertions PASS1.395s; Pint2filesPASS; fullPHPUnit476tests/2642assertions PASS261.142s exit0; gitdiff--check exit0 (existing CRLF warnings) and 6-source trailing-whitespace check empty. Tests use isolated SQLite/fake private storage/HTTP guard. No new UI build/browser run, paid API call, live MySQL hosting test, deployment or commit. Graph refresh does not rerun application tests.",
-  "manifest_policy": "Only 6 actual code/document sources stamped. Unchanged dependency references and non-scope rows preserve previous metadata.",
-  "audit_artifacts": "/tmp/kkprl-institution-graph (local extraction and independent verification, not hosting evidence)."
+  "external_model_api_calls": 0,
+  "manifest_policy": "Stamp only actual AST/semantic outputs; unrelated rows unchanged. Blade/XML semantic-only refresh.",
+  "historical_audits": "Prior audits including document-deletion-audit.json retained as historical; their hashes are not current-state claims.",
+  "exclusions": [
+    "storage/**",
+    "docs/export_sample/**",
+    "docs/sampel_peta/**",
+    "browser fixtures/screenshots/credentials/private payload"
+  ],
+  "manifest_files": 555,
+  "artifact_sha256": {
+    "graph.json": "02949e8cd50f742915cf334877f6965994a4f7bb6e2dc8e721ef587a515a8781",
+    "graph.html": "a0939362b9ca2a90f1987fe29e064d1d725a7a658c9ab99ca128f01e0961156b",
+    "GRAPH_REPORT.md": "295e2497dce9fafdbe53bac00a05932be88f324c1b85e7d602d48ec9a732f484",
+    "manifest.json": "5f99a39e33649397406f04133af25f9d6a99e2de9db2d4cecccfc0f5c657bf01",
+    ".graphify_labels.json": "23eef821ac0a61524f11ba62c97be4d1ea130f2347a89410721f09166b8b5f48"
+  }
 }

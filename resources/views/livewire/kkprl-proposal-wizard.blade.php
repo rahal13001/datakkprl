@@ -270,6 +270,12 @@
                                 </div>
                             </div>
                             
+                            <div class="mb-4">
+                                <label for="kkprl-map-source" class="mb-2 block text-sm font-semibold text-slate-700">Sumber data lokasi (opsional)</label>
+                                <input id="kkprl-map-source" wire:model.live.blur="payload.bag-1.map_source" maxlength="300" type="text" aria-describedby="kkprl-map-source-help" placeholder="Contoh: survei koordinat lapangan, Oktober 2026" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100">
+                                <p id="kkprl-map-source-help" class="mt-2 text-xs text-slate-600">Ekspor Bab 1 menyertakan peta jalan OpenStreetMap dan inset citra WorldCover 2021. Sumber Anda dicantumkan jika diisi; atribusi peta tetap tersedia.</p>
+                                @error('location_map') <p class="mt-2 text-sm text-red-700" role="alert">{{ $message }}</p> @enderror
+                            </div>
                             <div wire:ignore x-data="coordinateManager(@js($payload['bag-1']['coordinates_raw'] ?? '[]'), @js($payload['bag-1']['shape_type'] ?? 'polygon'), $wire)" class="border border-slate-200 rounded-xl bg-slate-50 p-3 sm:p-5 shadow-sm">
                                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                                     <div>
@@ -772,8 +778,8 @@
         </div>
         
         <div class="p-4 sm:p-6 md:p-8">
-            @error('documents') <p class="mb-4 text-sm font-bold text-red-600 bg-red-50 p-3 rounded-lg">{{ $message }}</p> @enderror
-            @if ($documentMessage) <p class="mb-4 text-sm font-bold text-emerald-600 bg-emerald-50 p-3 rounded-lg">{{ $documentMessage }}</p> @endif
+            @error('documents') <p role="alert" class="mb-4 text-sm font-bold text-red-600 bg-red-50 p-3 rounded-lg">{{ $message }}</p> @enderror
+            @if ($documentMessage) <p role="status" class="mb-4 text-sm font-bold text-emerald-600 bg-emerald-50 p-3 rounded-lg">{{ $documentMessage }}</p> @endif
             
             <div class="grid [&>*]:min-w-0 md:grid-cols-2 gap-4">
                 @foreach ($relevantChapters as $chapter)
@@ -800,27 +806,10 @@
                 @endforeach
             </div>
 
-            @if ($generatedDocuments->isNotEmpty())
-                <div class="mt-8 pt-8 border-t border-slate-200">
-                    <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">File Siap Unduh</h3>
-                    <div class="flex flex-wrap gap-3">
-                        @foreach ($generatedDocuments as $document)
-                            <a href="{{ route('kkprl.proposal.document.download', $document) }}" class="inline-flex items-center px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-amber-400 hover:shadow-md transition-all group">
-                                @if($document->format === 'pdf')
-                                    <i class="fa-solid fa-file-pdf text-red-500 text-xl mr-3 group-hover:scale-110 transition-transform"></i>
-                                @else
-                                    <i class="fa-solid fa-file-word text-blue-600 text-xl mr-3 group-hover:scale-110 transition-transform"></i>
-                                @endif
-                                <div>
-                                    <p class="font-bold text-slate-700 text-sm">{{ str_replace('bag-', 'Bab ', $document->chapter) }}</p>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">{{ $document->format }}</p>
-                                </div>
-                                <i class="fa-solid fa-download ml-4 text-slate-300 group-hover:text-amber-600"></i>
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
+            <section aria-label="Dokumen hasil generate" class="mt-8 border-t border-slate-200 pt-8 pb-20 sm:pb-0">
+                <h2 class="mb-4 text-sm font-bold uppercase tracking-wider text-slate-800">Dokumen hasil generate</h2>
+                <x-kkprl.generated-document-list :documents="$generatedDocuments" />
+            </section>
         </div>
     </div>
 </main>

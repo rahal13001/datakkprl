@@ -14,10 +14,12 @@ use App\Models\KkprlProposalAttachment;
 use App\Models\KkprlProposalDocument;
 use App\Services\KkprlProposalAccessService;
 use App\Services\KkprlProposalAttachmentService;
+use App\Services\KkprlProposalDocumentDeletionService;
+use App\Services\KkprlProposalDocumentListingService;
 use App\Services\KkprlProposalDocumentService;
 use App\Services\KkprlProposalDraftService;
-use App\Services\KkprlProposalSnapshotService;
 use App\Services\KkprlProposalSubmissionService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
@@ -326,6 +328,27 @@ class KkprlProposalWizard extends Component
         }
     }
 
+    public function deleteDocument(int $documentId, KkprlProposalDocumentDeletionService $deletion): void
+    {
+        $this->resetErrorBag('documents');
+        $this->documentMessage = '';
+        $proposal = KkprlProposal::findOrFail($this->proposalId);
+        app(KkprlProposalAccessService::class)->assertCanAccess($proposal);
+        abort_unless($proposal->documents()->whereKey($documentId)->exists(), 404);
+        try {
+            $deletion->delete($documentId);
+            $this->documentMessage = 'Dokumen dihapus. Data proposal dan lampiran tetap tersimpan.';
+        } catch (ProposalAccessDenied) {
+            abort(403);
+        } catch (ModelNotFoundException) {
+            abort(404);
+        } catch (ProposalLocked) {
+            $this->addError('documents', 'Dokumen final tidak dapat dihapus. Arsip proposal tetap tersimpan.');
+        } catch (ValidationException $exception) {
+            $this->setErrorBag($exception->errors());
+        }
+    }
+
     public function render()
     {
         $proposal = KkprlProposal::query()->findOrFail($this->proposalId);
@@ -335,22 +358,15 @@ class KkprlProposalWizard extends Component
             return view('livewire.kkprl-proposal-access-expired');
         }
 
-        $snapshots = app(KkprlProposalSnapshotService::class);
+        $listing = app(KkprlProposalDocumentListingService::class);
         $generatedDocuments = KkprlProposalDocument::query()
             ->where('proposal_id', $this->proposalId)
+            ->whereNull('deleted_at')
             ->where('generation_status', 'generated')
             ->latest('generated_at')
+            ->latest('id')
             ->get()
-            ->filter(function (KkprlProposalDocument $document) use ($proposal, $snapshots): bool {
-                try {
-                    $snapshot = $snapshots->capture($proposal, $document->chapter);
-                } catch (ValidationException) {
-                    return false;
-                }
-
-                return hash_equals((string) $document->snapshot_hash, $snapshot->snapshotHash)
-                    && hash_equals((string) $document->attachment_manifest_hash, $snapshot->attachmentManifestHash);
-            })
+            ->map(fn (KkprlProposalDocument $document): array => $listing->present($document, $proposal, true))
             ->values();
 
         return view('livewire.kkprl-proposal-wizard', [
@@ -449,6 +465,7 @@ class KkprlProposalWizard extends Component
             $fields = array_diff($fields, $conditions);
             if ($chapter === 'bag-1') {
                 $fields[] = 'coordinates_raw';
+                $fields[] = 'map_source';
             }
             // Legacy flat payloads must keep every chapter when Bab 1 becomes nested.
             foreach ($fields as $field) {

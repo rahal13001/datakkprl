@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Domain\Kkprl\PdfAttachmentRenderFailed;
 use App\Domain\Kkprl\ProposalAccessDenied;
+use App\Domain\Kkprl\ProposalDocumentPresentation;
 use App\Domain\Kkprl\ProposalDocumentSectionCatalog;
 use App\Domain\Kkprl\ProposalFieldCatalog;
 use App\Domain\Kkprl\ProposalInlineAnchorResolver;
@@ -11,12 +12,11 @@ use App\Domain\Kkprl\ProposalLocked;
 use App\Domain\Kkprl\ProposalSnapshot;
 use App\Models\KkprlProposal;
 use App\Models\KkprlProposalDocument;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Smalot\PdfParser\Parser;
-use ZipArchive;
 
 final class KkprlProposalDocumentService
 {
@@ -50,15 +50,17 @@ final class KkprlProposalDocumentService
         if ($proposal->isLocked()) {
             throw new ProposalLocked;
         }
+        $deletionMarker = (int) $proposal->reviewEvents()->where('event_type', 'document_deleted')->max('id');
         $snapshot = $this->snapshots->capture($proposal, $chapter);
         $documents = collect();
+        $map = null;
 
         foreach (array_values(array_unique($formats)) as $format) {
             if (! in_array($format, ['docx', 'pdf'], true)) {
                 continue;
             }
 
-            $documents->push($this->generateOne($proposal, $snapshot, $format));
+            $documents->push($this->generateOne($proposal, $snapshot, $format, $map, $deletionMarker));
         }
 
         return $documents;
@@ -68,6 +70,8 @@ final class KkprlProposalDocumentService
         KkprlProposal $proposal,
         ProposalSnapshot $snapshot,
         string $format,
+        ?array &$map,
+        int $deletionMarker,
     ): KkprlProposalDocument {
         $document = KkprlProposalDocument::query()->firstOrNew([
             'proposal_id' => $proposal->id,
@@ -88,6 +92,7 @@ final class KkprlProposalDocumentService
         }
 
         if ($document->exists
+            && $document->deleted_at === null
             && $document->generation_status === 'generated'
             && filled($document->storage_path)
             && $document->storage_disk === $this->disk()
@@ -97,15 +102,22 @@ final class KkprlProposalDocumentService
 
         try {
             // Rendering runs outside the final persistence checkpoint.
+            if ($map === null && isset($snapshot->payload['location_map'])) {
+                $values = $snapshot->payload['payload']['bag-1'];
+                $map = app(KkprlLocationMapRenderer::class)->render(array_replace($values, $snapshot->payload['location_map']));
+            }
             $binary = $format === 'pdf'
-                ? $this->renderPdf($snapshot)
-                : $this->renderDocx($snapshot);
+                ? $this->renderPdf($snapshot, $map)
+                : $this->renderDocx($snapshot, $map);
 
-            return DB::transaction(function () use ($proposal, $snapshot, $format, $binary, $document): KkprlProposalDocument {
+            return DB::transaction(function () use ($proposal, $snapshot, $format, $binary, $document, $deletionMarker): KkprlProposalDocument {
                 $locked = KkprlProposal::query()->lockForUpdate()->findOrFail($proposal->id);
                 app(KkprlProposalAccessService::class)->assertCanBuild($locked, lock: true);
                 if ($locked->isLocked()) {
                     throw new ProposalLocked;
+                }
+                if ((int) $locked->reviewEvents()->where('event_type', 'document_deleted')->max('id') !== $deletionMarker) {
+                    throw ValidationException::withMessages(['documents' => 'Dokumen dihapus saat proses berjalan. Buat ulang bila masih diperlukan.']);
                 }
                 $current = $this->snapshots->capture($locked, $snapshot->chapter);
                 if (! hash_equals($snapshot->snapshotHash, $current->snapshotHash)
@@ -116,7 +128,11 @@ final class KkprlProposalDocumentService
                     'proposal_id' => $locked->id, 'chapter' => $snapshot->chapter, 'format' => $format,
                     'snapshot_hash' => $snapshot->snapshotHash, 'attachment_manifest_hash' => $snapshot->attachmentManifestHash,
                 ])->first();
+                if ($existing?->getRawOriginal('deleted_at') !== $document->getRawOriginal('deleted_at')) {
+                    throw ValidationException::withMessages(['documents' => 'Dokumen dihapus saat proses berjalan. Buat ulang bila masih diperlukan.']);
+                }
                 if ($existing?->generation_status === 'generated'
+                    && $existing->deleted_at === null
                     && $existing->storage_disk === $this->disk() && filled($existing->storage_path)
                     && Storage::disk($this->disk())->exists($existing->storage_path)) {
                     return $existing;
@@ -125,7 +141,7 @@ final class KkprlProposalDocumentService
                 if (! Storage::disk($this->disk())->put($path, $binary)) {
                     throw new \RuntimeException('Unable to store generated document.');
                 }
-                $document->fill([
+                $document->forceFill(['deleted_at' => null, 'deleted_by_applicant_id' => null])->fill([
                     'storage_disk' => $this->disk(),
                     'storage_path' => $path,
                     'generation_status' => 'generated',
@@ -138,11 +154,14 @@ final class KkprlProposalDocumentService
         } catch (\Throwable $exception) {
             // A revoked identity may not even write a failed status.
             try {
-                DB::transaction(function () use ($proposal, $document): void {
+                DB::transaction(function () use ($proposal, $document, $deletionMarker): void {
                     $locked = KkprlProposal::query()->lockForUpdate()->findOrFail($proposal->id);
                     app(KkprlProposalAccessService::class)->assertCanBuild($locked, lock: true);
-                    if (! $locked->isLocked()) {
-                        $document->fill(['generation_status' => 'failed', 'error_code' => 'render_failed'])->save();
+                    $persisted = $document->exists ? $document->fresh() : null;
+                    if (! $locked->isLocked()
+                        && (int) $locked->reviewEvents()->where('event_type', 'document_deleted')->max('id') === $deletionMarker
+                        && $persisted?->getRawOriginal('deleted_at') === $document->getRawOriginal('deleted_at')) {
+                        ($persisted ?? $document)->fill(['generation_status' => 'failed', 'error_code' => 'render_failed'])->save();
                     }
                 });
             } catch (ProposalAccessDenied) {
@@ -152,14 +171,9 @@ final class KkprlProposalDocumentService
         }
     }
 
-    private function renderPdf(ProposalSnapshot $snapshot): string
+    private function renderPdf(ProposalSnapshot $snapshot, ?array $map = null): string
     {
-        $data = $this->viewData($snapshot);
-        $orientation = $this->requiresLandscape($data) ? 'landscape' : 'portrait';
-
-        return Pdf::loadView('pdf.kkprl-proposal-chapter', $data)
-            ->setPaper('a4', $orientation)
-            ->output();
+        return app(KkprlProposalPdfRenderer::class)->render($this->viewData($snapshot) + ['locationMap' => $map]);
     }
 
     /** @param array<string, mixed> $data */
@@ -170,7 +184,7 @@ final class KkprlProposalDocumentService
                 continue;
             }
 
-            if (count(array_keys($value[0] ?? [])) > 4) {
+            if (count(ProposalDocumentPresentation::columns($value)) > 4) {
                 return true;
             }
         }
@@ -178,44 +192,9 @@ final class KkprlProposalDocumentService
         return false;
     }
 
-    private function renderDocx(ProposalSnapshot $snapshot): string
+    private function renderDocx(ProposalSnapshot $snapshot, ?array $map = null): string
     {
-        $data = $this->viewData($snapshot);
-        $relationships = [];
-        $media = [];
-        $documentXml = $this->docxDocumentXml($snapshot, $data, $relationships, $media);
-        $relsXml = $this->docxRelationshipsXml($relationships);
-        $contentTypesXml = $this->docxContentTypesXml($media);
-        $temporary = tempnam(sys_get_temp_dir(), 'kkprl-docx-');
-
-        if ($temporary === false) {
-            throw new \RuntimeException('Unable to create DOCX temporary file.');
-        }
-
-        $zip = new ZipArchive;
-        if ($zip->open($temporary, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-            @unlink($temporary);
-            throw new \RuntimeException('Unable to create DOCX package.');
-        }
-        $zip->addFromString('[Content_Types].xml', $contentTypesXml);
-        $zip->addFromString('_rels/.rels', $this->rootRelationshipsXml());
-        $zip->addFromString('word/document.xml', $documentXml);
-        $zip->addFromString('word/_rels/document.xml.rels', $relsXml);
-        $zip->addFromString('word/styles.xml', $this->docxStylesXml());
-
-        foreach ($media as $item) {
-            $zip->addFromString($item['path'], $item['binary']);
-        }
-
-        $zip->close();
-        $binary = file_get_contents($temporary);
-        @unlink($temporary);
-
-        if (! is_string($binary)) {
-            throw new \RuntimeException('Unable to read generated DOCX.');
-        }
-
-        return $binary;
+        return app(KkprlProposalDocxRenderer::class)->render($this->viewData($snapshot) + ['locationMap' => $map]);
     }
 
     /** @return array<string, mixed> */
@@ -226,6 +205,11 @@ final class KkprlProposalDocumentService
         $values = isset($payload[$chapter]) && is_array($payload[$chapter])
             ? $payload[$chapter]
             : array_diff_key($payload, array_flip(['includes_reclamation', 'land_relation', 'has_existing_permits']));
+        $orderedValues = [];
+        foreach (ProposalDocumentSectionCatalog::orderedFields($chapter, array_keys($values)) as $field) {
+            $orderedValues[$field] = $values[$field];
+        }
+        $values = $orderedValues;
         $attachments = $this->attachmentData($snapshot->attachments);
         $inline = [];
         foreach ($attachments as $attachment) {
@@ -275,19 +259,15 @@ final class KkprlProposalDocumentService
             })
             ->all();
 
-        $orderedValues = [];
-        foreach (ProposalDocumentSectionCatalog::orderedFields($chapter, array_keys($values)) as $field) {
-            $orderedValues[$field] = $values[$field];
-        }
-        $values = $orderedValues;
         $fieldLabels = [];
         foreach (array_keys($values) as $field) {
             $fieldLabels[$field] = ProposalFieldCatalog::label($field);
         }
 
-        return [
+        $data = [
             'chapter' => $chapter,
             'chapterTitle' => $this->chapterTitle($chapter),
+            'coverName' => trim(ProposalDocumentPresentation::text($snapshot->payload['cover_name'] ?? $values['institution_name'] ?? '')) ?: 'PEMOHON',
             'ticket' => $snapshot->payload['ticket_number'] ?? '',
             'year' => $snapshot->payload['proposal_year'] ?? now()->year,
             'values' => $values,
@@ -305,6 +285,10 @@ final class KkprlProposalDocumentService
             'inlineAttachments' => $inline,
             'appendixAttachments' => $appendixAttachments,
         ];
+        $data['landscape'] = $this->requiresLandscape($data);
+        $data['blocks'] = ProposalDocumentPresentation::blocks($data);
+
+        return $data;
     }
 
     /** @param list<array<string, mixed>> $manifest */
@@ -595,201 +579,8 @@ final class KkprlProposalDocumentService
         return $dimensions === false ? null : [$dimensions[0], $dimensions[1]];
     }
 
-    /** @param array<string, mixed> $data @param array<int, array<string, string>> $relationships @param array<int, array<string, mixed>> $media */
-    private function docxDocumentXml(ProposalSnapshot $snapshot, array $data, array &$relationships, array &$media): string
-    {
-        $body = $this->paragraph('PROPOSAL PERMOHONAN “'.$this->chapterTitle($snapshot->chapter).'”', true);
-        $body .= $this->paragraph((string) ($data['values']['institution_name'] ?? 'NAMA PERUSAHAAN/PERORANGAN/INSTANSI'), true);
-        $body .= $this->paragraph('PROPOSAL KKPRL — '.strtoupper(str_replace('bag-', 'BAB ', $snapshot->chapter)), true);
-        $body .= $this->paragraph('PERSETUJUAN KEGIATAN KESESUAIAN PEMANFAATAN RUANG LAUT (PKKPRL)', true);
-        $body .= $this->paragraph('TAHUN '.($data['year'] ?? ''), true);
-        $body .= $this->paragraph('Nomor tiket: '.($data['ticket'] ?? ''));
-        $body .= $this->docxPageBreak();
-
-        $lastSection = null;
-        foreach ($data['values'] as $field => $value) {
-            $section = $data['sectionLabels'][$field] ?? null;
-            if ($section !== null && $section !== $lastSection) {
-                $body .= $this->paragraph($section, true);
-                $lastSection = $section;
-            }
-            $body .= $this->paragraph(($data['fieldLabels'][$field] ?? ucwords(str_replace('_', ' ', (string) $field))).':', true);
-            $body .= $this->isTableValue($value)
-                ? ((count(array_keys($value[0] ?? [])) > 4 ? $this->docxSectionBreak(true) : '')
-                    .$this->docxTable($value)
-                    .(count(array_keys($value[0] ?? [])) > 4 ? $this->docxSectionBreak(false) : ''))
-                : $this->paragraph(is_scalar($value) ? (string) $value : json_encode($value, JSON_UNESCAPED_UNICODE));
-
-            foreach ($data['inlineAttachments'][$field] ?? [] as $attachment) {
-                $body .= $this->paragraph($attachment['number'].' — '.($attachment['original_name'] ?? ''), true);
-                $body .= $attachment['is_image']
-                    ? $this->docxAttachment($attachment, $relationships, $media)
-                    : $this->docxPdfPages($attachment, $relationships, $media);
-                $body .= $this->paragraph('Keterangan: '.($attachment['caption'] ?? ''));
-            }
-        }
-
-        if ($data['appendixAttachments'] !== []) {
-            $body .= $this->paragraph('LAMPIRAN BAB', true);
-            foreach ($data['appendixAttachments'] as $attachment) {
-                $body .= $this->paragraph($attachment['number'].' — '.$attachment['original_name'], true);
-                if ($attachment['is_image']) {
-                    $body .= $this->docxAttachment($attachment, $relationships, $media);
-                } else {
-                    $body .= $this->docxPdfPages($attachment, $relationships, $media);
-                }
-                $body .= $this->paragraph('Keterangan: '.($attachment['caption'] ?? ''));
-            }
-        }
-
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            .'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">'
-            .'<w:body>'.$body.'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="900" w:right="900" w:bottom="900" w:left="900"/></w:sectPr></w:body></w:document>';
-    }
-
     private function isTableValue(mixed $value): bool
     {
-        return is_array($value)
-            && array_is_list($value)
-            && is_array($value[0] ?? null)
-            && ! array_is_list($value[0]);
-    }
-
-    /** @param list<array<string, mixed>> $rows */
-    private function docxTable(array $rows): string
-    {
-        $columns = array_keys($rows[0] ?? []);
-        $xml = '<w:tbl><w:tblPr><w:tblLayout w:type="autofit"/></w:tblPr>';
-        $xml .= '<w:tr><w:trPr><w:tblHeader/></w:trPr>';
-        foreach ($columns as $column) {
-            $xml .= '<w:tc><w:p><w:r><w:rPr><w:b/></w:rPr><w:t>'.htmlspecialchars(ucwords(str_replace('_', ' ', $column)), ENT_XML1 | ENT_QUOTES, 'UTF-8').'</w:t></w:r></w:p></w:tc>';
-        }
-        $xml .= '</w:tr>';
-
-        foreach ($rows as $row) {
-            $xml .= '<w:tr>';
-            foreach ($columns as $column) {
-                $value = $row[$column] ?? '';
-                $text = is_scalar($value) ? (string) $value : json_encode($value, JSON_UNESCAPED_UNICODE);
-                $xml .= '<w:tc><w:p><w:r><w:t xml:space="preserve">'.htmlspecialchars($text ?: '', ENT_XML1 | ENT_QUOTES, 'UTF-8').'</w:t></w:r></w:p></w:tc>';
-            }
-            $xml .= '</w:tr>';
-        }
-
-        return $xml.'</w:tbl>';
-    }
-
-    private function docxSectionBreak(bool $landscape): string
-    {
-        $size = $landscape
-            ? '<w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/>'
-            : '<w:pgSz w:w="11906" w:h="16838"/>';
-
-        return '<w:p><w:pPr><w:sectPr>'.$size.'<w:pgMar w:top="900" w:right="900" w:bottom="900" w:left="900"/></w:sectPr></w:pPr></w:p>';
-    }
-
-    /** @param array<string, mixed> $attachment @param array<int, array<string, string>> $relationships @param array<int, array<string, mixed>> $media */
-    private function docxAttachment(array $attachment, array &$relationships, array &$media): string
-    {
-        if (! $attachment['is_image']) {
-            return '';
-        }
-
-        $index = count($media) + 1;
-        $rid = 'rId'.(count($relationships) + 1);
-        $extension = $attachment['mime'] === 'image/png' ? 'png' : 'jpg';
-        $path = 'word/media/image'.$index.'.'.$extension;
-        $relationships[] = ['id' => $rid, 'target' => 'media/image'.$index.'.'.$extension, 'type' => 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'];
-        $media[] = ['path' => $path, 'binary' => $attachment['binary'], 'content_type' => $attachment['mime']];
-        [$sourceWidth, $sourceHeight] = $attachment['dimensions'] ?? [600, 400];
-        $scale = min(1, 600 / max(1, $sourceWidth), 720 / max(1, $sourceHeight));
-        $width = max(1, (int) round($sourceWidth * $scale));
-        $height = max(1, (int) round($sourceHeight * $scale));
-
-        return '<w:p><w:r><w:drawing><wp:inline><wp:extent cx="'.($width * 9525).'" cy="'.($height * 9525).'"/><wp:docPr id="'.$index.'" name="Attachment '.$index.'"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="'.$index.'" name="image'.$index.'"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="'.$rid.'"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'.($width * 9525).'" cy="'.($height * 9525).'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>';
-    }
-
-    /** @param array<string, mixed> $attachment @param array<int, array<string, string>> $relationships @param array<int, array<string, mixed>> $media */
-    private function docxPdfPages(array $attachment, array &$relationships, array &$media): string
-    {
-        $xml = '';
-        if (($attachment['rendered_pages'] ?? []) !== []) {
-            foreach ($attachment['rendered_pages'] as $index => $page) {
-                $xml .= $this->paragraph('Halaman PDF '.($index + 1), true);
-                $xml .= $this->docxAttachment([
-                    'is_image' => true,
-                    'mime' => $page['mime'],
-                    'binary' => $page['binary'],
-                    'dimensions' => $page['dimensions'],
-                ], $relationships, $media);
-                if ($index < count($attachment['rendered_pages']) - 1) {
-                    $xml .= $this->docxPageBreak();
-                }
-            }
-
-            return $xml;
-        }
-
-        foreach (($attachment['pages'] ?? [(string) ($attachment['text'] ?? '')]) as $index => $page) {
-            $xml .= $this->paragraph(($attachment['attachment_role'] ?? null) === 'ai_tide_data' ? 'Ringkasan data pasut' : 'Halaman PDF '.($index + 1), true);
-            $xml .= $this->paragraph((string) $page);
-            if ($index < count($attachment['pages'] ?? []) - 1) {
-                $xml .= $this->docxPageBreak();
-            }
-        }
-
-        return $xml;
-    }
-
-    private function docxPageBreak(): string
-    {
-        return '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
-    }
-
-    private function paragraph(string $text, bool $bold = false): string
-    {
-        $escaped = htmlspecialchars($text, ENT_XML1 | ENT_QUOTES, 'UTF-8');
-        $withBreaks = str_replace("\n", '</w:t><w:br/><w:t xml:space="preserve">', $escaped);
-        $run = '<w:r>'.($bold ? '<w:rPr><w:b/></w:rPr>' : '').'<w:t xml:space="preserve">'.$withBreaks.'</w:t></w:r>';
-
-        return '<w:p>'.$run.'</w:p>';
-    }
-
-    /** @param array<int, array<string, string>> $relationships */
-    private function docxRelationshipsXml(array $relationships): string
-    {
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">';
-        foreach ($relationships as $relationship) {
-            $xml .= '<Relationship Id="'.$relationship['id'].'" Type="'.$relationship['type'].'" Target="'.$relationship['target'].'"/>';
-        }
-
-        return $xml.'</Relationships>';
-    }
-
-    /** @param array<int, array<string, mixed>> $media */
-    private function docxContentTypesXml(array $media): string
-    {
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>';
-        $extensions = [];
-        foreach ($media as $item) {
-            $extension = pathinfo($item['path'], PATHINFO_EXTENSION);
-            if (isset($extensions[$extension])) {
-                continue;
-            }
-            $extensions[$extension] = true;
-            $xml .= '<Default Extension="'.$extension.'" ContentType="'.$item['content_type'].'"/>';
-        }
-
-        return $xml.'</Types>';
-    }
-
-    private function rootRelationshipsXml(): string
-    {
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
-    }
-
-    private function docxStylesXml(): string
-    {
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>';
+        return ProposalDocumentPresentation::isTable($value);
     }
 }

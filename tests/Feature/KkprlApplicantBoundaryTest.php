@@ -23,6 +23,7 @@ use App\Services\KkprlProposalSnapshotService;
 use App\Services\KkprlProposalSubmissionService;
 use App\Services\KkprlSeabedProfileService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Dompdf\Dompdf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
@@ -176,11 +177,15 @@ class KkprlApplicantBoundaryTest extends TestCase
         $proposal->update(['payload' => $this->payload()]);
         $renderer = \Mockery::mock(\Barryvdh\DomPDF\PDF::class);
         $renderer->shouldReceive('setPaper')->andReturnSelf();
-        $renderer->shouldReceive('output')->once()->andReturnUsing(function () {
+        $dompdf = \Mockery::mock(Dompdf::class);
+        $dompdf->shouldReceive('render')->once()->andReturnUsing(function () {
             $this->applicant->forceFill(['approved_at' => null])->save();
-
-            return '%PDF synthetic';
         });
+        $renderContext = new Dompdf;
+        $dompdf->shouldReceive('getCanvas')->andReturn($renderContext->getCanvas());
+        $dompdf->shouldReceive('getFontMetrics')->andReturn($renderContext->getFontMetrics());
+        $dompdf->shouldReceive('output')->once()->andReturn('%PDF synthetic');
+        $renderer->shouldReceive('getDomPDF')->once()->andReturn($dompdf);
         Pdf::shouldReceive('loadView')->once()->andReturn($renderer);
         try {
             app(KkprlProposalDocumentService::class)->generateChapterFormats($proposal->fresh(), 'bag-1', ['pdf']);

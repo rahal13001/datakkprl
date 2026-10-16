@@ -1,0 +1,140 @@
+{
+  "updated_at": "2026-10-12T01:37:15.887674+00:00",
+  "stage": "private-landscape-chapter-one-location-map",
+  "scope": "Existing main project and KKPRL source coverage retained; location-map refresh of 16 code/view/config/tool/test sources and 7 Markdown documents through ADR-031. Not a full repository rebuild. Private docs/export_sample, docs/sampel_peta, generated previews and browser screenshots excluded.",
+  "source_state": "Selected final local sources after source freeze; not committed or deployed by this refresh.",
+  "files": {
+    "code": [
+      "app/Domain/Kkprl/ProposalLocationGeometry.php",
+      "app/Domain/Kkprl/ProposalPayloadSanitizer.php",
+      "app/Livewire/KkprlAiChat.php",
+      "app/Livewire/KkprlProposalWizard.php",
+      "app/Services/KkprlWorldCoverTiles.php",
+      "app/Services/KkprlLocationMapRenderer.php",
+      "app/Services/KkprlProposalSnapshotService.php",
+      "app/Services/KkprlProposalDocumentService.php",
+      "app/Services/KkprlProposalDocxRenderer.php",
+      "app/Services/KkprlProposalPdfRenderer.php",
+      "config/kkprl.php",
+      "phpunit.xml",
+      "resources/views/livewire/kkprl-proposal-wizard.blade.php",
+      "tests/Feature/KkprlLocationMapTest.php",
+      "tests/Feature/KkprlApplicantBoundaryTest.php",
+      "tools/kkprl-location-map-preview.php"
+    ],
+    "document": [
+      "docs/kkprl-chapter-one-map-spec.md",
+      "docs/kkprl-chapter-one-map-validation.md",
+      "docs/decisions/ADR-031-private-landscape-location-map.md",
+      "docs/kkprl-proposal-builder-spec.md",
+      "docs/kkprl-template-field-map.md",
+      "docs/kkprl-security-review.md",
+      "docs/kkprl-user-and-staff-guide.md"
+    ]
+  },
+  "source_sha256": {
+    "app/Domain/Kkprl/ProposalLocationGeometry.php": "b69c1c8a7f7df1844c3a3f14be1357f09a0662a00cd4795ffad0988045c32514",
+    "app/Domain/Kkprl/ProposalPayloadSanitizer.php": "f7a9935f31d5ec384b9cd591e658a2a56a6bf2d00db615adc589d201943b32e3",
+    "app/Livewire/KkprlAiChat.php": "7b38d3f0788bcae7f89fd21ebcac9550f2ebc01616789d8bbeeb4a0fed527caf",
+    "app/Livewire/KkprlProposalWizard.php": "45af5b032674fba20393a97d81b1ecc015b70c34a10882fe0d93c3b618cd2633",
+    "app/Services/KkprlLocationMapRenderer.php": "135821397d9368d21c1368fe1326a4ba85cc8981ac51a661ada1239f36f156da",
+    "app/Services/KkprlProposalDocumentService.php": "725db20e1f5e218d41e5d94e0398d999b74cb061adfa9d1a5cd6dbb5adf83b86",
+    "app/Services/KkprlProposalDocxRenderer.php": "6aa7f13cf0cbb8632c1c58f4bb294d1cc075bc09ea7e1b1743d0a454f2efea48",
+    "app/Services/KkprlProposalPdfRenderer.php": "c6e235c34f9e00e38c5ed678713ca77c5f6daeb7143e99fa510962617dfb0418",
+    "app/Services/KkprlProposalSnapshotService.php": "5c6ada34a5f473d5433ff40ea8be3f9a287d9a6bb90dce849580f973bbdbbfb7",
+    "app/Services/KkprlWorldCoverTiles.php": "1df43241508402319657f0df83a067e635218435edb2ff332bb013ebdf58df09",
+    "config/kkprl.php": "3cc8281731d8ec349aa031e94fc43f21d30315df24d1fa639d642a55b639d428",
+    "docs/decisions/ADR-031-private-landscape-location-map.md": "7c558bba98253ddf8f524e1d1128926357da56f503133e386f7343311d30405e",
+    "docs/kkprl-chapter-one-map-spec.md": "27c7bbc82deab6ea0b492ef690fbfbfed2ba5162366534ae23aeba9abbfb6ffb",
+    "docs/kkprl-chapter-one-map-validation.md": "91038c19e22ce39e5db6882b55f39253a23bc83873e3ca89ffad8d9d26cba0e3",
+    "docs/kkprl-proposal-builder-spec.md": "3bcfcaf9b0b590362203cc04512c5b10eb11b01cff4ea06747f2dfe596562589",
+    "docs/kkprl-security-review.md": "5e75803a524e8fd2d7d636460c8bbc145426a854e696122ea4bf128a63c3b24a",
+    "docs/kkprl-template-field-map.md": "39e3bc799dc3f70fdff8a693b7396c3123366e418e04edb2478fdfa556d68aee",
+    "docs/kkprl-user-and-staff-guide.md": "9df5cbc3d7dcdb60f1c95dfe2ab247723fe95b05c9da3d896713c7803762d4f3",
+    "phpunit.xml": "84fac9c0ccc60954f4a9b1cb5a6d53c9a759a5b3359d996b9965e21c785b421a",
+    "resources/views/livewire/kkprl-proposal-wizard.blade.php": "5459308b1490cfc3c2a8c23c964f0675237c949ffca84c322f6a5bf075c20e6d",
+    "tests/Feature/KkprlApplicantBoundaryTest.php": "67585a15499611c210b37960df3c5b6f26cbb330d2309563f2ef6a57d8118b76",
+    "tests/Feature/KkprlLocationMapTest.php": "38d8972d7d0ee72f8abeced7fc27abe05ed7edff470d0a0438c50e291fbcff83",
+    "tools/kkprl-location-map-preview.php": "cb447f8221491967e9c4e012d0fe1d7d9f13b463f433c8253de6aec3c392624d"
+  },
+  "baseline": {
+    "nodes": 3600,
+    "edges": 9247,
+    "hyperedges": 5
+  },
+  "counts": {
+    "nodes": 3680,
+    "edges": 9432,
+    "communities": 174,
+    "hyperedges": 6
+  },
+  "extraction": {
+    "ast_nodes": 237,
+    "ast_edges": 560,
+    "semantic_nodes": 81,
+    "semantic_edges": 170,
+    "method": "Graphify deterministic AST with unchanged read-only resolution context, delegated host semantic extraction of map code/docs and revalidated existing concepts in changed documents. Raw JSON scoped merge preserves all directed parallel relations.",
+    "parser_failures": [],
+    "unsupported_structural_sources": [
+      "phpunit.xml"
+    ],
+    "xml_handling": "PHPUnit environment configuration extracted semantically; no claim of XML AST support."
+  },
+  "health": {
+    "missing_endpoints": 0,
+    "dangling_endpoints": 0,
+    "missing_hyperedge_members": 0,
+    "missing_source_files": [],
+    "self_loops": 23,
+    "ambiguous_edges": 858,
+    "fresh_ambiguous_call_candidates": 172,
+    "parallel_endpoint_pairs": 139,
+    "parallel_extra_edges": 141
+  },
+  "retained_non_scope_edges": 8702,
+  "directed": true,
+  "parallel_edges_preserved": true,
+  "unrelated_node_and_edge_metadata_preserved": true,
+  "reclustered": false,
+  "community_policy": "Existing assignments retained; new location-map entities join source-associated or document-rendering community. Degrees/cohesion recomputed without reclustering.",
+  "semantic_token_usage": "Host counters unavailable; unknown, not zero.",
+  "external_model_api_calls": 0,
+  "manifest_policy": "Only actual scoped AST/semantic output is stamped; unrelated manifest rows preserved unchanged.",
+  "historical_audits": "document-layout-audit.json and previous audits retained as historical evidence; their old source/artifact hashes are not assertions about the current refreshed state.",
+  "exclusions": [
+    "docs/export_sample/**",
+    "docs/sampel_peta/**",
+    "storage/**",
+    "binary/generated previews/browser screenshots"
+  ],
+  "validation_provenance": "Application test/browser/OOXML results are documented by the parent implementation agent in docs/kkprl-chapter-one-map-validation.md. This graph agent independently validates sources, hashes, endpoints, direction, parallel edges and scope without rerunning application tests or contacting any model API.",
+  "manifest_files": 535,
+  "artifact_sha256": {
+    "graph.json": "00f1b3126fe56fa0e5ce7db8b0ffcbe80ff7d8ace1a53795d368d483f3a170ee",
+    "graph.html": "1768869ee111170ed68355f4823396e93850f41aefd143d266f29351ccf33397",
+    "GRAPH_REPORT.md": "350d462c314a50bcfb7429c4d1235a881afb6cbc44589a767f597768f8cca306",
+    "manifest.json": "d51f11fb11600452652683d16ea7468191428b6a30ba44e4fdb7302d3cea7dff"
+  },
+  "verification_commands": [
+    {
+      "command": "rtk proxy /home/rahal/.local/share/uv/tools/graphifyy/bin/python3 /tmp/kkprl-location-map-graphify/extract_scope.py",
+      "result": "237 AST nodes, 560 edges, failed_sources=[], no final syntax warning."
+    },
+    {
+      "command": "rtk proxy /home/rahal/.local/share/uv/tools/graphifyy/bin/python3 /tmp/kkprl-location-map-graphify/semantic_scope.py",
+      "result": "81 host semantic nodes, 170 edges, 1 hyperedge; no external model call."
+    },
+    {
+      "command": "rtk proxy /home/rahal/.local/share/uv/tools/graphifyy/bin/python3 /tmp/kkprl-location-map-graphify/finalize_scope.py",
+      "result": "3680 nodes, 9432 directed multiedges, 174 communities, 6 hyperedges; scoped merge completed."
+    },
+    {
+      "command": "rtk proxy /home/rahal/.local/share/uv/tools/graphifyy/bin/python3 /tmp/kkprl-location-map-graphify/verify_scope.py",
+      "result": "PASS: 23 source SHA-256, 4 artifact SHA-256; 8702 outside-scope edges exact, all outside-scope node metadata and manifest rows exact; HTML 3680 nodes/9432 edges and directed endpoint multiset identical; zero missing endpoint/source/hyperedge member."
+    },
+    {
+      "command": "rtk proxy /home/rahal/.local/share/uv/tools/graphifyy/bin/python3 -m graphify query 'ProposalLocationGeometry KkprlWorldCoverTiles KkprlLocationMapRenderer landscape snapshot map_source' --budget 1200",
+      "result": "New code symbols and ADR-031/spec/validation discoverable; BFS187 nodes, displayed27 due explicit1200-token budget. Query output is not complete traversal evidence."
+    }
+  ]
+}

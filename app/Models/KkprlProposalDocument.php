@@ -30,6 +30,8 @@ class KkprlProposalDocument extends Model
             'snapshot_payload_encrypted' => 'encrypted:array',
             'attachment_manifest_encrypted' => 'encrypted:array',
             'generated_at' => 'datetime',
+            'deleted_at' => 'datetime',
+            'deleted_by_applicant_id' => 'integer',
         ];
     }
 

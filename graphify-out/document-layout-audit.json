@@ -1,0 +1,119 @@
+{
+  "updated_at": "2026-10-11T12:37:36.251022+00:00",
+  "stage": "professional-proposal-document-layout",
+  "scope": "Existing main project and KKPRL source coverage retained; document layout refresh of 17 code/view/tool/test sources and 7 Markdown documents through ADR-030. Not a full repository rebuild. Private docs/export_sample, generated previews and browser screenshots excluded.",
+  "source_state": "Selected final local sources, not committed or deployed by this refresh.",
+  "files": {
+    "code": [
+      "app/Domain/Kkprl/ProposalDocumentPresentation.php",
+      "app/Services/KkprlProposalDocxRenderer.php",
+      "app/Services/KkprlProposalPdfRenderer.php",
+      "app/Services/KkprlProposalDocumentService.php",
+      "app/Services/KkprlProposalSnapshotService.php",
+      "app/Http/Controllers/KkprlProposalDocumentDownloadController.php",
+      "app/Livewire/KkprlProposalWizard.php",
+      "app/Livewire/KkprlApplicantPortal.php",
+      "resources/views/pdf/kkprl-proposal-chapter.blade.php",
+      "resources/views/pdf/partials/kkprl-document-paragraph.blade.php",
+      "resources/views/pdf/partials/kkprl-document-caption.blade.php",
+      "tests/Feature/KkprlDocumentLayoutTest.php",
+      "tests/Unit/Kkprl/ProposalDocumentPresentationTest.php",
+      "tests/Feature/KkprlProposalDocumentGenerationTest.php",
+      "tools/kkprl-document-layout-preview.php",
+      "tools/kkprl-document-schema-smoke.php",
+      "tests/Feature/KkprlApplicantBoundaryTest.php"
+    ],
+    "document": [
+      "docs/kkprl-document-layout-spec.md",
+      "docs/kkprl-proposal-builder-spec.md",
+      "docs/kkprl-template-field-map.md",
+      "docs/kkprl-security-review.md",
+      "docs/kkprl-user-and-staff-guide.md",
+      "docs/decisions/ADR-030-versioned-professional-document-layout.md",
+      "docs/kkprl-document-layout-validation.md"
+    ]
+  },
+  "source_sha256": {
+    "resources/views/pdf/kkprl-proposal-chapter.blade.php": "8a6fd0fa43345ce89cad14880079c991f367236abb729cf0a1b3920d3c5b5f25",
+    "tests/Feature/KkprlDocumentLayoutTest.php": "54418d01e1d7e9e4833449edf4c42183a7e3166bf9869066594cb235cface47f",
+    "tools/kkprl-document-schema-smoke.php": "0bbbc44bc246de67607df02323b3a5a8f228b4169e41478c0b3dcd2ba6ac939d",
+    "tests/Unit/Kkprl/ProposalDocumentPresentationTest.php": "aeb2575a962886514c7b294f55eec7b016edf93b9890d2a3340cf69b8eac992f",
+    "resources/views/pdf/partials/kkprl-document-paragraph.blade.php": "304c56e572785de6bfab34807309d9d5332751d28cdcf056ee2b9c1325c86eff",
+    "app/Http/Controllers/KkprlProposalDocumentDownloadController.php": "2f143eb43baa490dc567561db690c1a39a8ca3a184f6696f20b1e740740d538e",
+    "app/Domain/Kkprl/ProposalDocumentPresentation.php": "2a49ced2dda7af10671fd5973adb076e6e464c0c2bb8d871f726bb7459d24381",
+    "app/Services/KkprlProposalPdfRenderer.php": "2f05061b60a36e3f73266db640f2ba5638522418fbc8d29fe5a9d878f327648a",
+    "docs/kkprl-document-layout-spec.md": "78cc5cd5f0718fc288ce21444544e639d7fcf74c464061aa3fc535cf162f8393",
+    "app/Livewire/KkprlApplicantPortal.php": "83cc2353a64d69e3f6a0326e9c22daff4aa7a678445f77508e50ed2fdf7da993",
+    "tests/Feature/KkprlApplicantBoundaryTest.php": "9dd9792a0df7912f29218e3521cfe357992ac978656b01eed5d94409cc488af8",
+    "tests/Feature/KkprlProposalDocumentGenerationTest.php": "df87e33d741c0a8c04f182f9a80127202af5dce146cb390f185c9175d697999a",
+    "app/Services/KkprlProposalSnapshotService.php": "0b424da82f6e1cabfef92ffb3fd9c753d2213a39df38a187b5a499fc51c4fac6",
+    "resources/views/pdf/partials/kkprl-document-caption.blade.php": "5ba913dbec68885e1de4fdf137dc85f6e55e1763aa5f225dbbbcb4ea5f3f35f3",
+    "tools/kkprl-document-layout-preview.php": "b78405009e4c66daf14757da7cabd51d66a1bd8b62ef7f52c6d1577a282464f0",
+    "docs/kkprl-template-field-map.md": "5ddf65e91eb25e30355b35f2c2d8dc74d70178a9c4f9b3297e52d3297608fa59",
+    "docs/kkprl-document-layout-validation.md": "1034a6e49b4e1143293e5d8f3374c6f2023508c5d1f8268b281027f9d78242fc",
+    "docs/kkprl-proposal-builder-spec.md": "1630a29ab3538379d7015e7f73eb241860e77e9a23efe654c134d41c19c75918",
+    "docs/kkprl-security-review.md": "1c6db49c177b2f5fb7b3051241caad3c5acd3adc9b14bf701dabb6a1ec6888f9",
+    "docs/kkprl-user-and-staff-guide.md": "5bab9d97a63321b7c0f23e47c34a46f7ceffb178d59d8bf82511630feb3a52f1",
+    "app/Services/KkprlProposalDocxRenderer.php": "69c539ad2cb9f7eda84e276effb1392e13b2b5b785a855b4c3d4085de3903cbd",
+    "app/Services/KkprlProposalDocumentService.php": "f151af62b942ee90f52b5bdc83879b86b32f610ec565cb4b03c07f90d26c4ef5",
+    "app/Livewire/KkprlProposalWizard.php": "1cb4d0fb5c58eb925ab2ac5b50ba9ecb98546494bd9ef06822fad79d42de0238",
+    "docs/decisions/ADR-030-versioned-professional-document-layout.md": "29aa05eab998c8ad7cd87a364af789581afb7a1b395ae4fca992b79ecf6140b9"
+  },
+  "baseline": {
+    "nodes": 3530,
+    "edges": 9092
+  },
+  "counts": {
+    "nodes": 3600,
+    "edges": 9247,
+    "communities": 174,
+    "hyperedges": 5
+  },
+  "extraction": {
+    "ast_nodes": 209,
+    "ast_edges": 498,
+    "semantic_nodes": 63,
+    "semantic_edges": 141,
+    "method": "Graphify deterministic AST with unchanged resolver context and delegated host extraction from final code/doc reads. Scoped raw JSON merge preserves directed parallel relations."
+  },
+  "retained_non_scope_edges": 8608,
+  "directed": true,
+  "parallel_edges_preserved": true,
+  "unrelated_node_and_edge_metadata_preserved": true,
+  "reclustered": false,
+  "source_less_references_resolved": [
+    "app_services_kkprlproposalsnapshotservice"
+  ],
+  "community_policy": "Existing assignments retained; new export entities join document rendering, PDF view or export regression communities. Navigation degree and cohesion are recomputed below without changing assignments.",
+  "health": {
+    "dangling_endpoints": 0,
+    "missing_endpoints": 0,
+    "missing_source_files": [],
+    "self_loops": 23,
+    "ambiguous_edges": 798,
+    "fresh_ambiguous_call_candidates": 130,
+    "parallel_endpoint_pairs": 139,
+    "parallel_extra_edges": 141
+  },
+  "baseline_health": {
+    "ambiguous_edges": 733,
+    "self_loops": 22
+  },
+  "semantic_token_usage": "Host counters unavailable; unknown, not zero.",
+  "external_model_api_calls": 0,
+  "validation_provenance": "Root finalized source/document evidence: isolated SQLite, fake HTTP and private storage. Early export regression RED: 29 tests/300 assertions, 2 failures; GREEN: 29/344. Legacy cache RED: 1/2. Long-row overflow RED: 1/35, then focused GREEN: 8/152. Full suite PASS: 491 tests/2871 assertions, 3:56.417, after OOXML schema corrections and before the final footer whitespace correction. Final footer RED: 1/22, then boundary/export/layout focused PASS: 63 tests/659 assertions. Pint PASS: 14 PHP files. Vite build PASS: 59 modules, 12.59 s. Diff check PASS. Official unchanged ECMA/W3C local XSD PASS: 28 XML parts. Local original exports preserve source hashes; regenerated real PDFs have 4/2/15 pages. Synthetic PDF.js/browser stress: 22 paragraph markers, 484 sentences, all 35 table rows and repeated headers on pages 10-13. Native Microsoft Word pagination remains unverified. No application/hosting database mutation, paid API, commit or deployment. Graph agent independently runs graph/source/hash/endpoint/direction/parallel-edge checks, without rerunning application tests or browser checks.",
+  "manifest_policy": "Only sources actually extracted are stamped; all unrelated manifest rows preserved unchanged.",
+  "manifest_files": 526,
+  "exclusions": [
+    "docs/export_sample/**",
+    "storage/**",
+    "screenshots and generated artifacts"
+  ],
+  "historical_audits": "Previous counter/statistics/institution metadata retained as historical evidence; latest update now records document layout.",
+  "artifact_sha256": {
+    "graph.json": "6888461c7a8370604b6259b6e07da2ccc8eb24414c0ea65d4c2cda9bb08c9699",
+    "graph.html": "f48d4046950bfd7d34d93c0e830808a315d70a0af49d396ddf3caab17bd3d7bb",
+    "manifest.json": "a2e787e40fadd2e8f1879342a989b3ccdf69fb45798f5631f79789fa54e7e03b",
+    "GRAPH_REPORT.md": "141511c42e11f5e7f1f2fd66e9dde3f42d628a5b2f5575b0e4e564f4f7b8a4c8"
+  }
+}

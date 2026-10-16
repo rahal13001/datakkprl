@@ -3,12 +3,14 @@
 namespace App\Livewire;
 
 use App\Domain\Kkprl\ProposalAccessDenied;
+use App\Domain\Kkprl\ProposalLocked;
 use App\Models\KkprlProposal;
 use App\Models\KkprlProposalDocument;
 use App\Services\KkprlApplicantAuthService;
 use App\Services\KkprlProposalAccessService;
-use App\Services\KkprlProposalSnapshotService;
-use Illuminate\Support\Facades\Storage;
+use App\Services\KkprlProposalDocumentDeletionService;
+use App\Services\KkprlProposalDocumentListingService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -18,6 +20,8 @@ use Livewire\WithPagination;
 class KkprlApplicantPortal extends Component
 {
     use WithPagination;
+
+    public string $documentMessage = '';
 
     public function mount(): void
     {
@@ -56,28 +60,38 @@ class KkprlApplicantPortal extends Component
         $this->redirectRoute('kkprl.applicant.login');
     }
 
+    public function deleteDocument(int $documentId, KkprlProposalDocumentDeletionService $deletion): void
+    {
+        $this->resetErrorBag('documents');
+        $this->documentMessage = '';
+        try {
+            $deletion->delete($documentId);
+            $this->resetPage();
+            $this->documentMessage = 'Dokumen dihapus. Data proposal dan lampiran tetap tersimpan.';
+        } catch (ProposalAccessDenied) {
+            abort(403);
+        } catch (ModelNotFoundException) {
+            abort(404);
+        } catch (ProposalLocked) {
+            $this->addError('documents', 'Dokumen final tidak dapat dihapus. Arsip proposal tetap tersimpan.');
+        } catch (ValidationException $exception) {
+            $this->setErrorBag($exception->errors());
+        }
+    }
+
     public function render()
     {
         $account = app(KkprlApplicantAuthService::class)->current();
         abort_if($account === null, 403);
         $documents = KkprlProposalDocument::query()->with('proposal')
             ->whereHas('proposal', fn ($query) => $query->where('applicant_id', $account->id))
-            ->where('generation_status', 'generated')->latest('generated_at')->paginate(12);
-        $snapshots = app(KkprlProposalSnapshotService::class);
-        $documents->setCollection($documents->getCollection()->filter(function ($document) use ($snapshots): bool {
-            if ($document->storage_disk !== config('kkprl.storage_disk') || ! filled($document->storage_path)
-                || ! Storage::disk($document->storage_disk)->exists($document->storage_path)) {
-                return false;
-            }
-            try {
-                $snapshot = $snapshots->capture($document->proposal, $document->chapter);
-            } catch (ValidationException) {
-                return false;
-            }
-
-            return hash_equals($document->snapshot_hash, $snapshot->snapshotHash)
-                && hash_equals($document->attachment_manifest_hash, $snapshot->attachmentManifestHash);
-        })->map(fn ($document): array => $document->only(['id', 'chapter', 'format', 'generated_at'])));
+            ->whereNull('deleted_at')
+            ->where('generation_status', 'generated')->latest('generated_at')->latest('id')->paginate(12);
+        $listing = app(KkprlProposalDocumentListingService::class);
+        $approved = $account->approved_at !== null;
+        $documents->setCollection($documents->getCollection()
+            ->map(fn ($document): array => $listing->present($document, $document->proposal, $approved))
+            ->filter(fn (array $document): bool => $approved || $document['can_download']));
 
         return view('livewire.kkprl-applicant-portal', [
             'documents' => $documents,

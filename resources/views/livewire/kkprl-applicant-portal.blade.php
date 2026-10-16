@@ -3,15 +3,15 @@
         <h1 class="text-2xl font-bold">Dokumen proposal KKPRL</h1>
         <button type="button" wire:click="logout" class="rounded-md border border-slate-300 px-4 py-2 text-sm">Keluar</button>
     </header>
+    @if ($documentMessage !== '')
+        <p role="status" class="mb-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">{{ $documentMessage }}</p>
+    @endif
+    @error('documents')
+        <p role="alert" class="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{{ $message }}</p>
+    @enderror
     <section aria-label="Dokumen hasil generate" class="space-y-3">
-        @forelse ($documents as $document)
-            <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 p-4">
-                <span>Bab {{ str_replace('bag-', '', $document['chapter']) }} · {{ strtoupper($document['format']) }}</span>
-                <a href="{{ route('kkprl.proposal.document.download', $document['id']) }}" class="font-semibold text-amber-800 underline">Lihat / unduh {{ strtoupper($document['format']) }}</a>
-            </div>
-        @empty
-            <p class="rounded-lg border border-slate-200 p-6 text-sm text-slate-600">Belum ada dokumen.</p>
-        @endforelse
+        <h2 class="sr-only">Dokumen hasil generate</h2>
+        <x-kkprl.generated-document-list :documents="$documents" />
         {{ $documents->links() }}
     </section>
     @if ($approved)

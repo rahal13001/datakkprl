@@ -1,0 +1,115 @@
+{
+  "updated_at": "2026-10-12T09:16:11.337513+00:00",
+  "stage": "audited-generated-document-file-deletion",
+  "scope": "Existing main project/KKPRL index retained; incremental refresh of 10 PHP, 3 Blade UI sources and 6 Markdown documents through ADR-034. Not a full repository rebuild. Private/user data, exports, fixtures and screenshots excluded.",
+  "source_state": "Selected frozen local sources; no commit or deployment.",
+  "files": {
+    "code": [
+      "app/Models/KkprlProposalDocument.php",
+      "app/Http/Controllers/KkprlProposalDocumentDownloadController.php",
+      "app/Services/KkprlProposalDocumentDeletionService.php",
+      "app/Services/KkprlProposalDocumentListingService.php",
+      "app/Services/KkprlProposalDocumentService.php",
+      "app/Livewire/KkprlApplicantPortal.php",
+      "app/Livewire/KkprlProposalWizard.php",
+      "app/Filament/Layanankkprl/Resources/KkprlProposals/RelationManagers/DocumentsRelationManager.php",
+      "database/migrations/2026_10_12_000001_add_document_deletion_metadata.php",
+      "tests/Feature/KkprlProposalDocumentDeletionTest.php"
+    ],
+    "blade": [
+      "resources/views/components/kkprl/generated-document-list.blade.php",
+      "resources/views/livewire/kkprl-applicant-portal.blade.php",
+      "resources/views/livewire/kkprl-proposal-wizard.blade.php"
+    ],
+    "document": [
+      "docs/kkprl-document-deletion-spec.md",
+      "docs/kkprl-document-deletion-validation.md",
+      "docs/decisions/ADR-034-audited-generated-document-file-deletion.md",
+      "docs/kkprl-user-and-staff-guide.md",
+      "docs/kkprl-security-review.md",
+      "docs/kkprl-proposal-builder-spec.md"
+    ]
+  },
+  "source_sha256": {
+    "app/Filament/Layanankkprl/Resources/KkprlProposals/RelationManagers/DocumentsRelationManager.php": "1d6c7ca80b800a32251fae9280e133475c74847eaaeb7a760f0b616ef6583c5b",
+    "app/Http/Controllers/KkprlProposalDocumentDownloadController.php": "201f61e237842ea6ffb14b9da75b243d01b628d2da712aba8292eb4d2b2ee0b2",
+    "app/Livewire/KkprlApplicantPortal.php": "48d60efcd5422d89a88e2e7b197a3fcf410ca28c16111c2ce5c84ed4c2970b98",
+    "app/Livewire/KkprlProposalWizard.php": "a852a32d9fdd32f3bbefb75e146b9f8177100d2cefd4d414d9801d4f4402f8ac",
+    "app/Models/KkprlProposalDocument.php": "430b71acf3f006a9e54b781b9cd259a22e4270203e47bd2491e9724dfe99d6f7",
+    "app/Services/KkprlProposalDocumentDeletionService.php": "13451ee50eb10e07f770ac60297315916e12190dc872b57d00dcfdfd97607f97",
+    "app/Services/KkprlProposalDocumentListingService.php": "362c692e766a782f709d29c293704de94732b382624f7b57d38690e983f4d1de",
+    "app/Services/KkprlProposalDocumentService.php": "f7ec2de653f31075c525860faa994fd0d6424c2c078941881b2dae9e8fed395f",
+    "database/migrations/2026_10_12_000001_add_document_deletion_metadata.php": "c14575d9d4735b16f8f13f5bb864d10766180c26cb98cd479ae7c757c0ff48ad",
+    "docs/decisions/ADR-034-audited-generated-document-file-deletion.md": "e2031e386518914b4a51c8a818279d37128f681bfa6564f6be438436da6c3f02",
+    "docs/kkprl-document-deletion-spec.md": "2210b7ae955f4d000278a573604770cfcafee5a9c4ff6c4d4e0bbe7872707a5d",
+    "docs/kkprl-document-deletion-validation.md": "6db3c20890eb4cb6c9877b03b036d9b983542661b65ed62afdd151197372c09e",
+    "docs/kkprl-proposal-builder-spec.md": "23684b2f521206f766820d99a7de40d363dce3c27236777e645092a010e60a38",
+    "docs/kkprl-security-review.md": "de5fb34ac85e1544df75a8b6c292572069070997a4a1d8a867b048d00714924a",
+    "docs/kkprl-user-and-staff-guide.md": "148ffcc9491a95719f9c462c86f359bc2dfd0c12dc6aae64992ace2ef4a4b214",
+    "resources/views/components/kkprl/generated-document-list.blade.php": "0d06a97a2719993549046de71a1061f157fb45d102c5c3e6f0a9be2aabcc291d",
+    "resources/views/livewire/kkprl-applicant-portal.blade.php": "7450b2808d8b6dca621dce0bf9857a5e9be6ef3b6b064d302b88053b93d91dfd",
+    "resources/views/livewire/kkprl-proposal-wizard.blade.php": "6b62db3ac5d1c9fa837cac22c95ef3cdd877252b95168ab8d414ab1a0bd260a8",
+    "tests/Feature/KkprlProposalDocumentDeletionTest.php": "ca9dfba5741275e902e200e94296d0f1654d3465971d2dd725819d7fa34e77f3"
+  },
+  "baseline": {
+    "nodes": 3745,
+    "edges": 9579,
+    "hyperedges": 7
+  },
+  "counts": {
+    "nodes": 3807,
+    "edges": 9762,
+    "communities": 174,
+    "hyperedges": 8
+  },
+  "extraction": {
+    "ast_nodes": 165,
+    "ast_edges": 395,
+    "semantic_nodes": 78,
+    "semantic_edges": 162,
+    "parser_failures": [],
+    "unsupported_structural_sources": [
+      "resources/views/components/kkprl/generated-document-list.blade.php",
+      "resources/views/livewire/kkprl-applicant-portal.blade.php",
+      "resources/views/livewire/kkprl-proposal-wizard.blade.php"
+    ],
+    "method": "Deterministic AST with unchanged read-only resolution context; delegated host extraction of docs and UI/cross-file concepts, existing document/UI concepts revalidated. Blade semantics are UI references rather than PHP call edges. Raw JSON scoped merge preserves all directed parallel relations."
+  },
+  "health": {
+    "missing_endpoints": 0,
+    "missing_hyperedge_members": 0,
+    "missing_source_files": [],
+    "self_loops": 24,
+    "ambiguous_edges": 928,
+    "fresh_ambiguous_call_candidates": 113,
+    "parallel_endpoint_pairs": 142,
+    "parallel_extra_edges": 144,
+    "external_or_unresolved_source_nodes": 374,
+    "resolved_former_scope_placeholder_nodes": [
+      "app_models_kkprlproposaldocument"
+    ]
+  },
+  "retained_non_scope_edges": 9205,
+  "directed": true,
+  "parallel_edges_preserved": true,
+  "unrelated_node_and_edge_metadata_preserved": true,
+  "reclustered": false,
+  "community_policy": "Existing source-associated assignments retained; new artifact lifecycle concepts join private integrity community. Raw cohesion recomputed without reclustering.",
+  "semantic_token_usage": "Host counters unavailable; unknown, not zero.",
+  "external_model_api_calls": 0,
+  "manifest_policy": "Stamp only sources with actual AST/semantic output; preserve unrelated rows verbatim. Blade has semantic hash only for this refresh.",
+  "historical_audits": "All earlier audits, including scale-inset-audit.json, remain historical; their hashes are not claims about current refreshed sources.",
+  "exclusions": [
+    "storage/**",
+    "docs/export_sample/**",
+    "docs/sampel_peta/**",
+    "browser fixtures/screenshots/user credentials and payload"
+  ],
+  "manifest_files": 550,
+  "artifact_sha256": {
+    "graph.json": "8fec47659b42fb55ffb993e77bc975668b6225e7ffdbb08ec0c3fe278f290548",
+    "graph.html": "93c63387f9e1cb394a73fc78eb472df6c2f795fed0d8a230ae224223938e2d76",
+    "GRAPH_REPORT.md": "c03622be1416287252b066572a912879f02d4c2be7ef974a4d2adc476db10d3d",
+    "manifest.json": "907114e8a50d7ec4638a9ba6671ab7a6ca9bfe4c917f4e5578a124c153aa187d"
+  }
+}

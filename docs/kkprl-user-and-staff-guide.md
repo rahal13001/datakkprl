@@ -43,6 +43,12 @@ Lampiran dapat ditempatkan sebagai **Lampiran bab** atau **Di bawah teks acuan**
 
 Setelah bab lengkap, gunakan **Buat Word + PDF**. Hasil hanya memuat bab dan lampiran bab tersebut. Export tidak mengubah status proposal. Dokumen generated sendiri dapat diunduh dari wadah akun, termasuk saat approval pending/dicabut. Unduhan memeriksa owner, private storage dan integritas; hak ini tidak membuka data proposal atau lampiran mentah.
 
+Ekspor baru memakai sampul dengan nama institusi/pemohon, judul bagian yang konsisten, tabel identitas, paragraf narasi, gambar proporsional dan nomor halaman. Caption/sumber gambar dipertahankan; nama file menjadi keterangan pengganti jika caption kosong. Word tetap bisa disunting melalui styles judul dan paragraf. Pada PDF, tabel dengan satu baris sangat panjang dapat ditampilkan sebagai rincian per kolom agar isi tidak terpotong.
+
+Untuk draft lengkap yang belum terkunci, klik **Buat Word + PDF** kembali untuk memperoleh format rapi. Dokumen lama tetap tersimpan. Proposal yang sudah submitted/locked mengikuti proses revisi; pembaruan format tidak membuka kuncinya. Contoh lokal hasil format baru berada di `docs/export_sample/rapi`, terpisah dari contoh asli.
+
+Pemohon approved dapat memakai **Hapus dokumen** pada wadah akun atau daftar hasil generate di wizard. Periksa bab, format dan tanggal, lalu konfirmasi. Hanya berkas yang dipilih dilepas secara permanen; format lain, proposal dan lampiran tetap tersimpan. Versi lama/tidak tersedia dapat dibersihkan, tetapi tidak dapat diunduh sebagai hasil terkini. Snapshot dan audit tetap disimpan. Dokumen submitted/needs_revision tidak dapat dihapus; pending/dicabut tetap hanya melihat/mengunduh hasil valid. Draft lengkap yang belum locked dapat digenerate ulang secara eksplisit setelah penghapusan. Lihat [aturan penghapusan](kkprl-document-deletion-spec.md).
+
 ### Mengirim proposal
 
 Klik **Kirim untuk Ditinjau** setelah semua bab relevan lengkap. Sistem membuat snapshot, Word, dan PDF per bab aktif sebelum mengunci proposal.
@@ -108,3 +114,18 @@ Untuk UAT manual, gunakan [checklist UAT](kkprl-uat-checklist.md). Untuk keputus
 ### Transisi akun (belum dijalankan pada database pengguna)
 
 Untuk deployment yang kelak diotorisasi, buat backup DB/private storage, terapkan migration baru dengan `rtk proxy php artisan migrate --force`, kemudian permission khusus dengan `rtk proxy php artisan db:seed --class=KkprlApplicantPermissionSeeder --force`. Jangan memakai `migrate:fresh` atau seeder keseluruhan. Pastikan generated assets Filament sesuai vendor terpasang (`rtk proxy php artisan filament:assets`, dengan backup asset existing terlebih dahulu). Verifikasi role mapping dan akun pengelola sebelum cutover; data legacy tetap tanpa owner sampai verifikasi manual. Jangan rollback skema akun setelah ada akun/audit/assignment tanpa rencana pemulihan dari backup. Detail ada pada ADR-026 dan laporan validasi akun.
+
+
+## Peta lokasi pada Word/PDF Bab 1
+
+Setelah Bab 1 lengkap, generate Word/PDF menyertakan satu halaman landscape berisi peta dari koordinat yang sudah Anda simpan. Bentuk titik/garis/area, nomor titik, ukuran dan skala tercantum. Ukuran area menggunakan ha, garis km, dua desimal. Jika berbeda dari isian Dimensi, panel peta meminta Anda memeriksa koordinat atau dimensi; sistem tidak mengubah isian tersebut.
+
+Peta utama baru memakai OpenStreetMap untuk konteks jalan/bangunan, dengan grid, batas tapak dan nomor titik. Detail bergantung kelengkapan data OSM wilayah tersebut. Sistem memilih skala otomatis mulai 1:500, lalu 1:1.000, 1:2.000, 1:2.500 dan seterusnya agar semua titik muat. Pada 1:500, 1 cm di kertas mewakili sekitar 5 m di lapangan; pada 1:1.000 sekitar 10 m. Angka berlaku di tengah peta pada ukuran cetak asli 100%. Mengubah ukuran gambar Word atau memakai fit-to-page mengubah skala angka; skala grafis tetap ikut berubah proporsional. Ini skala tampilan, bukan klaim ketelitian survei atau persyaratan hukum.
+
+Inset memperlihatkan wilayah sekitar dengan cakupan lebih luas, paling dekat 1:50.000 untuk citra WorldCover 2021 sekitar 10 m. Kotak biru berarti cakupan peta utama; tanda + adalah pusat cakupan. Keduanya bukan batas atau perluasan permohonan. Koordinat, ukuran geometri dan isian Dimensi tetap sama; pembesaran hanya mengubah tampilan di kertas.
+
+Isi “Sumber data lokasi (opsional)” bila ingin mencantumkan sumber koordinat, misalnya survei lapangan. Kosong berarti baris sumber pengguna tidak ditampilkan. Atribusi OpenStreetMap dan citra otomatis tetap wajib. Citra hanya pada inset dan tidak menunjukkan kondisi terkini. Peta jalan juga tersedia pada layar. Logo dan overlay coastline khusus tidak ditambahkan. Lihat [ADR-035](decisions/ADR-035-openstreetmap-main-map-with-satellite-inset.md) dan [validasi OSM](kkprl-osm-main-map-validation.md).
+
+Jika pengambilan peta dasar gagal, generate menampilkan error dan dapat dicoba ulang. Hasil lama tetap tersimpan. Untuk dokumen lama tanpa peta jalan utama, generate ulang draft yang lengkap dan belum locked; proposal submitted mengikuti revisi existing. Pemohon pending hanya membaca hasil generated miliknya dan tidak dapat generate peta/dokumen. Petugas tidak memperoleh permission baru.
+
+Pengelola shared hosting tidak perlu memasang GIS atau layanan baru. Pastikan PHP GD/FreeType, font vendor, private storage/cache, `APP_URL` publik yang benar dan HTTPS keluar ke `tile.openstreetmap.org` serta WMTS Terrascope tersedia. Default `KKPRL_MAP_MAIN_BASEMAP=openstreetmap` untuk utama dan `KKPRL_MAP_BASEMAP=worldcover-2021` untuk inset. Nilai `none` menonaktifkan provider frame masing-masing secara eksplisit; bukan fallback otomatis. Bersihkan cache konfigurasi melalui prosedur deployment existing jika mengubah opsi. Ikuti kebijakan tile OSM: hanya frame yang diminta, cache dan atribusi wajib, tanpa prefetch/arsip tile offline. Hosting aktual belum diverifikasi. Lihat [ADR-035](decisions/ADR-035-openstreetmap-main-map-with-satellite-inset.md) dan [validasi](kkprl-osm-main-map-validation.md).

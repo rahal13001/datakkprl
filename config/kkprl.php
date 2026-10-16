@@ -3,6 +3,12 @@
 return [
     'storage_disk' => 'kkprl_private',
 
+    'location_map' => [
+        'main_basemap' => env('KKPRL_MAP_MAIN_BASEMAP', 'openstreetmap'),
+        // 'none' explicitly renders the inset without satellite imagery.
+        'basemap' => env('KKPRL_MAP_BASEMAP', 'worldcover-2021'),
+    ],
+
     'proposal_access' => [
         'idle_timeout_seconds' => 1_800,
         'resume_attempts' => 5,

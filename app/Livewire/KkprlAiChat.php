@@ -172,6 +172,7 @@ class KkprlAiChat extends Component
                         : ProposalFieldCatalog::fieldsForPayload($chapter, $payload);
                     if ($chapter === 'bag-1') {
                         $fields[] = 'coordinates_raw';
+                        $fields[] = 'map_source';
                     }
                     $legacy = array_intersect_key($payload, array_flip($fields));
                     if ($legacy !== []) {
