@@ -68,6 +68,72 @@
         "5 AMBIGUOUS relations: baseline 0, new ambiguity markings 5, including 5 reclassified existing relations. These are unresolved receiver candidates, not proven calls or recursion."
       ],
       "manifest_files": 334
+    },
+    "client_bulk_download_update": {
+      "updated_at": "2026-10-16T00:12:03.112480+00:00",
+      "source_commit": "93d6616",
+      "stage": "client-bulk-document-downloads",
+      "scope": [
+        "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+        "Services/ClientDocumentArchiveService.php"
+      ],
+      "source_sha256": {
+        "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php": "7b2d0681d2bf74537d53debfa1bbd3554565f6670dbb1879713d33cb93ba25b6",
+        "Services/ClientDocumentArchiveService.php": "ca5cad7fa8603bf167610c61def2f03c8c91be19a1b17bc0f924c624e6f27f00"
+      },
+      "source_state": "Scoped refresh of the clean app graph baseline; original graph source commit/history retained separately.",
+      "baseline": {
+        "nodes": 2261,
+        "edges": 5973,
+        "communities": 104,
+        "hyperedges": 0
+      },
+      "counts": {
+        "nodes": 2281,
+        "edges": 6024,
+        "communities": 104,
+        "hyperedges": 0
+      },
+      "extraction": {
+        "ast_nodes": 35,
+        "ast_edges": 48,
+        "semantic_nodes": 9,
+        "semantic_edges": 20,
+        "method": "Native scoped PHP AST with existing resolution context and delegated fresh source-backed semantic extraction."
+      },
+      "retained_non_scope_edges": 5957,
+      "reclustered": false,
+      "community_policy": "All old assignments retained; new bulk-download entities added to existing ClientsTable community.",
+      "health": {
+        "dangling_endpoints": 0,
+        "missing_endpoints": 0,
+        "missing_source_files": [],
+        "self_loops": 19,
+        "ambiguous_edges": 6,
+        "parallel_endpoint_pairs": 0,
+        "parallel_edges": 0,
+        "unrelated_metadata_and_relations_preserved": true
+      },
+      "baseline_health": {
+        "self_loops": 19,
+        "ambiguous_edges": 5
+      },
+      "warning_delta": {
+        "new_self_loop_identities": 0,
+        "new_ambiguous_relation_identities": 1,
+        "ambiguous_count_change": 1,
+        "new_unresolved_AST_candidates": 1
+      },
+      "directed": false,
+      "multigraph": false,
+      "parallel_policy": "Original undirected simple graph shape preserved; repeated calls to the same target carry an explicit call_sites list instead of overwriting relations.",
+      "validation_provenance": "Implementation agent/final source document: RED9tests failed before action/service existed; focusedGREEN9tests104assertions PASS21.86s; strengthened missing-type test with opposite document available; finalfullsuite551tests3387assertions PASS382.71s without skipped tests/warnings; Pint2newPHPfiles PASS; architecture/security/query review and gitdiffcheck PASS. Isolated browser redirects to CAPTCHA login, so no authenticated browser-action verification is claimed; Filament/Livewire components, real PDF generation/parser/ZIP contents, per-client authorization, deleted documents, temporary cleanup and render-failure cleanup are verified using isolated users/database/local storage. No frontend/package changes, user database mutation, deployment or graph-agent test rerun.",
+      "browser_limit": "Isolated admin URL redirects to CAPTCHA login; authenticated browser actions were not bypassed or claimed verified. Filament/Livewire component actions are tested in isolated test data.",
+      "semantic_token_usage": "Host counters unavailable; unknown, not zero.",
+      "external_model_api_calls": 0,
+      "manifest_policy": "Only processed scope rows stamped; every other manifest entry retained. No cache pruning or reclustering.",
+      "prior_audits_policy": "All previous audit sidecars and graph metadata retained unchanged.",
+      "manifest_files": 335
     }
   },
   "nodes": [
@@ -4177,7 +4243,7 @@
       "file_type": "code",
       "norm_label": "clientstable",
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L18"
+      "source_location": "L23"
     },
     {
       "id": "filament_layanankkprl_resources_holidays_holidayresource_holidayresource",
@@ -19759,7 +19825,7 @@
       "file_type": "code",
       "norm_label": ".configure()",
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L20"
+      "source_location": "L25"
     },
     {
       "id": "filament_layanankkprl_resources_holidays_holidayresource_holidayresource_getmodellabel",
@@ -26970,6 +27036,244 @@
       "rationale": "Integer cast; excluded from content fillable fields so title/PDF edits cannot mass assign counters.",
       "source_file": "Models/ProposalGuide.php",
       "source_location": "L9-L15"
+    },
+    {
+      "id": "services_clientdocumentarchiveservice_clientdocumentarchiveservice",
+      "label": "ClientDocumentArchiveService",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "norm_label": "clientdocumentarchiveservice",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L17"
+    },
+    {
+      "id": "filament_layanankkprl_resources_clients_tables_clientstable_clientstable_downloaddocumentsaction",
+      "label": ".downloadDocumentsAction()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "norm_label": ".downloaddocumentsaction()",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L567"
+    },
+    {
+      "id": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_addpdf",
+      "label": ".addPdf()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "norm_label": ".addpdf()",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L94"
+    },
+    {
+      "id": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_download",
+      "label": ".download()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "norm_label": ".download()",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L20"
+    },
+    {
+      "id": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_filename",
+      "label": ".filename()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "norm_label": ".filename()",
+      "rationale": "Slug and limit the document identifier to100 characters, fall back to klien, and append the Client ID to avoid path traversal and equal-number collisions.",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L103"
+    },
+    {
+      "id": "app_models_client",
+      "label": "App\\Models\\Client",
+      "_origin": "ast",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "norm_label": "app\\models\\client",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "client",
+      "label": "Client",
+      "_origin": "ast",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "norm_label": "client",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "filament_actions_bulkaction",
+      "label": "Filament\\Actions\\BulkAction",
+      "_origin": "ast",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "norm_label": "filament\\actions\\bulkaction",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "illuminate_support_facades_file",
+      "label": "Illuminate\\Support\\Facades\\File",
+      "_origin": "ast",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "norm_label": "illuminate\\support\\facades\\file",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "illuminate_support_facades_gate",
+      "label": "Illuminate\\Support\\Facades\\Gate",
+      "_origin": "ast",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "norm_label": "illuminate\\support\\facades\\gate",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "services_clientdocumentarchiveservice",
+      "label": "ClientDocumentArchiveService.php",
+      "_origin": "ast",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "norm_label": "clientdocumentarchiveservice.php",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L1"
+    },
+    {
+      "id": "filament_layanankkprl_resources_clients_tables_clientstable_downloadberitaacara",
+      "label": "Unduh Berita Acara bulk ZIP action",
+      "_origin": "semantic",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "include_berita_acara": true,
+      "include_reports": false,
+      "norm_label": "unduh berita acara bulk zip action",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L466"
+    },
+    {
+      "id": "filament_layanankkprl_resources_clients_tables_clientstable_downloadclientdocuments",
+      "label": "Unduh Keduanya bulk ZIP action",
+      "_origin": "semantic",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "include_berita_acara": true,
+      "include_reports": true,
+      "norm_label": "unduh keduanya bulk zip action",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L467"
+    },
+    {
+      "id": "filament_layanankkprl_resources_clients_tables_clientstable_downloadreports",
+      "label": "Unduh Laporan bulk ZIP action",
+      "_origin": "semantic",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "include_berita_acara": false,
+      "include_reports": true,
+      "norm_label": "unduh laporan bulk zip action",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L465"
+    },
+    {
+      "id": "filament_layanankkprl_resources_clients_tables_clientstable_empty_document_notification",
+      "label": "No matching documents notification without ZIP",
+      "_origin": "semantic",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "norm_label": "no matching documents notification without zip",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L576-L582"
+    },
+    {
+      "id": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_berita_acara_template",
+      "label": "pdf.berita-acara existing PDF template",
+      "_origin": "semantic",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "norm_label": "pdf.berita-acara existing pdf template",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L57-L63",
+      "template_name": "pdf.berita-acara"
+    },
+    {
+      "id": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_consultation_report_template",
+      "label": "pdf.consultation-report existing PDF template",
+      "_origin": "semantic",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "code",
+      "norm_label": "pdf.consultation-report existing pdf template",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L50-L55",
+      "template_name": "pdf.consultation-report"
+    },
+    {
+      "id": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_client_view_authorization",
+      "label": "Client viewAny and per-record view authorization",
+      "_origin": "semantic",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "rationale",
+      "norm_label": "client viewany and per-record view authorization",
+      "rationale": "Filament authorizes viewAny and each selected Client view; archive service repeats both policy checks before loading relations or creating files.",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L20-L25"
+    },
+    {
+      "id": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_private_archive_lifecycle",
+      "label": "Private UUID archive lifecycle and cleanup",
+      "_origin": "semantic",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "rationale",
+      "norm_label": "private uuid archive lifecycle and cleanup",
+      "rationale": "Generate A4 PDFs one at a time on private local storage, add their files to ZIP and keep them until ZIP close. Send no-store/private response; request directory is removed in stream finally and on generation errors.",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L38-L91"
+    },
+    {
+      "id": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_selected_document_filtering",
+      "label": "Selected latest-report and berita-acara filtering",
+      "_origin": "semantic",
+      "community": 83,
+      "community_name": "Community 83",
+      "file_type": "rationale",
+      "norm_label": "selected latest-report and berita-acara filtering",
+      "rationale": "Only unique selected client IDs with the requested latest report and/or berita acara survive. Missing types are skipped, and no matches return null before allocating any archive directory; normal relations retain soft-delete scopes.",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L27-L35"
     }
   ],
   "links": [
@@ -38579,7 +38883,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L10",
+      "source_location": "L13",
       "weight": 1.0
     },
     {
@@ -38591,7 +38895,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L11",
+      "source_location": "L14",
       "weight": 1.0
     },
     {
@@ -38603,7 +38907,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L12",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -38615,7 +38919,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L13",
+      "source_location": "L16",
       "weight": 1.0
     },
     {
@@ -38627,7 +38931,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L14",
+      "source_location": "L17",
       "weight": 1.0
     },
     {
@@ -38639,7 +38943,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L15",
+      "source_location": "L18",
       "weight": 1.0
     },
     {
@@ -38651,7 +38955,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L16",
+      "source_location": "L19",
       "weight": 1.0
     },
     {
@@ -38663,7 +38967,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L5",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -38675,7 +38979,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L6",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -38687,7 +38991,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L7",
+      "source_location": "L10",
       "weight": 1.0
     },
     {
@@ -38699,7 +39003,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L8",
+      "source_location": "L11",
       "weight": 1.0
     },
     {
@@ -38711,7 +39015,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L9",
+      "source_location": "L12",
       "weight": 1.0
     },
     {
@@ -59565,10 +59869,14 @@
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "context": "parameter_type",
+      "context": "return_type",
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L20",
-      "weight": 1.0
+      "source_location": "L25",
+      "weight": 1.0,
+      "contexts": [
+        "parameter_type",
+        "return_type"
+      ]
     },
     {
       "source": "filament_layanankkprl_resources_consultationlocations_consultationlocationresource_consultationlocationresource_form",
@@ -73096,8 +73404,9 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L18",
-      "weight": 1.0
+      "source_location": "L23",
+      "weight": 1.0,
+      "context": "contains"
     },
     {
       "source": "filament_layanankkprl_resources_clients_widgets_clientstatsoverview",
@@ -80070,8 +80379,9 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L20",
-      "weight": 1.0
+      "source_location": "L25",
+      "weight": 1.0,
+      "context": "method"
     },
     {
       "source": "filament_layanankkprl_resources_clients_widgets_clientstatsoverview_clientstatsoverview",
@@ -95187,7 +95497,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
-      "source_location": "L332",
+      "source_location": "L337",
       "weight": 1.0
     },
     {
@@ -96616,6 +96926,632 @@
       "context": "view_token_generation",
       "source_file": "Filament/Layanankkprl/Resources/ProposalGuides/ProposalGuideResource.php",
       "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_download",
+      "target": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_filename",
+      "relation": "calls",
+      "_origin": "ast",
+      "call_sites": [
+        "L51",
+        "L58"
+      ],
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L51-L58",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_download",
+      "target": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_addpdf",
+      "relation": "calls",
+      "_origin": "ast",
+      "call_sites": [
+        "L52",
+        "L59"
+      ],
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L52-L59",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_download",
+      "target": "services_privatefileservice_privatefileservice_response",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.2,
+      "context": "call",
+      "resolution_note": "Name-only PHP AST candidate; receiver type was not independently resolved.",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice",
+      "target": "services_clientdocumentarchiveservice_clientdocumentarchiveservice",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "contains",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable",
+      "target": "filament_notifications_notification",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable",
+      "target": "illuminate_database_eloquent_collection",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable",
+      "target": "app_models_client",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable",
+      "target": "services_clientdocumentarchiveservice_clientdocumentarchiveservice",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable",
+      "target": "filament_actions_bulkaction",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice",
+      "target": "illuminate_support_facades_storage",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice",
+      "target": "illuminate_support_str",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice",
+      "target": "runtimeexception",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice",
+      "target": "symfony_component_httpfoundation_streamedresponse",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice",
+      "target": "throwable",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice",
+      "target": "ziparchive",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice",
+      "target": "app_models_client",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice",
+      "target": "barryvdh_dompdf_facade_pdf",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice",
+      "target": "illuminate_database_eloquent_collection",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice",
+      "target": "illuminate_support_facades_file",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice",
+      "target": "illuminate_support_facades_gate",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable_clientstable",
+      "target": "filament_layanankkprl_resources_clients_tables_clientstable_clientstable_downloaddocumentsaction",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "method",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L567",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice",
+      "target": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_filename",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "method",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice",
+      "target": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_download",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "method",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice",
+      "target": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_addpdf",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "method",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L94",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_addpdf",
+      "target": "ziparchive",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L94",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_download",
+      "target": "illuminate_database_eloquent_collection",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_filename",
+      "target": "app_models_client",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_download",
+      "target": "client",
+      "relation": "references_constant",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "references_constant",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_download",
+      "target": "ziparchive",
+      "relation": "references_constant",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "references_constant",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L44",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable_clientstable_downloaddocumentsaction",
+      "target": "filament_actions_bulkaction",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "return_type",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L567",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_download",
+      "target": "symfony_component_httpfoundation_streamedresponse",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "return_type",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable_clientstable_configure",
+      "target": "filament_layanankkprl_resources_clients_tables_clientstable_clientstable_downloaddocumentsaction",
+      "relation": "calls",
+      "_origin": "semantic",
+      "call_sites": [
+        "L465",
+        "L466",
+        "L467"
+      ],
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "explicit_static_helper_calls",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L465-L467",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable_downloadberitaacara",
+      "target": "filament_layanankkprl_resources_clients_tables_clientstable_clientstable_downloaddocumentsaction",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "bulk_action_flags",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L466",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable_downloadclientdocuments",
+      "target": "filament_layanankkprl_resources_clients_tables_clientstable_clientstable_downloaddocumentsaction",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "bulk_action_flags",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L467",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable_downloadreports",
+      "target": "filament_layanankkprl_resources_clients_tables_clientstable_clientstable_downloaddocumentsaction",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "bulk_action_flags",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L465",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable_clientstable_configure",
+      "target": "filament_layanankkprl_resources_clients_tables_clientstable_downloadreports",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "bulk_action_registration",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L465",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable_clientstable_configure",
+      "target": "filament_layanankkprl_resources_clients_tables_clientstable_downloadberitaacara",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "bulk_action_registration",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L466",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable_clientstable_configure",
+      "target": "filament_layanankkprl_resources_clients_tables_clientstable_downloadclientdocuments",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "bulk_action_registration",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L467",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable_clientstable_downloaddocumentsaction",
+      "target": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_client_view_authorization",
+      "relation": "implements",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "bulk_authorization",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L572-L573",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_client_view_authorization",
+      "target": "models_client_client",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "client_policy_subject",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L22-L24",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_download",
+      "target": "services_signatureservice_signatureservice",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "existing_signature_rendering",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable_clientstable_downloaddocumentsaction",
+      "target": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_download",
+      "relation": "calls",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "explicit_container_service_call",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L576",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable_clientstable_downloaddocumentsaction",
+      "target": "filament_layanankkprl_resources_clients_tables_clientstable_empty_document_notification",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "null_archive_notification",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L576-L582",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_download",
+      "target": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_consultation_report_template",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "pdf_template",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_download",
+      "target": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_berita_acara_template",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "pdf_template",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_download",
+      "target": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_selected_document_filtering",
+      "relation": "implements",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "requested_document_filter",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L27-L35",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_download",
+      "target": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_client_view_authorization",
+      "relation": "implements",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "service_authorization",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L22-L25",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_download",
+      "target": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_private_archive_lifecycle",
+      "relation": "implements",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "temporary_archive_lifecycle",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L38-L91",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_addpdf",
+      "target": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_private_archive_lifecycle",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "temporary_pdf_source",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L94-L99",
+      "weight": 1.0
+    },
+    {
+      "source": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_client_view_authorization",
+      "target": "policies_clientpolicy_clientpolicy",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "automatic_policy_resolution",
+      "source_file": "Services/ClientDocumentArchiveService.php",
+      "source_location": "L22-L24",
+      "weight": 1.0
+    },
+    {
+      "source": "filament_layanankkprl_resources_clients_tables_clientstable_empty_document_notification",
+      "target": "services_clientdocumentarchiveservice_clientdocumentarchiveservice_selected_document_filtering",
+      "relation": "references",
+      "_origin": "semantic",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "context": "null_archive_handling",
+      "source_file": "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+      "source_location": "L576-L582",
       "weight": 1.0
     }
   ],

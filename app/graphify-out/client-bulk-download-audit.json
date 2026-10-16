@@ -1,0 +1,66 @@
+{
+  "updated_at": "2026-10-16T00:12:03.112480+00:00",
+  "source_commit": "93d6616",
+  "stage": "client-bulk-document-downloads",
+  "scope": [
+    "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php",
+    "Services/ClientDocumentArchiveService.php"
+  ],
+  "source_sha256": {
+    "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php": "7b2d0681d2bf74537d53debfa1bbd3554565f6670dbb1879713d33cb93ba25b6",
+    "Services/ClientDocumentArchiveService.php": "ca5cad7fa8603bf167610c61def2f03c8c91be19a1b17bc0f924c624e6f27f00"
+  },
+  "source_state": "Scoped refresh of the clean app graph baseline; original graph source commit/history retained separately.",
+  "baseline": {
+    "nodes": 2261,
+    "edges": 5973,
+    "communities": 104,
+    "hyperedges": 0
+  },
+  "counts": {
+    "nodes": 2281,
+    "edges": 6024,
+    "communities": 104,
+    "hyperedges": 0
+  },
+  "extraction": {
+    "ast_nodes": 35,
+    "ast_edges": 48,
+    "semantic_nodes": 9,
+    "semantic_edges": 20,
+    "method": "Native scoped PHP AST with existing resolution context and delegated fresh source-backed semantic extraction."
+  },
+  "retained_non_scope_edges": 5957,
+  "reclustered": false,
+  "community_policy": "All old assignments retained; new bulk-download entities added to existing ClientsTable community.",
+  "health": {
+    "dangling_endpoints": 0,
+    "missing_endpoints": 0,
+    "missing_source_files": [],
+    "self_loops": 19,
+    "ambiguous_edges": 6,
+    "parallel_endpoint_pairs": 0,
+    "parallel_edges": 0,
+    "unrelated_metadata_and_relations_preserved": true
+  },
+  "baseline_health": {
+    "self_loops": 19,
+    "ambiguous_edges": 5
+  },
+  "warning_delta": {
+    "new_self_loop_identities": 0,
+    "new_ambiguous_relation_identities": 1,
+    "ambiguous_count_change": 1,
+    "new_unresolved_AST_candidates": 1
+  },
+  "directed": false,
+  "multigraph": false,
+  "parallel_policy": "Original undirected simple graph shape preserved; repeated calls to the same target carry an explicit call_sites list instead of overwriting relations.",
+  "validation_provenance": "Implementation agent/final source document: RED9tests failed before action/service existed; focusedGREEN9tests104assertions PASS21.86s; strengthened missing-type test with opposite document available; finalfullsuite551tests3387assertions PASS382.71s without skipped tests/warnings; Pint2newPHPfiles PASS; architecture/security/query review and gitdiffcheck PASS. Isolated browser redirects to CAPTCHA login, so no authenticated browser-action verification is claimed; Filament/Livewire components, real PDF generation/parser/ZIP contents, per-client authorization, deleted documents, temporary cleanup and render-failure cleanup are verified using isolated users/database/local storage. No frontend/package changes, user database mutation, deployment or graph-agent test rerun.",
+  "browser_limit": "Isolated admin URL redirects to CAPTCHA login; authenticated browser actions were not bypassed or claimed verified. Filament/Livewire component actions are tested in isolated test data.",
+  "semantic_token_usage": "Host counters unavailable; unknown, not zero.",
+  "external_model_api_calls": 0,
+  "manifest_policy": "Only processed scope rows stamped; every other manifest entry retained. No cache pruning or reclustering.",
+  "prior_audits_policy": "All previous audit sidecars and graph metadata retained unchanged.",
+  "manifest_files": 335
+}

@@ -90,10 +90,10 @@
     "semantic_hash": ""
   },
   "Filament/Layanankkprl/Resources/Clients/Tables/ClientsTable.php": {
-    "mtime": 1789803228.590697,
-    "seen": 1791255915.7770271,
-    "ast_hash": "5ff7e1f737cbd7ed92c1d5d5cd3bb286",
-    "semantic_hash": ""
+    "mtime": 1792108551.5203042,
+    "seen": 1792109523.9202652,
+    "ast_hash": "1da8f3f10a0fb859c9a32bdd4c13ace2",
+    "semantic_hash": "1da8f3f10a0fb859c9a32bdd4c13ace2"
   },
   "Filament/Layanankkprl/Resources/Clients/Widgets/ClientStatsOverview.php": {
     "mtime": 1789803682.5526378,
@@ -2002,5 +2002,11 @@
     "seen": 1791255915.777248,
     "ast_hash": "3dc92c7758a37f85b25fd58ba0914373",
     "semantic_hash": ""
+  },
+  "Services/ClientDocumentArchiveService.php": {
+    "mtime": 1792108657.4584734,
+    "seen": 1792109523.9233935,
+    "ast_hash": "5071bd3ea48a903b463f885d1fc4f9da",
+    "semantic_hash": "5071bd3ea48a903b463f885d1fc4f9da"
   }
 }
